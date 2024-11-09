@@ -2,33 +2,32 @@ using UnityEngine;
 
 public class MarchingCubesController : MonoBehaviour
 {
-    private int gridResolution;
-    private float sphereRadius;
     private MarchingCubesModel model;
     private MarchingCubesMeshData meshData;
     private MarchingCubesView view;
 
-    public void Initialize(int resolution, float radius, MarchingCubesView viewComponent)
-    {
-        gridResolution = resolution;
-        sphereRadius = radius;
-        view = viewComponent;
+    public float sphereRadius = 5;
 
-        // Step 1: Initialize the model
-        model = new MarchingCubesModel(gridResolution);
-        model.InitializeData(sphereRadius);
+    // Initialize the controller with the resolution and view reference
+    public void Initialize(int resolution, float sphereRadius, MarchingCubesView viewComponent)
+    {
+        view = viewComponent;
+        model = new MarchingCubesModel(resolution); // Initialize model with resolution
+        model.InitializeSphere(sphereRadius);
+        //model.InitializeCube();
     }
+
 
     public void GenerateAndDisplayMesh()
     {
         meshData = new MarchingCubesMeshData();
+        int resolution = model.Resolution;
 
-        // Step 2: Generate the mesh
-        for (int x = 0; x < gridResolution - 1; x++)
+        for (int x = 0; x < resolution - 1; x++)
         {
-            for (int y = 0; y < gridResolution - 1; y++)
+            for (int y = 0; y < resolution - 1; y++)
             {
-                for (int z = 0; z < gridResolution - 1; z++)
+                for (int z = 0; z < resolution - 1; z++)
                 {
                     float[] cubeWeights = model.GetCubeWeights(x, y, z);
                     MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x, y, z);
@@ -36,7 +35,6 @@ public class MarchingCubesController : MonoBehaviour
             }
         }
 
-        // Step 3: Update the view with generated mesh data
         view.UpdateMesh(meshData);
     }
 }
