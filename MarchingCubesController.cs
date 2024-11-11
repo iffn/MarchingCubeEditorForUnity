@@ -68,34 +68,13 @@ public class MarchingCubesController : MonoBehaviour
                     Vector3 point = new Vector3(x, y, z);
                     float distanceToCenter = Vector3.Distance(point, gridCenter);
 
-                    //voxelData[x, y, z] = distanceToCenter - sphereRadius;
-                    if (distanceToCenter <= radius)
+                    float newValue = distanceToCenter - radius;
+
+                    if (newValue > -0.999)
                     {
-                        model.SetVoxel(x, y, z, radius - distanceToCenter); // Use signed distance
+                        model.SetVoxel(x, y, z, newValue);
                     }
 
-                }
-            }
-        }
-        GenerateAndDisplayMesh(); // Update the mesh after modification
-    }
-
-    public void AddSphere1(Vector3 center, float radius)
-    {
-        int resolution = model.Resolution;
-        for (int x = 0; x < resolution; x++)
-        {
-            for (int y = 0; y < resolution; y++)
-            {
-                for (int z = 0; z < resolution; z++)
-                {
-                    Vector3 point = new Vector3(x, y, z);
-                    float distanceToCenter = Vector3.Distance(point, center);
-
-                    if (distanceToCenter <= radius)
-                    {
-                        model.SetVoxel(x, y, z, radius - distanceToCenter); // Use signed distance
-                    }
                 }
             }
         }
