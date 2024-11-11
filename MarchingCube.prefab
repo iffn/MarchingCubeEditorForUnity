@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3367296384401004151}
   - component: {fileID: 4352602387334514188}
   m_Layer: 0
-  m_Name: View
+  m_Name: MarchingCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

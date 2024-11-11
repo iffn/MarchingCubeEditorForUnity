@@ -6,7 +6,7 @@ public class MarchingCubesView : MonoBehaviour
 {
     private MeshFilter meshFilter;
 
-    private void Awake()
+    public void Initialize()
     {
         meshFilter = GetComponent<MeshFilter>();
         meshFilter.mesh = new Mesh();
@@ -14,7 +14,7 @@ public class MarchingCubesView : MonoBehaviour
 
     public void UpdateMesh(MarchingCubesMeshData meshData)
     {
-        Mesh mesh = meshFilter.mesh;
+        Mesh mesh = meshFilter.sharedMesh;
         mesh.Clear();
 
         mesh.SetVertices(meshData.vertices);

@@ -13,18 +13,14 @@ public class MarchingCubesInitializer : MonoBehaviour
 
         // Ensure marchingCubesPrefab has a MarchingCubesController and MarchingCubesView attached
         MarchingCubesController controller = marchingCubesObj.GetComponent<MarchingCubesController>();
-        MarchingCubesView view = marchingCubesObj.GetComponent<MarchingCubesView>();
 
-        if (controller == null || view == null)
+        if (controller == null)
         {
             Debug.LogError("MarchingCubesPrefab must have a MarchingCubesController and MarchingCubesView attached.");
             return;
         }
 
         // Step 2: Initialize the controller with parameters
-        controller.Initialize(gridResolution, sphereRadius, view);
-
-        // Step 3: Trigger mesh generation
-        controller.GenerateAndDisplayMesh();
+        controller.Initialize(gridResolution, true);
     }
 }
