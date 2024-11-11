@@ -53,6 +53,27 @@ public class MarchingCubesController : MonoBehaviour
         GenerateAndDisplayMesh(); // Update the mesh after modification
     }
 
+    public void AddShape(EditShape shape)
+    {
+        int resolution = model.Resolution;
+
+        for (int x = 0; x < resolution; x++)
+        {
+            for (int y = 0; y < resolution; y++)
+            {
+                for (int z = 0; z < resolution; z++)
+                {
+                    Vector3 point = new (x, y, z);
+                    float distance = shape.Distance(point);
+
+                    model.AddVoxel(x, y, z, -distance);
+                }
+            }
+        }
+
+        GenerateAndDisplayMesh();
+    }
+
     // Add a sphere by setting voxel values based on distance to a center point
     public void AddSphere(float radius)
     {
@@ -68,13 +89,10 @@ public class MarchingCubesController : MonoBehaviour
                     Vector3 point = new Vector3(x, y, z);
                     float distanceToCenter = Vector3.Distance(point, gridCenter);
 
-                    float newValue = distanceToCenter - radius;
+                    // Positive values for solid (inside) and negative for empty (outside)
+                    float newValue = radius - distanceToCenter; // Positive inside, negative outside
 
-                    if (newValue > -0.999)
-                    {
-                        model.SetVoxel(x, y, z, newValue);
-                    }
-
+                    model.SetVoxel(x, y, z, newValue);
                 }
             }
         }

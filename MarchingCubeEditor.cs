@@ -6,6 +6,7 @@ using UnityEngine;
 public class MarchingCubeEditor : EditorWindow
 {
     MarchingCubesController linkedMarchingCubesController;
+    EditShape selectedShape;
     int gridResolution = 20;
 
     [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
@@ -31,13 +32,26 @@ public class MarchingCubeEditor : EditorWindow
 
         if (GUILayout.Button("Initialize"))
         {
-            linkedMarchingCubesController.Initialize(gridResolution, false);
+            linkedMarchingCubesController.Initialize(gridResolution, true);
         }
 
         if (GUILayout.Button("Add sphere"))
         {
             //linkedMarchingCubesController.AddSphere(gridResolution / 2 * Vector3.one, 5);
             linkedMarchingCubesController.AddSphere(5);
+        }
+
+        selectedShape = EditorGUILayout.ObjectField(
+           selectedShape,
+           typeof(EditShape),
+           true) as EditShape;
+
+        if (selectedShape)
+        {
+            if (GUILayout.Button($"Add {selectedShape.transform.name}"))
+            {
+                linkedMarchingCubesController.AddShape(selectedShape);
+            }
         }
     }
 

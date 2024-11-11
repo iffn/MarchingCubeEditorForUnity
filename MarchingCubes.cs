@@ -338,8 +338,8 @@ public static class MarchingCubes
         // Use triangle table to add triangles using the calculated vertices
         for (int i = 0; triTable[cubeIndex, i] != -1; i += 3)
         {
-            int a0 = triTable[cubeIndex, i];
-            int a1 = triTable[cubeIndex, i + 1];
+            int a1 = triTable[cubeIndex, i];
+            int a0 = triTable[cubeIndex, i + 1];
             int a2 = triTable[cubeIndex, i + 2];
 
             // Add triangle by referencing vertex indices in meshData

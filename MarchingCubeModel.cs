@@ -23,6 +23,14 @@ public class MarchingCubesModel
         }
     }
 
+    public void AddVoxel(int x, int y, int z, float value)
+    {
+        if (x >= 0 && x < resolution && y >= 0 && y < resolution && z >= 0 && z < resolution)
+        {
+            voxelData[x, y, z] = Mathf.Clamp(voxelData[x, y, z] + value, voxelData[x, y, z], 1f);
+        }
+    }
+
     public float[] GetCubeWeights(int x, int y, int z)
     {
         float[] cubeWeights = new float[8];
