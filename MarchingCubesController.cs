@@ -74,6 +74,27 @@ public class MarchingCubesController : MonoBehaviour
         GenerateAndDisplayMesh();
     }
 
+    public void SubtractShape(EditShape shape)
+    {
+        int resolution = model.Resolution;
+
+        for (int x = 0; x < resolution; x++)
+        {
+            for (int y = 0; y < resolution; y++)
+            {
+                for (int z = 0; z < resolution; z++)
+                {
+                    Vector3 point = new(x, y, z);
+                    float distance = shape.Distance(point);
+
+                    model.SubtractVoxel(x, y, z, distance);
+                }
+            }
+        }
+
+        GenerateAndDisplayMesh();
+    }
+
     // Add a sphere by setting voxel values based on distance to a center point
     public void AddSphere(float radius)
     {
