@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class SphereEditShape : EditShape
+namespace iffnsStuff.MarchingCubeEditor.EditTools
 {
-    public override float Distance(Vector3 point)
+    public class SphereEditShape : EditShape
     {
-        float radius = Scale.x * 0.5f; // Assume uniform scale for radius
-        return Vector3.Distance(point, Position) - radius;
+        public override float Distance(Vector3 point)
+        {
+            float radius = Scale.x * 0.5f; // Assume uniform scale for radius
+            return Vector3.Distance(point, Position) - radius;
+        }
     }
 }

@@ -1,5 +1,6 @@
 # if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
+using iffnsStuff.MarchingCubeEditor.EditTools;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
