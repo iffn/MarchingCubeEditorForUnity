@@ -1,58 +1,62 @@
 # if UNITY_EDITOR
+using iffnsStuff.MarchingCubeEditor.Core;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
-public class MarchingCubeEditor : EditorWindow
+namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 {
-    MarchingCubesController linkedMarchingCubesController;
-    EditShape selectedShape;
-    int gridResolution = 20;
-
-    [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
-    public static void ShowWindow()
+    public class MarchingCubeEditor : EditorWindow
     {
-        EditorWindow.GetWindow(typeof(MarchingCubeEditor));
-    }
+        MarchingCubesController linkedMarchingCubesController;
+        EditShape selectedShape;
+        int gridResolution = 20;
 
-    void OnGUI()
-    {
-        linkedMarchingCubesController = EditorGUILayout.ObjectField(
-           linkedMarchingCubesController,
-           typeof(MarchingCubesController),
-           true) as MarchingCubesController;
-
-        if (linkedMarchingCubesController == null)
+        [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
+        public static void ShowWindow()
         {
-            EditorGUILayout.HelpBox("Add a Marching cube prefab to your scene and link it to this scrip", MessageType.Warning); //ToDo: Check if in scene. ToDo: Auto detect?
-            return;
+            GetWindow(typeof(MarchingCubeEditor));
         }
 
-        gridResolution = EditorGUILayout.IntField("Grid Resolution", gridResolution);
-
-        if (GUILayout.Button("Initialize"))
+        void OnGUI()
         {
-            linkedMarchingCubesController.Initialize(gridResolution, true);
-        }
+            linkedMarchingCubesController = EditorGUILayout.ObjectField(
+               linkedMarchingCubesController,
+               typeof(MarchingCubesController),
+               true) as MarchingCubesController;
 
-        selectedShape = EditorGUILayout.ObjectField(
-           selectedShape,
-           typeof(EditShape),
-           true) as EditShape;
-
-        if (selectedShape)
-        {
-            if (GUILayout.Button($"Add {selectedShape.transform.name}"))
+            if (linkedMarchingCubesController == null)
             {
-                linkedMarchingCubesController.AddShape(selectedShape);
+                EditorGUILayout.HelpBox("Add a Marching cube prefab to your scene and link it to this scrip", MessageType.Warning); //ToDo: Check if in scene. ToDo: Auto detect?
+                return;
             }
 
-            if (GUILayout.Button($"Subtract {selectedShape.transform.name}"))
+            gridResolution = EditorGUILayout.IntField("Grid Resolution", gridResolution);
+
+            if (GUILayout.Button("Initialize"))
             {
-                linkedMarchingCubesController.SubtractShape(selectedShape);
+                linkedMarchingCubesController.Initialize(gridResolution, true);
+            }
+
+            selectedShape = EditorGUILayout.ObjectField(
+               selectedShape,
+               typeof(EditShape),
+               true) as EditShape;
+
+            if (selectedShape)
+            {
+                if (GUILayout.Button($"Add {selectedShape.transform.name}"))
+                {
+                    linkedMarchingCubesController.AddShape(selectedShape);
+                }
+
+                if (GUILayout.Button($"Subtract {selectedShape.transform.name}"))
+                {
+                    linkedMarchingCubesController.SubtractShape(selectedShape);
+                }
             }
         }
-    }
 
+    }
 }
 #endif
