@@ -5,7 +5,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 {
     public class BoxEditShape : EditShape
     {
-        public override float Distance(Vector3 point)
+        public override float DistanceOutsideIsPositive(Vector3 point)
         {
             // Step 1: Translate point into box's local space by applying the inverse of position and rotation
             Vector3 localPoint = Quaternion.Inverse(transform.rotation) * (point - Position);

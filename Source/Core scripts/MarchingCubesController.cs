@@ -67,9 +67,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     for (int z = 0; z < resolution; z++)
                     {
                         Vector3 point = new(x, y, z);
-                        float distance = shape.Distance(point);
+                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
 
-                        model.AddVoxel(x, y, z, -distance);
+                        model.AddVoxel(x, y, z, -distanceOutsideIsPositive);
                     }
                 }
             }
@@ -88,9 +88,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     for (int z = 0; z < resolution; z++)
                     {
                         Vector3 point = new(x, y, z);
-                        float distance = shape.Distance(point);
+                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
 
-                        model.SubtractVoxel(x, y, z, distance);
+                        model.SubtractVoxel(x, y, z, distanceOutsideIsPositive);
                     }
                 }
             }
