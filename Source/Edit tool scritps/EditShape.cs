@@ -8,5 +8,18 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
         public Vector3 Position => transform.position;
         public Vector3 Scale => transform.localScale;
+
+        protected static Vector3 TransformToLocalSpace(Vector3 point, Transform transform)
+        {
+            // Step 1: Translate to local space by applying inverse position and rotation
+            Vector3 localPoint = Quaternion.Inverse(transform.rotation) * (point - transform.position);
+
+            // Step 2: Normalize by scale to treat the shape as a unit object
+            localPoint.x /= transform.localScale.x * 0.5f;
+            localPoint.y /= transform.localScale.y * 0.5f;
+            localPoint.z /= transform.localScale.z * 0.5f;
+
+            return localPoint;
+        }
     }
 }

@@ -7,8 +7,11 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
     {
         public override float DistanceOutsideIsPositive(Vector3 point)
         {
-            float radius = Scale.x * 0.5f; // Assume uniform scale for radius
-            return Vector3.Distance(point, Position) - radius;
+            Vector3 localPoint = TransformToLocalSpace(point, transform); // Step 1: Transform to local space
+            float localDistance = localPoint.magnitude - 1f;               // Step 2: Calculate distance to unit sphere
+
+            float averageScale = (transform.localScale.x + transform.localScale.y + transform.localScale.z) / 3f;
+            return localDistance * averageScale;
         }
     }
 }
