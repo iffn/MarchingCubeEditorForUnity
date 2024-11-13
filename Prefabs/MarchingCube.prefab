@@ -109,3 +109,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 606f61281f6d51c4891defabe3fd7151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showGridOutline: 1
