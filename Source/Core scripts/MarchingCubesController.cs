@@ -22,7 +22,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (setEmpty) SetEmptyGrid();
         }
 
-        public void GenerateAndDisplayMesh()
+        public void GenerateAndDisplayMesh(bool updateCollider)
         {
             meshData = new MarchingCubesMeshData();
             int resolution = model.Resolution;
@@ -39,7 +39,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            view.UpdateMesh(meshData);
+            view.UpdateMesh(meshData, updateCollider);
         }
 
         public void SetEmptyGrid()
@@ -55,10 +55,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     }
                 }
             }
-            GenerateAndDisplayMesh(); // Update the mesh after modification
+            GenerateAndDisplayMesh(false); // Update the mesh after modification
         }
 
-        public void AddShape(EditShape shape)
+        public void AddShape(EditShape shape, bool updateCollider)
         {
             int resolution = model.Resolution;
 
@@ -76,10 +76,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            GenerateAndDisplayMesh();
+            GenerateAndDisplayMesh(updateCollider);
         }
 
-        public void SubtractShape(EditShape shape)
+        public void SubtractShape(EditShape shape, bool updateCollider)
         {
             int resolution = model.Resolution;
 
@@ -97,7 +97,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            GenerateAndDisplayMesh();
+            GenerateAndDisplayMesh(updateCollider);
         }
 
         private void OnDrawGizmos()
