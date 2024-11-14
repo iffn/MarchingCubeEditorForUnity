@@ -1,4 +1,5 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using UnityEditor;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
@@ -126,6 +127,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     }
                 }
             }
+
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(gridData);
+            AssetDatabase.SaveAssets();
+#endif
         }
 
         public void LoadGridData(ScriptableObjectSaveData gridData, bool updateColliders)
