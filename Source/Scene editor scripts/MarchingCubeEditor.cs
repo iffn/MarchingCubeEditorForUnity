@@ -10,6 +10,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
     public class MarchingCubeEditor : EditorWindow
     {
         MarchingCubesController linkedMarchingCubesController;
+        ScriptableObjectSaveData linkedScriptableObjectSaveData;
         EditShape selectedShape;
         int gridResolution = 20;
         bool addingShape = false;
@@ -38,6 +39,24 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (GUILayout.Button("Initialize"))
             {
                 linkedMarchingCubesController.Initialize(gridResolution, true);
+            }
+
+            linkedScriptableObjectSaveData = EditorGUILayout.ObjectField(
+               linkedScriptableObjectSaveData,
+               typeof(ScriptableObjectSaveData),
+               true) as ScriptableObjectSaveData;
+
+            if(linkedScriptableObjectSaveData != null)
+            {
+                if (GUILayout.Button($"Save data"))
+                {
+                    linkedMarchingCubesController.SaveGridData(linkedScriptableObjectSaveData);
+                }
+
+                if (GUILayout.Button($"Load data"))
+                {
+                    linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, false);
+                }
             }
 
             if (!linkedMarchingCubesController.IsInitialized) return;

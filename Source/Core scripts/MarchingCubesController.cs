@@ -109,6 +109,44 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             GenerateAndDisplayMesh(updateCollider);
         }
 
+        public void SaveGridData(ScriptableObjectSaveData gridData)
+        {
+            if (gridData != null)
+            {
+                gridData.Initialize(model.Resolution); // Ensure data is initialized
+
+                for (int x = 0; x < model.Resolution; x++)
+                {
+                    for (int y = 0; y < model.Resolution; y++)
+                    {
+                        for (int z = 0; z < model.Resolution; z++)
+                        {
+                            gridData.SetValue(x, y, z, model.GetVoxel(x, y, z));
+                        }
+                    }
+                }
+            }
+        }
+
+        public void LoadGridData(ScriptableObjectSaveData gridData, bool updateColliders)
+        {
+            if (gridData != null)
+            {
+                model = new MarchingCubesModel(gridData.resolution); // Initialize model with grid data
+                for (int x = 0; x < gridData.resolution; x++)
+                {
+                    for (int y = 0; y < gridData.resolution; y++)
+                    {
+                        for (int z = 0; z < gridData.resolution; z++)
+                        {
+                            model.SetVoxel(x, y, z, gridData.GetValue(x, y, z));
+                        }
+                    }
+                }
+                GenerateAndDisplayMesh(updateColliders); // Refresh mesh
+            }
+        }
+
         private void OnDrawGizmos()
         {
             if (!showGridOutline) return;

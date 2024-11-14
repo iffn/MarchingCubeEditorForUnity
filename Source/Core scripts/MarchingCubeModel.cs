@@ -40,6 +40,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        public float GetVoxel(int x, int y, int z)
+        {
+            return voxelData[x, y, z];
+        }
+
         public float[] GetCubeWeights(int x, int y, int z)
         {
             float[] cubeWeights = new float[8];
