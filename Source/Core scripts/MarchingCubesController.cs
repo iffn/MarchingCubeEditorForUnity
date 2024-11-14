@@ -22,6 +22,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (setEmpty) SetEmptyGrid();
         }
 
+        public bool IsInitialized
+        {
+            get
+            {
+                if(model == null) return false;
+                return true;
+            }
+        }
+
         public void GenerateAndDisplayMesh(bool updateCollider)
         {
             meshData = new MarchingCubesMeshData();

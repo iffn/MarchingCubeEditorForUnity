@@ -40,6 +40,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 linkedMarchingCubesController.Initialize(gridResolution, true);
             }
 
+            if (!linkedMarchingCubesController.IsInitialized) return;
+
             selectedShape = EditorGUILayout.ObjectField(
                selectedShape,
                typeof(EditShape),
