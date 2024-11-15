@@ -91,6 +91,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (addingShape)
             {
                 SceneView.duringSceneGui += OnSceneGUI; // Subscribe to SceneView GUI event
+
+                EditorGUILayout.HelpBox("Controls:\n" +
+                    "Click to add\n" +
+                    "Ctrl Click to subtract\n" +
+                    "Shift Scroll to scale", MessageType.None);
             }
             else
             {
@@ -113,9 +118,20 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     selectedShape.transform.position = hit.point;
                     selectedShape.gameObject.SetActive(true);
 
+                    if (e.shift && e.type == EventType.ScrollWheel)
+                    {
+                        float scaleDelta = e.delta.x * -0.03f; // Scale factor; reverse direction if needed
+
+                        selectedShape.transform.localScale *= (scaleDelta + 1);
+
+                        e.Use(); // Mark event as handled
+                    }
+
                     if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
                     {
-                        linkedMarchingCubesController.AddShape(selectedShape, true);
+                        if(e.control) linkedMarchingCubesController.SubtractShape(selectedShape, true);
+                        else linkedMarchingCubesController.AddShape(selectedShape, true);
+
                         e.Use();
                     }
                 }
