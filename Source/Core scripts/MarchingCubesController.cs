@@ -185,27 +185,23 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private void DrawGridOutline()
         {
             // Define the grid size and cell size
-            Vector3 cellSize = Vector3.one;  // Adjust if each voxel cell has different dimensions
-
-            // Calculate the offset for half the grid size along each axis. Since grid is zero-indexed, subtract 1 to get the bounds
-            Vector3 halfGridSize = new Vector3((model.ResolutionX - 1) * cellSize.x * 0.5f,
-                                               (model.ResolutionY - 1) * cellSize.y * 0.5f,
-                                               (model.ResolutionZ - 1) * cellSize.z * 0.5f);
-
+            float cellSize = 1;
 
             // Calculate the starting position of the grid (bottom-left-front corner)
             Vector3 gridOrigin = transform.position;
 
+            Vector3 outlineSize = cellSize * new Vector3(model.ResolutionX - 1, model.ResolutionY - 1, model.ResolutionZ - 1);
+
             // Calculate all eight corners of the grid box
             Vector3[] corners = new Vector3[8];
             corners[0] = gridOrigin;
-            corners[1] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, 0, 0);
-            corners[2] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, model.ResolutionY * cellSize.y, 0);
-            corners[3] = gridOrigin + new Vector3(0, model.ResolutionY * cellSize.y, 0);
-            corners[4] = gridOrigin + new Vector3(0, 0, model.ResolutionZ * cellSize.z);
-            corners[5] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, 0, model.ResolutionZ * cellSize.z);
-            corners[6] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, model.ResolutionY * cellSize.y, model.ResolutionZ * cellSize.z);
-            corners[7] = gridOrigin + new Vector3(0, model.ResolutionY * cellSize.y, model.ResolutionZ * cellSize.z);
+            corners[1] = gridOrigin + new Vector3(outlineSize.x, 0, 0);
+            corners[2] = gridOrigin + new Vector3(outlineSize.x, outlineSize.y, 0);
+            corners[3] = gridOrigin + new Vector3(0, outlineSize.y, 0);
+            corners[4] = gridOrigin + new Vector3(0, 0, outlineSize.z);
+            corners[5] = gridOrigin + new Vector3(outlineSize.x, 0, outlineSize.z);
+            corners[6] = gridOrigin + new Vector3(outlineSize.x, outlineSize.y, outlineSize.z);
+            corners[7] = gridOrigin + new Vector3(0, outlineSize.y, outlineSize.z);
 
             // Draw edges of the grid box
             Gizmos.DrawLine(corners[0], corners[1]); // Bottom front edge
