@@ -12,7 +12,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         MarchingCubesController linkedMarchingCubesController;
         ScriptableObjectSaveData linkedScriptableObjectSaveData;
         EditShape selectedShape;
-        int gridResolution = 20;
+        int gridResolutionX = 20;
+        int gridResolutionY = 20;
+        int gridResolutionZ = 20;
         bool addingShape = false;
         Vector3 originalShapePosition;
 
@@ -37,9 +39,18 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 return;
             }
 
-            gridResolution = EditorGUILayout.IntField("Grid Resolution", gridResolution);
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("X");
+            GUILayout.Label("Y");
+            GUILayout.Label("Z");
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
+            gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
+            gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
+            EditorGUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Initialize")) linkedMarchingCubesController.Initialize(gridResolution, gridResolution, gridResolution, true);
+            if (GUILayout.Button("Initialize")) linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
 
 
             GUILayout.Label("Save data:");
@@ -52,7 +63,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveGridData(linkedScriptableObjectSaveData);
-                if (GUILayout.Button($"Load data")) linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, addingShape);
+                if (GUILayout.Button($"Load data")) LoadData();
                 EditorGUILayout.EndHorizontal();
             }
 
@@ -101,6 +112,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 SceneView.duringSceneGui -= OnSceneGUI; // Unsubscribe when not in use
             }
+        }
+
+        void LoadData()
+        {
+            linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, addingShape);
+            gridResolutionX = linkedMarchingCubesController.GridResolutionX;
+            gridResolutionY = linkedMarchingCubesController.GridResolutionY;
+            gridResolutionZ = linkedMarchingCubesController.GridResolutionZ;
         }
 
         private void OnSceneGUI(SceneView sceneView)

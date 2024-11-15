@@ -7,11 +7,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     [RequireComponent(typeof(MarchingCubesView))]
     public class MarchingCubesController : MonoBehaviour
     {
-        private MarchingCubesModel model;
-        private MarchingCubesMeshData meshData;
-        private MarchingCubesView view;
+        MarchingCubesModel model;
+        MarchingCubesMeshData meshData;
+        MarchingCubesView view;
 
         public bool showGridOutline = false; // Toggle controlled by the editor tool
+
+        public int GridResolutionX => model.VoxelData.GetLength(0);
+        public int GridResolutionY => model.VoxelData.GetLength(1);
+        public int GridResolutionZ => model.VoxelData.GetLength(2);
 
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
