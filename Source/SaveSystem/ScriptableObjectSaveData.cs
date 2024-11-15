@@ -9,6 +9,8 @@ public class ScriptableObjectSaveData : ScriptableObject
     public int resolutionZ;
     [HideInInspector] public string packedData; // Base64-encoded grid data
 
+    //ToDo: Most data points are likely 1 or -1. So optimizing for those cases might help a lot.
+
     /// <summary>
     /// Saves the entire 3D voxel grid as a Base64-encoded string.
     /// </summary>
