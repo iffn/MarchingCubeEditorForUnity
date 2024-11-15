@@ -91,11 +91,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void AddShapeWithMaxHeight(EditShape shape, float maxHeight, bool updateCollider)
         {
-            maxHeight = Mathf.Min(maxHeight, model.ResolutionY);
+            int maxHeightInt = Mathf.RoundToInt(Mathf.Min(maxHeight, model.ResolutionY));
 
             for (int x = 0; x < model.ResolutionX; x++)
             {
-                for (int y = 0; y < maxHeight; y++)
+                for (int y = 0; y < maxHeightInt; y++)
                 {
                     for (int z = 0; z < model.ResolutionZ; z++)
                     {
@@ -103,6 +103,20 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                         float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
 
                         model.AddVoxel(x, y, z, -distanceOutsideIsPositive);
+                    }
+                }
+            }
+
+            for (int x = 0; x < model.ResolutionX; x++)
+            {
+                for (int y = maxHeightInt + 1; y < model.ResolutionY; y++)
+                {
+                    for (int z = 0; z < model.ResolutionZ; z++)
+                    {
+                        Vector3 point = new(x, y, z);
+                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
+
+                        model.SubtractVoxel(x, y, z, distanceOutsideIsPositive);
                     }
                 }
             }
