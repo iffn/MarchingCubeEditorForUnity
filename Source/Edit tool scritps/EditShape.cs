@@ -9,6 +9,16 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         public Vector3 Position => transform.position;
         public Vector3 Scale => transform.localScale;
 
+        [SerializeField] Material linkedMaterial;
+
+        public Color Color
+        {
+            set
+            {
+                linkedMaterial.SetColor("_Color", value);
+            }
+        }
+
         protected static Vector3 TransformToLocalSpace(Vector3 point, Transform transform)
         {
             // Step 1: Translate to local space by applying inverse position and rotation

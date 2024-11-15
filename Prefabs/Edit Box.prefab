@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 307329680709609599}
   - component: {fileID: 8552143497458619533}
   - component: {fileID: 6926663348299143016}
-  - component: {fileID: 2113744172256600141}
   m_Layer: 0
   m_Name: Edit Box
   m_TagString: Untagged
@@ -97,15 +96,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13bd73be914f1c848ad46f7848f89e35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2113744172256600141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 627088662335013851}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13bd73be914f1c848ad46f7848f89e35, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  linkedMaterial: {fileID: 2100000, guid: b38f22ce452c8c94e8aa461512f97e25, type: 2}

@@ -20,6 +20,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool invertNormals;
         Vector3 originalShapePosition;
 
+        Color additionColor = new Color(1f, 0.5f, 0f, 0.5f);
+        Color subtractionColor = new Color(1f, 0f, 0f, 0.5f);
+
         [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
         public static void ShowWindow()
         {
@@ -148,6 +151,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     Vector3 placementPosition = hit.point;
                     selectedShape.transform.position = hit.point;
                     selectedShape.gameObject.SetActive(true);
+                    selectedShape.Color = e.control ? subtractionColor : additionColor;
 
                     if (e.shift && e.type == EventType.ScrollWheel)
                     {
