@@ -14,6 +14,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         EditShape selectedShape;
         int gridResolution = 20;
         bool addingShape = false;
+        Vector3 originalShapePosition;
 
         [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
         public static void ShowWindow()
@@ -38,10 +39,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             gridResolution = EditorGUILayout.IntField("Grid Resolution", gridResolution);
 
-            if (GUILayout.Button("Initialize"))
-            {
-                linkedMarchingCubesController.Initialize(gridResolution, gridResolution, gridResolution, true);
-            }
+            if (GUILayout.Button("Initialize")) linkedMarchingCubesController.Initialize(gridResolution, gridResolution, gridResolution, true);
 
 
             GUILayout.Label("Save data:");
@@ -54,7 +52,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveGridData(linkedScriptableObjectSaveData);
-                if (GUILayout.Button($"Load data")) linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, false);
+                if (GUILayout.Button($"Load data")) linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, addingShape);
                 EditorGUILayout.EndHorizontal();
             }
 
@@ -76,9 +74,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
 
-                if (newAddingShape && !addingShape)
+                if (newAddingShape && !addingShape) //Toggle on
                 {
                     linkedMarchingCubesController.GenerateAndDisplayMesh(true);
+                    originalShapePosition = selectedShape.transform.position;
+                }
+                else if(!newAddingShape && addingShape) //Toggle off
+                {
+                    selectedShape.transform.position = originalShapePosition;
+                    selectedShape.gameObject.SetActive(true);
                 }
 
                 addingShape = newAddingShape;
@@ -97,20 +101,27 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         private void OnSceneGUI(SceneView sceneView)
         {
             Event e = Event.current;
-            if (e.type == EventType.MouseDown && e.button == 0 && addingShape && selectedShape) // Left-click event
+
+            if(addingShape && selectedShape)
             {
                 Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
-                
+
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
                     // Convert world hit point to grid or object coordinates, then add shape
                     Vector3 placementPosition = hit.point;
-                    Vector3 prevPosition = selectedShape.transform.position;
                     selectedShape.transform.position = hit.point;
-                    linkedMarchingCubesController.AddShape(selectedShape, true);
-                    selectedShape.transform.position = prevPosition;
+                    selectedShape.gameObject.SetActive(true);
 
-                    e.Use(); // Mark event as used
+                    if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
+                    {
+                        linkedMarchingCubesController.AddShape(selectedShape, true);
+                        e.Use();
+                    }
+                }
+                else
+                {
+                    selectedShape.gameObject.SetActive(false);
                 }
             }
         }

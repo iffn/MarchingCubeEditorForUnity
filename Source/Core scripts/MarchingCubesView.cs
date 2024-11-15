@@ -30,6 +30,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             mesh.SetTriangles(triangles, 0);
             mesh.RecalculateNormals();
 
+            meshCollider.enabled = updateCollider;
+
             // Update the mesh collider if requested
             if (updateCollider)
             {
