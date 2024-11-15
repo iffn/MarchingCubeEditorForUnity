@@ -12,6 +12,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         MarchingCubesView view;
 
         public bool showGridOutline = false; // Toggle controlled by the editor tool
+        public bool invertedNormals = false;
 
         public int GridResolutionX => model.VoxelData.GetLength(0);
         public int GridResolutionY => model.VoxelData.GetLength(1);
@@ -47,7 +48,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     for (int z = 0; z < model.ResolutionZ - 1; z++)
                     {
                         float[] cubeWeights = model.GetCubeWeights(x, y, z);
-                        MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x, y, z);
+                        MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x, y, z, invertedNormals);
                     }
                 }
             }

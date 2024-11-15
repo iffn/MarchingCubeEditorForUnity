@@ -17,6 +17,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionZ = 20;
         bool addingShape = false;
         bool limitMaxHeight;
+        bool invertNormals;
         Vector3 originalShapePosition;
 
         [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
@@ -53,6 +54,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if (GUILayout.Button("Initialize")) linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
 
+            bool newInvertedNormals = EditorGUILayout.Toggle("Inverted normals", invertNormals);
+
+            if(newInvertedNormals != invertNormals)
+            {
+                linkedMarchingCubesController.invertedNormals = newInvertedNormals;
+                linkedMarchingCubesController.GenerateAndDisplayMesh(addingShape);
+
+                invertNormals = newInvertedNormals;
+            }
 
             GUILayout.Label("Save data:");
             linkedScriptableObjectSaveData = EditorGUILayout.ObjectField(

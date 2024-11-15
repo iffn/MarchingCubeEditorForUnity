@@ -304,7 +304,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
         }; // Predefined triangle table for marching cubes
 
-        public static void GenerateCubeMesh(MarchingCubesMeshData meshData, float[] cubeWeights, int x, int y, int z)
+        public static void GenerateCubeMesh(MarchingCubesMeshData meshData, float[] cubeWeights, int x, int y, int z, bool invertNormals = false)
         {
             int cubeIndex = 0;
             Vector3[] cornerPositions = GetCornerPositions(x, y, z);
@@ -338,15 +338,32 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
 
             // Use triangle table to add triangles using the calculated vertices
-            for (int i = 0; triTable[cubeIndex, i] != -1; i += 3)
+            if (invertNormals)
             {
-                int a1 = triTable[cubeIndex, i];
-                int a0 = triTable[cubeIndex, i + 1];
-                int a2 = triTable[cubeIndex, i + 2];
+                for (int i = 0; triTable[cubeIndex, i] != -1; i += 3)
+                {
+                    int a0 = triTable[cubeIndex, i];
+                    int a1 = triTable[cubeIndex, i + 1];
+                    int a2 = triTable[cubeIndex, i + 2];
 
-                // Add triangle by referencing vertex indices in meshData
-                meshData.AddTriangle(edgeVertexIndices[a0], edgeVertexIndices[a1], edgeVertexIndices[a2]);
+                    // Add triangle by referencing vertex indices in meshData
+                    meshData.AddTriangle(edgeVertexIndices[a0], edgeVertexIndices[a1], edgeVertexIndices[a2]);
+                }
             }
+            else
+            {
+                for (int i = 0; triTable[cubeIndex, i] != -1; i += 3)
+                {
+                    int a1 = triTable[cubeIndex, i];
+                    int a0 = triTable[cubeIndex, i + 1];
+                    int a2 = triTable[cubeIndex, i + 2];
+
+                    // Add triangle by referencing vertex indices in meshData
+                    meshData.AddTriangle(edgeVertexIndices[a0], edgeVertexIndices[a1], edgeVertexIndices[a2]);
+                }
+            }
+
+            
         }
 
 
