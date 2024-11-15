@@ -16,6 +16,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionY = 20;
         int gridResolutionZ = 20;
         bool addingShape = false;
+        bool limitMaxHeight;
         Vector3 originalShapePosition;
 
         [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
@@ -84,6 +85,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.EndHorizontal();
 
                 bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
+                limitMaxHeight = EditorGUILayout.Toggle("Limit max height", limitMaxHeight);
 
                 if (newAddingShape && !addingShape) //Toggle on
                 {
@@ -149,7 +151,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
                     {
                         if(e.control) linkedMarchingCubesController.SubtractShape(selectedShape, true);
-                        else linkedMarchingCubesController.AddShape(selectedShape, true);
+                        else
+                        {
+                            if (limitMaxHeight) linkedMarchingCubesController.AddShapeWithMaxHeight(selectedShape, hit.point.y, true);
+                            else linkedMarchingCubesController.AddShape(selectedShape, true);
+                        }
 
                         e.Use();
                     }

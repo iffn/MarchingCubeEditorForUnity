@@ -89,6 +89,27 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             GenerateAndDisplayMesh(updateCollider);
         }
 
+        public void AddShapeWithMaxHeight(EditShape shape, float maxHeight, bool updateCollider)
+        {
+            maxHeight = Mathf.Min(maxHeight, model.ResolutionY);
+
+            for (int x = 0; x < model.ResolutionX; x++)
+            {
+                for (int y = 0; y < maxHeight; y++)
+                {
+                    for (int z = 0; z < model.ResolutionZ; z++)
+                    {
+                        Vector3 point = new(x, y, z);
+                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
+
+                        model.AddVoxel(x, y, z, -distanceOutsideIsPositive);
+                    }
+                }
+            }
+
+            GenerateAndDisplayMesh(updateCollider);
+        }
+
         public void SubtractShape(EditShape shape, bool updateCollider)
         {
             for (int x = 0; x < model.ResolutionX; x++)
