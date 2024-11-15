@@ -61,10 +61,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if(newInvertedNormals != invertNormals)
             {
-                linkedMarchingCubesController.invertedNormals = newInvertedNormals;
-                linkedMarchingCubesController.GenerateAndDisplayMesh(addingShape);
-
-                invertNormals = newInvertedNormals;
+                InvertNormals(newInvertedNormals);
             }
 
             GUILayout.Label("Save data:");
@@ -129,6 +126,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
+        void InvertNormals(bool value)
+        {
+            linkedMarchingCubesController.invertedNormals = value;
+            linkedMarchingCubesController.GenerateAndDisplayMesh(addingShape);
+
+            invertNormals = value;
+        }
+
         void LoadData()
         {
             linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, addingShape);
@@ -137,11 +142,20 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             gridResolutionZ = linkedMarchingCubesController.GridResolutionZ;
         }
 
-        private void OnSceneGUI(SceneView sceneView)
+        void OnSceneGUI(SceneView sceneView)
         {
             Event e = Event.current;
 
-            if(addingShape && selectedShape)
+            if (e.type == EventType.KeyUp && e.keyCode == KeyCode.Tab)
+            {
+                InvertNormals(!invertNormals);
+
+                Debug.Log("Invert");
+
+                e.Use();
+            }
+
+            if (addingShape && selectedShape)
             {
                 Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
@@ -173,6 +187,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                         e.Use();
                     }
+
                 }
                 else
                 {
