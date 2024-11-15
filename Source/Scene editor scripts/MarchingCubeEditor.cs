@@ -23,6 +23,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void OnGUI()
         {
+            GUILayout.Label("Scene component:");
+
             linkedMarchingCubesController = EditorGUILayout.ObjectField(
                linkedMarchingCubesController,
                typeof(MarchingCubesController),
@@ -41,6 +43,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 linkedMarchingCubesController.Initialize(gridResolution, gridResolution, gridResolution, true);
             }
 
+
+            GUILayout.Label("Save data:");
             linkedScriptableObjectSaveData = EditorGUILayout.ObjectField(
                linkedScriptableObjectSaveData,
                typeof(ScriptableObjectSaveData),
@@ -48,19 +52,16 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if(linkedScriptableObjectSaveData != null)
             {
-                if (GUILayout.Button($"Save data"))
-                {
-                    linkedMarchingCubesController.SaveGridData(linkedScriptableObjectSaveData);
-                }
-
-                if (GUILayout.Button($"Load data"))
-                {
-                    linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, false);
-                }
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveGridData(linkedScriptableObjectSaveData);
+                if (GUILayout.Button($"Load data")) linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, false);
+                EditorGUILayout.EndHorizontal();
             }
+
 
             if (!linkedMarchingCubesController.IsInitialized) return;
 
+            GUILayout.Label("Editing:");
             selectedShape = EditorGUILayout.ObjectField(
                selectedShape,
                typeof(EditShape),
@@ -68,15 +69,10 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if (selectedShape)
             {
-                if (GUILayout.Button($"Add {selectedShape.transform.name}"))
-                {
-                    linkedMarchingCubesController.AddShape(selectedShape, false);
-                }
-
-                if (GUILayout.Button($"Subtract {selectedShape.transform.name}"))
-                {
-                    linkedMarchingCubesController.SubtractShape(selectedShape, false);
-                }
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.AddShape(selectedShape, false);
+                if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.SubtractShape(selectedShape, false);
+                EditorGUILayout.EndHorizontal();
 
                 bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
 
