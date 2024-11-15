@@ -1,31 +1,64 @@
+using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SO SaveData", menuName = "Marching Cubes/ScriptableObjectSaveData")]
 public class ScriptableObjectSaveData : ScriptableObject
 {
-    public int resolution;
-    public float[] voxelValues; // Flattened 1D array to store voxel values
+    public int resolutionX;
+    public int resolutionY;
+    public int resolutionZ;
+    [HideInInspector] public string packedData; // Base64-encoded grid data
 
-    // Initialize the grid data based on the resolution
-    public void Initialize(int resolution)
+    /// <summary>
+    /// Saves the entire 3D voxel grid as a Base64-encoded string.
+    /// </summary>
+    /// <param name="voxelValues">3D array of voxel values to save.</param>
+    public void SaveData(float[,,] voxelValues)
     {
-        this.resolution = resolution;
-        voxelValues = new float[resolution * resolution * resolution];
+        resolutionX = voxelValues.GetLength(0);
+        resolutionY = voxelValues.GetLength(1);
+        resolutionZ = voxelValues.GetLength(2);
+
+        int totalValues = resolutionX * resolutionY * resolutionZ;
+        byte[] byteArray = new byte[totalValues * 4]; // Each float is 4 bytes
+        int byteIndex = 0;
+
+        foreach (float value in voxelValues)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            Buffer.BlockCopy(bytes, 0, byteArray, byteIndex, 4);
+            byteIndex += 4;
+        }
+
+        packedData = Convert.ToBase64String(byteArray); // Encode as Base64
     }
 
-    // Get and set values with bounds checking
-    public float GetValue(int x, int y, int z)
+    /// <summary>
+    /// Loads the voxel grid from the Base64-encoded string.
+    /// </summary>
+    /// <returns>3D array of voxel values.</returns>
+    public float[,,] LoadData()
     {
-        return voxelValues[GetIndex(x, y, z)];
-    }
+        if (string.IsNullOrEmpty(packedData))
+        {
+            Debug.LogWarning("Packed data is empty. Returning default grid.");
+            return new float[resolutionX, resolutionY, resolutionZ];
+        }
 
-    public void SetValue(int x, int y, int z, float value)
-    {
-        voxelValues[GetIndex(x, y, z)] = value;
-    }
+        int totalValues = resolutionX * resolutionY * resolutionZ;
+        byte[] byteArray = Convert.FromBase64String(packedData);
+        float[,,] voxelValues = new float[resolutionX, resolutionY, resolutionZ];
 
-    private int GetIndex(int x, int y, int z)
-    {
-        return x + resolution * (y + resolution * z);
+        for (int i = 0, byteIndex = 0; i < totalValues; i++)
+        {
+            int x = i % resolutionX;
+            int y = (i / resolutionX) % resolutionY;
+            int z = i / (resolutionX * resolutionY);
+
+            voxelValues[x, y, z] = BitConverter.ToSingle(byteArray, byteIndex);
+            byteIndex += 4;
+        }
+
+        return voxelValues;
     }
 }

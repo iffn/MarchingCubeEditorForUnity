@@ -13,10 +13,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public bool showGridOutline = false; // Toggle controlled by the editor tool
 
-        public void Initialize(int resolution, bool setEmpty)
+        public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
             view = GetComponent<MarchingCubesView>();
-            model = new MarchingCubesModel(resolution);
+            model = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
 
             view.Initialize();
 
@@ -35,13 +35,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void GenerateAndDisplayMesh(bool updateCollider)
         {
             meshData = new MarchingCubesMeshData();
-            int resolution = model.Resolution;
 
-            for (int x = 0; x < resolution - 1; x++)
+            for (int x = 0; x < model.ResolutionX - 1; x++)
             {
-                for (int y = 0; y < resolution - 1; y++)
+                for (int y = 0; y < model.ResolutionY - 1; y++)
                 {
-                    for (int z = 0; z < resolution - 1; z++)
+                    for (int z = 0; z < model.ResolutionZ - 1; z++)
                     {
                         float[] cubeWeights = model.GetCubeWeights(x, y, z);
                         MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x, y, z);
@@ -54,12 +53,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void SetEmptyGrid()
         {
-            int resolution = model.Resolution;
-            for (int x = 0; x < resolution; x++)
+            for (int x = 0; x < model.ResolutionX; x++)
             {
-                for (int y = 0; y < resolution; y++)
+                for (int y = 0; y < model.ResolutionY; y++)
                 {
-                    for (int z = 0; z < resolution; z++)
+                    for (int z = 0; z < model.ResolutionZ; z++)
                     {
                         model.SetVoxel(x, y, z, -1); // Use signed distance
                     }
@@ -70,13 +68,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void AddShape(EditShape shape, bool updateCollider)
         {
-            int resolution = model.Resolution;
-
-            for (int x = 0; x < resolution; x++)
+            for (int x = 0; x < model.ResolutionX; x++)
             {
-                for (int y = 0; y < resolution; y++)
+                for (int y = 0; y < model.ResolutionY; y++)
                 {
-                    for (int z = 0; z < resolution; z++)
+                    for (int z = 0; z < model.ResolutionZ; z++)
                     {
                         Vector3 point = new(x, y, z);
                         float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
@@ -91,13 +87,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void SubtractShape(EditShape shape, bool updateCollider)
         {
-            int resolution = model.Resolution;
-
-            for (int x = 0; x < resolution; x++)
+            for (int x = 0; x < model.ResolutionX; x++)
             {
-                for (int y = 0; y < resolution; y++)
+                for (int y = 0; y < model.ResolutionY; y++)
                 {
-                    for (int z = 0; z < resolution; z++)
+                    for (int z = 0; z < model.ResolutionZ; z++)
                     {
                         Vector3 point = new(x, y, z);
                         float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
@@ -114,18 +108,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             if (gridData != null)
             {
-                gridData.Initialize(model.Resolution); // Ensure data is initialized
-
-                for (int x = 0; x < model.Resolution; x++)
-                {
-                    for (int y = 0; y < model.Resolution; y++)
-                    {
-                        for (int z = 0; z < model.Resolution; z++)
-                        {
-                            gridData.SetValue(x, y, z, model.GetVoxel(x, y, z));
-                        }
-                    }
-                }
+                gridData.SaveData(model.GetVoxelData());
             }
 
 #if UNITY_EDITOR
@@ -138,17 +121,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             if (gridData != null)
             {
-                model = new MarchingCubesModel(gridData.resolution); // Initialize model with grid data
-                for (int x = 0; x < gridData.resolution; x++)
-                {
-                    for (int y = 0; y < gridData.resolution; y++)
-                    {
-                        for (int z = 0; z < gridData.resolution; z++)
-                        {
-                            model.SetVoxel(x, y, z, gridData.GetValue(x, y, z));
-                        }
-                    }
-                }
+                float[,,] saveData = gridData.LoadData();
+
+                model = new MarchingCubesModel(saveData.GetLength(0), saveData.GetLength(1), saveData.GetLength(2)); // Initialize model with grid data
+
+                model.VoxelData = saveData;
+
                 GenerateAndDisplayMesh(updateColliders); // Refresh mesh
             }
         }
@@ -168,13 +146,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private void DrawGridOutline()
         {
             // Define the grid size and cell size
-            float gridSize = model.Resolution - 1; // Since grid is zero-indexed, subtract 1 to get the bounds
             Vector3 cellSize = Vector3.one;  // Adjust if each voxel cell has different dimensions
 
-            // Calculate the offset for half the grid size along each axis
-            Vector3 halfGridSize = new Vector3(gridSize * cellSize.x * 0.5f,
-                                               gridSize * cellSize.y * 0.5f,
-                                               gridSize * cellSize.z * 0.5f);
+            // Calculate the offset for half the grid size along each axis. Since grid is zero-indexed, subtract 1 to get the bounds
+            Vector3 halfGridSize = new Vector3((model.ResolutionX - 1) * cellSize.x * 0.5f,
+                                               (model.ResolutionY - 1) * cellSize.y * 0.5f,
+                                               (model.ResolutionZ - 1) * cellSize.z * 0.5f);
 
 
             // Calculate the starting position of the grid (bottom-left-front corner)
@@ -183,13 +160,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Calculate all eight corners of the grid box
             Vector3[] corners = new Vector3[8];
             corners[0] = gridOrigin;
-            corners[1] = gridOrigin + new Vector3(gridSize * cellSize.x, 0, 0);
-            corners[2] = gridOrigin + new Vector3(gridSize * cellSize.x, gridSize * cellSize.y, 0);
-            corners[3] = gridOrigin + new Vector3(0, gridSize * cellSize.y, 0);
-            corners[4] = gridOrigin + new Vector3(0, 0, gridSize * cellSize.z);
-            corners[5] = gridOrigin + new Vector3(gridSize * cellSize.x, 0, gridSize * cellSize.z);
-            corners[6] = gridOrigin + new Vector3(gridSize * cellSize.x, gridSize * cellSize.y, gridSize * cellSize.z);
-            corners[7] = gridOrigin + new Vector3(0, gridSize * cellSize.y, gridSize * cellSize.z);
+            corners[1] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, 0, 0);
+            corners[2] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, model.ResolutionY * cellSize.y, 0);
+            corners[3] = gridOrigin + new Vector3(0, model.ResolutionY * cellSize.y, 0);
+            corners[4] = gridOrigin + new Vector3(0, 0, model.ResolutionZ * cellSize.z);
+            corners[5] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, 0, model.ResolutionZ * cellSize.z);
+            corners[6] = gridOrigin + new Vector3(model.ResolutionX * cellSize.x, model.ResolutionY * cellSize.y, model.ResolutionZ * cellSize.z);
+            corners[7] = gridOrigin + new Vector3(0, model.ResolutionY * cellSize.y, model.ResolutionZ * cellSize.z);
 
             // Draw edges of the grid box
             Gizmos.DrawLine(corners[0], corners[1]); // Bottom front edge

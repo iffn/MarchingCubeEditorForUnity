@@ -38,7 +38,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if (GUILayout.Button("Initialize"))
             {
-                linkedMarchingCubesController.Initialize(gridResolution, true);
+                linkedMarchingCubesController.Initialize(gridResolution, gridResolution, gridResolution, true);
             }
 
             linkedScriptableObjectSaveData = EditorGUILayout.ObjectField(
