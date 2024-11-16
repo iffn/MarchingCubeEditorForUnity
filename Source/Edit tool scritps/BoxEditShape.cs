@@ -5,25 +5,23 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 {
     public class BoxEditShape : EditShape
     {
-        public override float DistanceOutsideIsPositive(Vector3 point)
+        protected override float DistanceOutsideIsPositive(Vector3 localPoint)
         {
-            Vector3 localPoint = TransformToLocalSpace(point, transform);  // Transform to local space
-
-            Vector3 d = new Vector3(
-                Mathf.Abs(localPoint.x) - 1f,
-                Mathf.Abs(localPoint.y) - 1f,
-                Mathf.Abs(localPoint.z) - 1f
+            Vector3 absPoint = new Vector3(
+                Mathf.Abs(localPoint.x),
+                Mathf.Abs(localPoint.y),
+                Mathf.Abs(localPoint.z)
             );
 
-            float outsideDistance = Mathf.Max(d.x, Mathf.Max(d.y, d.z));
-            float insideDistance = Vector3.Max(d, Vector3.zero).magnitude;
+            Vector3 halfExtents = new Vector3(0.5f, 0.5f, 0.5f); // Unit box
+            Vector3 delta = absPoint - halfExtents;
 
-            return outsideDistance + insideDistance;
+            return Mathf.Max(delta.x, delta.y, delta.z);
         }
 
         public override (Vector3 minOffset, Vector3 maxOffset) GetLocalBoundingBox()
         {
-            return (-0.5f * Scale, 0.5f * Scale);
+            return (-0.5f * Vector3.one, 0.5f * Vector3.one);
         }
     }
 }

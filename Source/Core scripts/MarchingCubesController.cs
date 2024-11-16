@@ -2,6 +2,7 @@
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 using static BaseModificationTools;
@@ -75,64 +76,68 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             GenerateAndDisplayMesh(false); // Update the mesh after modification
         }
 
-        public void ModifyShape(
-            EditShape shape,
-            IVoxelModifier modifier, // Handles specific voxel modification logic
-            bool updateCollider)
+        public void ModifyShape(EditShape shape, IVoxelModifier modifier, bool updateCollider)
         {
             System.Diagnostics.Stopwatch sw = new();
 #if DEBUG_PERFORMANCE
-    sw.Start();
+            sw.Start();
 #endif
 
-            // Get grid properties
-            Vector3 gridScale = transform.localScale;
-            Vector3 inverseGridScale = new Vector3(1f / gridScale.x, 1f / gridScale.y, 1f / gridScale.z);
-            Vector3Int gridResolution = new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ);
+            // Precompute transformation matrices
+            Matrix4x4 gridToWorld = transform.localToWorldMatrix; // Transform grid space to world space
+            Matrix4x4 worldToGrid = transform.worldToLocalMatrix; // Transform world space to grid space
+
+            // Precompute shape transformation
+            shape.PrecomputeTransform(transform); //Passing the transform allows using the grid points directly, since they have a size of one.
 
             // Get shape bounds in world space and transform to grid space
             (Vector3 worldMin, Vector3 worldMax) = shape.GetWorldBoundingBox();
-            Vector3 gridMin = Vector3.Scale(worldMin - transform.position, inverseGridScale);
-            Vector3 gridMax = Vector3.Scale(worldMax - transform.position, inverseGridScale);
+            Vector3 gridMin = worldToGrid.MultiplyPoint3x4(worldMin);
+            Vector3 gridMax = worldToGrid.MultiplyPoint3x4(worldMax);
 
-            Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin));
-            Vector3Int maxGrid = Vector3Int.Min(gridResolution, Vector3Int.CeilToInt(gridMax));
+            //Expand by Vector3.one due to rounding.
+            Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin) - Vector3Int.one);
+            Vector3Int maxGrid = Vector3Int.Min(
+                new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ),
+                Vector3Int.CeilToInt(gridMax) + Vector3Int.one
+            );
 
-            // Loop through grid-space bounds
-            for (int x = minGrid.x; x < maxGrid.x; x++)
+            float worldToGridScaleFactor = transform.localScale.magnitude;
+
+            // Parallel processing
+            System.Threading.Tasks.Parallel.For(minGrid.x, maxGrid.x, x =>
             {
                 for (int y = minGrid.y; y < maxGrid.y; y++)
                 {
                     for (int z = minGrid.z; z < maxGrid.z; z++)
                     {
-                        // Transform grid point to world space for distance calculation
-                        Vector3 worldPoint = transform.TransformPoint(x, y, z);
-                        float distance = shape.DistanceOutsideIsPositive(worldPoint);
+                        // Transform grid position to world space
+                        Vector3 gridPoint = new(x, y, z);
 
-                        // Retrieve the current voxel value
+                        // Calculate the distance using the shape's transformation
+                        float distance = shape.OptimizedDistance(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
+
+                        // Modify the voxel value
                         float currentValue = model.GetVoxel(x, y, z);
-
-                        // Modify the voxel value using the modifier
                         float newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
-
-                        // Update the voxel in the model
                         model.SetVoxel(x, y, z, newValue);
                     }
                 }
-            }
+            });
 
 #if DEBUG_PERFORMANCE
-    Debug.Log($"Modify voxel time = {sw.Elapsed.TotalMilliseconds}ms");
-    sw.Restart();
+            Debug.Log($"Modify voxel time = {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
 #endif
 
             // Update the mesh and collider if necessary
             GenerateAndDisplayMesh(updateCollider);
 
 #if DEBUG_PERFORMANCE
-    Debug.Log($"Generate mesh time = {sw.Elapsed.TotalMilliseconds}ms");
+            Debug.Log($"Generate mesh time = {sw.Elapsed.TotalMilliseconds}ms");
 #endif
         }
+
 
         public void AddShape(EditShape shape, bool updateCollider)
         {
