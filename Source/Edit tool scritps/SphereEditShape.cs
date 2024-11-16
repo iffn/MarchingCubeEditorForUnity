@@ -13,5 +13,17 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             float averageScale = (transform.localScale.x + transform.localScale.y + transform.localScale.z) / 3f;
             return localDistance * averageScale;
         }
+
+        public override (Vector3Int min, Vector3Int max) GetBounds(Vector3Int gridResolution)
+        {
+            float radius = Scale.x * 0.5f;
+            Vector3 min = Position - Vector3.one * radius;
+            Vector3 max = Position + Vector3.one * radius;
+
+            Vector3Int gridMin = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(min));
+            Vector3Int gridMax = Vector3Int.Min(gridResolution, Vector3Int.CeilToInt(max));
+
+            return (gridMin, gridMax);
+        }
     }
 }

@@ -20,5 +20,17 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
             return outsideDistance + insideDistance;
         }
+
+        public override (Vector3Int min, Vector3Int max) GetBounds(Vector3Int gridResolution)
+        {
+            float offset = Scale.x * 0.5f;
+            Vector3 min = Position - Vector3.one * offset;
+            Vector3 max = Position + Vector3.one * offset;
+
+            Vector3Int gridMin = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(min));
+            Vector3Int gridMax = Vector3Int.Min(gridResolution, Vector3Int.CeilToInt(max));
+
+            return (gridMin, gridMax);
+        }
     }
 }

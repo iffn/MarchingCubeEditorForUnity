@@ -31,5 +31,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
             return localPoint;
         }
+
+        public abstract (Vector3Int min, Vector3Int max) GetBounds(Vector3Int gridResolution);
     }
 }

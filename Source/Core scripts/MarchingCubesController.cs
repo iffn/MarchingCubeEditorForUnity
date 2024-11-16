@@ -73,13 +73,21 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void AddShape(EditShape shape, bool updateCollider)
         {
-            for (int x = 0; x < model.ResolutionX; x++)
+            System.Diagnostics.Stopwatch sw = new();
+
+            sw.Start();
+
+            Vector3Int gridResolution = new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ);
+
+            (Vector3Int minGrid, Vector3Int maxGrid) = shape.GetBounds(gridResolution);
+
+            for (int x = minGrid.x; x < maxGrid.x; x++)
             {
-                for (int y = 0; y < model.ResolutionY; y++)
+                for (int y = minGrid.y; y < maxGrid.y; y++)
                 {
-                    for (int z = 0; z < model.ResolutionZ; z++)
+                    for (int z = minGrid.z; z < maxGrid.z; z++)
                     {
-                        Vector3 point = new(x, y, z);
+                        Vector3 point = new Vector3(x, y, z);
                         float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
 
                         model.AddVoxel(x, y, z, -distanceOutsideIsPositive);
@@ -87,7 +95,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
+            Debug.Log($"Add voxel time = {sw.Elapsed.TotalSeconds * 1000}ms");
+            sw.Restart();
+
             GenerateAndDisplayMesh(updateCollider);
+
+            Debug.Log($"Generate mesh time = {sw.Elapsed.TotalSeconds * 1000}ms");
         }
 
         public void AddShapeWithMaxHeight(EditShape shape, float maxHeight, bool updateCollider)
