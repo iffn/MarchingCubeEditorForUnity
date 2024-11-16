@@ -78,7 +78,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.EndHorizontal();
             }
 
-
             if (!linkedMarchingCubesController.IsInitialized) return;
 
             GUILayout.Label("Editing:");

@@ -1,8 +1,10 @@
 //#define DEBUG_PERFORMANCE
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using System;
 using UnityEditor;
 using UnityEngine;
+using static BaseModificationTools;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
@@ -34,7 +36,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             get
             {
-                if(model == null) return false;
+                if (model == null) return false;
                 return true;
             }
         }
@@ -73,96 +75,79 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             GenerateAndDisplayMesh(false); // Update the mesh after modification
         }
 
-        public void AddShape(EditShape shape, bool updateCollider)
+        public void ModifyShape(
+            EditShape shape,
+            IVoxelModifier modifier, // Handles specific voxel modification logic
+            bool updateCollider)
         {
-#if DEBUG_PERFORMANCE
             System.Diagnostics.Stopwatch sw = new();
-
-            sw.Start();
+#if DEBUG_PERFORMANCE
+    sw.Start();
 #endif
-            
+
+            // Get grid properties
+            Vector3 gridScale = transform.localScale;
+            Vector3 inverseGridScale = new Vector3(1f / gridScale.x, 1f / gridScale.y, 1f / gridScale.z);
             Vector3Int gridResolution = new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ);
 
-            (Vector3Int minGrid, Vector3Int maxGrid) = shape.GetBounds(gridResolution);
+            // Get shape bounds in world space and transform to grid space
+            (Vector3 worldMin, Vector3 worldMax) = shape.GetWorldBoundingBox();
+            Vector3 gridMin = Vector3.Scale(worldMin - transform.position, inverseGridScale);
+            Vector3 gridMax = Vector3.Scale(worldMax - transform.position, inverseGridScale);
 
+            Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin));
+            Vector3Int maxGrid = Vector3Int.Min(gridResolution, Vector3Int.CeilToInt(gridMax));
+
+            // Loop through grid-space bounds
             for (int x = minGrid.x; x < maxGrid.x; x++)
             {
                 for (int y = minGrid.y; y < maxGrid.y; y++)
                 {
                     for (int z = minGrid.z; z < maxGrid.z; z++)
                     {
-                        Vector3 point = new Vector3(x, y, z);
-                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
+                        // Transform grid point to world space for distance calculation
+                        Vector3 worldPoint = transform.TransformPoint(x, y, z);
+                        float distance = shape.DistanceOutsideIsPositive(worldPoint);
 
-                        model.AddVoxel(x, y, z, -distanceOutsideIsPositive);
+                        // Retrieve the current voxel value
+                        float currentValue = model.GetVoxel(x, y, z);
+
+                        // Modify the voxel value using the modifier
+                        float newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
+
+                        // Update the voxel in the model
+                        model.SetVoxel(x, y, z, newValue);
                     }
                 }
             }
 
 #if DEBUG_PERFORMANCE
-            Debug.Log($"Add voxel time = {sw.Elapsed.TotalSeconds * 1000}ms");
-            sw.Restart();
+    Debug.Log($"Modify voxel time = {sw.Elapsed.TotalMilliseconds}ms");
+    sw.Restart();
 #endif
 
+            // Update the mesh and collider if necessary
             GenerateAndDisplayMesh(updateCollider);
 
 #if DEBUG_PERFORMANCE
-            Debug.Log($"Generate mesh time = {sw.Elapsed.TotalSeconds * 1000}ms");
+    Debug.Log($"Generate mesh time = {sw.Elapsed.TotalMilliseconds}ms");
 #endif
+        }
+
+        public void AddShape(EditShape shape, bool updateCollider)
+        {
+            ModifyShape(shape, new AddShapeModifier(), updateCollider);
         }
 
         public void AddShapeWithMaxHeight(EditShape shape, float maxHeight, bool updateCollider)
         {
             int maxHeightInt = Mathf.RoundToInt(Mathf.Min(maxHeight, model.ResolutionY));
-
-            for (int x = 0; x < model.ResolutionX; x++)
-            {
-                for (int y = 0; y < maxHeightInt; y++)
-                {
-                    for (int z = 0; z < model.ResolutionZ; z++)
-                    {
-                        Vector3 point = new(x, y, z);
-                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
-
-                        model.AddVoxel(x, y, z, -distanceOutsideIsPositive);
-                    }
-                }
-            }
-
-            for (int x = 0; x < model.ResolutionX; x++)
-            {
-                for (int y = maxHeightInt + 1; y < model.ResolutionY; y++)
-                {
-                    for (int z = 0; z < model.ResolutionZ; z++)
-                    {
-                        Vector3 point = new(x, y, z);
-                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
-
-                        model.SubtractVoxel(x, y, z, distanceOutsideIsPositive);
-                    }
-                }
-            }
-
-            GenerateAndDisplayMesh(updateCollider);
+            ModifyShape(shape, new AddShapeWithMaxHeightModifier(maxHeightInt), updateCollider);
         }
 
         public void SubtractShape(EditShape shape, bool updateCollider)
         {
-            for (int x = 0; x < model.ResolutionX; x++)
-            {
-                for (int y = 0; y < model.ResolutionY; y++)
-                {
-                    for (int z = 0; z < model.ResolutionZ; z++)
-                    {
-                        Vector3 point = new(x, y, z);
-                        float distanceOutsideIsPositive = shape.DistanceOutsideIsPositive(point);
-
-                        model.SubtractVoxel(x, y, z, distanceOutsideIsPositive);
-                    }
-                }
-            }
-
-            GenerateAndDisplayMesh(updateCollider);
+            ModifyShape(shape, new SubtractShapeModifier(), updateCollider);
         }
 
         public void SaveGridData(ScriptableObjectSaveData gridData)
@@ -184,9 +169,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 float[,,] saveData = gridData.LoadData();
 
-                model = new MarchingCubesModel(saveData.GetLength(0), saveData.GetLength(1), saveData.GetLength(2)); // Initialize model with grid data
-
-                model.VoxelData = saveData;
+                model = new(saveData.GetLength(0), saveData.GetLength(1), saveData.GetLength(2))
+                {
+                    VoxelData = saveData
+                }; // Initialize model with grid data
 
                 GenerateAndDisplayMesh(updateColliders); // Refresh mesh
             }
@@ -196,7 +182,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             if (!showGridOutline) return;
 
-            if(model == null) return;
+            if (model == null) return;
 
             Gizmos.color = Color.cyan; // Set outline color
 
@@ -207,12 +193,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private void DrawGridOutline()
         {
             // Define the grid size and cell size
-            float cellSize = 1;
+            Vector3 cellSize = transform.localScale;
 
             // Calculate the starting position of the grid (bottom-left-front corner)
             Vector3 gridOrigin = transform.position;
 
-            Vector3 outlineSize = cellSize * new Vector3(model.ResolutionX - 1, model.ResolutionY - 1, model.ResolutionZ - 1);
+            Vector3 outlineSize = new(model.ResolutionX - 1, model.ResolutionY - 1, model.ResolutionZ - 1);
+            outlineSize = UnityUtilityFunctions.ComponentwiseMultiply(outlineSize, cellSize);
 
             // Calculate all eight corners of the grid box
             Vector3[] corners = new Vector3[8];
