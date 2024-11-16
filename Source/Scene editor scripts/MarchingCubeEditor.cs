@@ -144,7 +144,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         void OnSceneGUI(SceneView sceneView)
         {
             Event e = Event.current;
-
+            /*
             if (e.type == EventType.KeyUp && e.keyCode == KeyCode.Tab)
             {
                 InvertNormals(!invertNormals);
@@ -153,6 +153,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 e.Use();
             }
+            */
 
             if (addingShape && selectedShape)
             {
