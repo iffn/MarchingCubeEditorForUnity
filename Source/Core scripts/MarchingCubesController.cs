@@ -1,3 +1,5 @@
+//#define DEBUG_PERFORMANCE
+
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using UnityEditor;
 using UnityEngine;
@@ -73,10 +75,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void AddShape(EditShape shape, bool updateCollider)
         {
+#if DEBUG_PERFORMANCE
             System.Diagnostics.Stopwatch sw = new();
 
             sw.Start();
-
+#endif
+            
             Vector3Int gridResolution = new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ);
 
             (Vector3Int minGrid, Vector3Int maxGrid) = shape.GetBounds(gridResolution);
@@ -95,12 +99,16 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
+#if DEBUG_PERFORMANCE
             Debug.Log($"Add voxel time = {sw.Elapsed.TotalSeconds * 1000}ms");
             sw.Restart();
+#endif
 
             GenerateAndDisplayMesh(updateCollider);
 
+#if DEBUG_PERFORMANCE
             Debug.Log($"Generate mesh time = {sw.Elapsed.TotalSeconds * 1000}ms");
+#endif
         }
 
         public void AddShapeWithMaxHeight(EditShape shape, float maxHeight, bool updateCollider)
