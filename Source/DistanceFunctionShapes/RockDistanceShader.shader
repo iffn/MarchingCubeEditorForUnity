@@ -46,6 +46,15 @@ Shader "Custom/RaymarchingWithDepth"
                 return length(p) - radius;
             }
 
+            float3 getScaleRatios(float4x4 objectToWorld)
+            {
+                float3 scale;
+                scale.x = length(objectToWorld[0].xyz); // Scale along X
+                scale.y = length(objectToWorld[1].xyz); // Scale along Y
+                scale.z = length(objectToWorld[2].xyz); // Scale along Z
+                return scale;
+            }
+
             float layeredNoise(float3 localPos)
             {
                 float n = 0.0;
@@ -95,19 +104,27 @@ Shader "Custom/RaymarchingWithDepth"
 
             float rockSDF(float3 worldPos)
             {
+                // Convert world position to local position
                 float3 localPos = mul(unity_WorldToObject, float4(worldPos, 1.0)).xyz;
+
+                // Get the scale ratios from the object's transform
+                float3 scaleRatios = getScaleRatios(unity_ObjectToWorld);
+
+                // Normalize local position by scale ratios
+                float3 normalizedPos = localPos * scaleRatios;
 
                 // Base sphere shape
                 float sphereBase = length(localPos) - 0.4;
 
-                // Add layered jagged noise
-                float jaggedNoise = combinedNoise(localPos);
+                // Add noise to normalized position
+                float jaggedNoise = combinedNoise(normalizedPos);
 
-                // Combine with base shape
+                // Combine base shape and noise
                 float rock = sphereBase + jaggedNoise;
 
                 return rock;
             }
+
 
             // Estimate normals via finite differences
             float3 estimateNormal(float3 p)
