@@ -46,15 +46,6 @@ Shader "Custom/RaymarchingWithDepth"
                 return length(p) - radius;
             }
 
-            float3 getScaleRatios(float4x4 objectToWorld)
-            {
-                float3 scale;
-                scale.x = length(objectToWorld[0].xyz); // Scale along X
-                scale.y = length(objectToWorld[1].xyz); // Scale along Y
-                scale.z = length(objectToWorld[2].xyz); // Scale along Z
-                return scale;
-            }
-
             float layeredNoise(float3 localPos)
             {
                 float n = 0.0;
@@ -107,11 +98,13 @@ Shader "Custom/RaymarchingWithDepth"
                 // Convert world position to local position
                 float3 localPos = mul(unity_WorldToObject, float4(worldPos, 1.0)).xyz;
 
-                // Get the scale ratios from the object's transform
-                float3 scaleRatios = getScaleRatios(unity_ObjectToWorld);
+                float3 scale;
+                scale.x = length(unity_ObjectToWorld[0].xyz); // Scale along X
+                scale.y = length(unity_ObjectToWorld[1].xyz); // Scale along Y
+                scale.z = length(unity_ObjectToWorld[2].xyz); // Scale along Z
 
                 // Normalize local position by scale ratios
-                float3 normalizedPos = localPos * scaleRatios;
+                float3 normalizedPos = localPos * scale;
 
                 // Base sphere shape
                 float sphereBase = length(localPos) - 0.4;
