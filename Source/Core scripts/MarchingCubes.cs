@@ -362,10 +362,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     meshData.AddTriangle(edgeVertexIndices[a0], edgeVertexIndices[a1], edgeVertexIndices[a2]);
                 }
             }
-
-            
         }
-
 
         private static Vector3[] GetCornerPositions(int x, int y, int z)
         {
