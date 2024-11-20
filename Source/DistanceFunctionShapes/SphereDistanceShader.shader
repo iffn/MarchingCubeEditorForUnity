@@ -46,21 +46,6 @@ Shader "Custom/RaymarchingWithDepth"
                 return length(p) - radius;
             }
 
-            float rockSDF(float3 p)
-            {
-                // Base shape: a distorted sphere
-                float sphereBase = length(p) - 1.0;
-
-                // Add bumpy surface with noise
-                float noise = sin(p.x * 5.0) * sin(p.y * 5.0) * sin(p.z * 5.0); // Basic procedural noise
-                noise *= 0.2; // Scale noise amplitude
-
-                // Combine the sphere with the noise
-                float rock = sphereBase + noise;
-
-                return rock;
-            }
-
             // Estimate normals via finite differences
             float3 estimateNormal(float3 p)
             {
@@ -82,7 +67,6 @@ Shader "Custom/RaymarchingWithDepth"
                 {
                     hitPoint = ro + rd * t;
                     float dist = sphereSDF(hitPoint, _SphereRadius);
-                    //float dist = rockSDF(hitPoint);
                     if (dist < 0.001) // Hit threshold
                         return t;
                     t += dist;

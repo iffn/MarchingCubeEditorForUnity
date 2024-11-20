@@ -46,20 +46,65 @@ Shader "Custom/RaymarchingWithDepth"
                 return length(p) - radius;
             }
 
-            float rockSDF(float3 p)
+            float layeredNoise(float3 localPos)
             {
-                // Convert position to object space
-                float3 localPos = mul(unity_WorldToObject, float4(p, 1.0)).xyz;
+                float n = 0.0;
 
-                // Base shape: a distorted sphere
+                // Base noise
+                n += sin(localPos.x * 10.0) * sin(localPos.y * 10.0) * sin(localPos.z * 10.0) * 0.05;
+
+                // Fine details
+                n += sin(localPos.x * 20.0) * sin(localPos.y * 20.0) * sin(localPos.z * 20.0) * 0.02;
+
+                // Add a third layer for smaller, sharper bumps
+                //n += sin(localPos.x * 50.0) * sin(localPos.y * 50.0) * sin(localPos.z * 50.0) * 0.01;
+
+                return n;
+            }
+
+            float crackPattern(float3 localPos)
+            {
+                // Cracks based on a periodic function
+                return abs(sin(localPos.x * 15.0) * sin(localPos.z * 15.0)) * 0.02;
+            }
+
+
+            float layeredJaggedNoise(float3 localPos)
+            {
+                float n = 0.0;
+                n += sin(localPos.x * 10.0) * sin(localPos.y * 10.0) * sin(localPos.z * 10.0) * 0.05; // Base noise
+                n += max(0.0, sin(localPos.y * 30.0) * 0.03); // Sharp jaggedness
+                return n;
+            }
+
+            float combinedNoise(float3 localPos)
+            {
+                float n = 0.0;
+
+                // Base noise layer
+                n += sin(localPos.x * 10.0) * sin(localPos.y * 10.0) * sin(localPos.z * 10.0) * 0.05;
+
+                // Jagged, sharper layer (applied to all axes)
+                n = max(n, sin(localPos.x * 20.0) * sin(localPos.y * 20.0) * 0.03);
+
+                // Additional finer details
+                n = max(n, sin(localPos.z * 30.0) * sin(localPos.x * 30.0) * 0.02);
+
+                return n;
+            }
+
+            float rockSDF(float3 worldPos)
+            {
+                float3 localPos = mul(unity_WorldToObject, float4(worldPos, 1.0)).xyz;
+
+                // Base sphere shape
                 float sphereBase = length(localPos) - 0.4;
 
-                // Add bumpy surface with noise
-                float noise = sin(localPos.x * 10.0) * sin(localPos.y * 10.0) * sin(localPos.z * 10.0); // Procedural noise
-                noise *= 0.05; // Scale noise amplitude
+                // Add layered jagged noise
+                float jaggedNoise = combinedNoise(localPos);
 
-                // Combine the sphere with the noise
-                float rock = sphereBase + noise;
+                // Combine with base shape
+                float rock = sphereBase + jaggedNoise;
 
                 return rock;
             }

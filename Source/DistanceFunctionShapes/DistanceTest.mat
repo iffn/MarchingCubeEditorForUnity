@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DistanceTest
-  m_Shader: {fileID: 4800000, guid: cf1628ea84ff570479a0e2e19adb25ff, type: 3}
+  m_Shader: {fileID: 4800000, guid: 2705ddfad5a9a1944a5ebd07ec7a4bde, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
