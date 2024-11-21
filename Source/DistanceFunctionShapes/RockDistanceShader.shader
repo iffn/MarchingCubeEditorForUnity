@@ -4,6 +4,11 @@ Shader "Custom/RaymarchingWithDepth"
     {
         _Color ("Color", Color) = (1,1,1,1)
         _SphereRadius ("Sphere Radius", Float) = 0.5
+        _BaseFrequency ("Base Frequency", Range(1, 100)) = 10.0
+        _Amplitude ("Amplitude", Range(0, 1)) = 0.05
+        _Octaves ("Octaves", Range(1, 8)) = 3
+        _Persistence ("Persistence", Range(0, 1)) = 0.5
+        _VoronoiStrength ("Voronoi Strength", Range(0, 0.1)) = 0.02
     }
     SubShader
     {
@@ -31,6 +36,11 @@ Shader "Custom/RaymarchingWithDepth"
 
             float4 _Color;
             float _SphereRadius;
+            float _BaseFrequency;
+            float _Amplitude;
+            float _Octaves;
+            float _Persistence;
+            float _VoronoiStrength;
 
             v2f vert (appdata_t v)
             {
@@ -77,7 +87,7 @@ Shader "Custom/RaymarchingWithDepth"
                 return n;
             }
 
-            float combinedNoise(float3 localPos)
+            float sineAndMaxNoise(float3 localPos)
             {
                 float n = 0.0;
 
@@ -93,6 +103,132 @@ Shader "Custom/RaymarchingWithDepth"
                 return n;
             }
 
+            float fractalNoise(float3 p, int octaves, float persistence)
+            {
+                float n = 0.0;
+                float amplitude = 1.0;
+                float frequency = 1.0;
+
+                for (int i = 0; i < octaves; i++)
+                {
+                    n += sin(p.x * frequency) * sin(p.y * frequency) * sin(p.z * frequency) * amplitude;
+                    amplitude *= persistence; // Controls how much each layer contributes
+                    frequency *= 2.0;         // Increases frequency for finer details
+                }
+
+                return n;
+            }
+
+            float gradientNoise(float3 p)
+            {
+                float3 i = floor(p);
+                float3 f = frac(p);
+
+                float n = lerp(
+                    lerp(dot(i, float3(12.9898, 78.233, 37.719)), dot(i + float3(1.0, 0.0, 0.0), float3(12.9898, 78.233, 37.719)), f.x),
+                    lerp(dot(i + float3(0.0, 1.0, 0.0), float3(12.9898, 78.233, 37.719)), dot(i + float3(1.0, 1.0, 0.0), float3(12.9898, 78.233, 37.719)), f.x),
+                    f.y
+                );
+
+                return frac(sin(n) * 43758.5453);
+            }
+
+            float voronoi(float3 p)
+            {
+                float2 cell = floor(p.xy);
+                float minDist = 1.0;
+
+                for (int y = -1; y <= 1; y++)
+                {
+                    for (int x = -1; x <= 1; x++)
+                    {
+                        float2 neighbor = cell + float2(x, y);
+                        float2 cellPoint = neighbor + frac(sin(dot(neighbor, float2(12.9898, 78.233))) * 43758.5453);
+                        float dist = length(p.xy - cellPoint);
+                        minDist = min(minDist, dist);
+                    }
+                }
+
+                return minDist;
+            }
+
+            float turbulence(float3 p, int octaves)
+            {
+                float n = 0.0;
+                float amplitude = 1.0;
+                float frequency = 1.0;
+
+                for (int i = 0; i < octaves; i++)
+                {
+                    n += abs(sin(p.x * frequency) * sin(p.y * frequency) * sin(p.z * frequency)) * amplitude;
+                    amplitude *= 0.5; // Persistence
+                    frequency *= 2.0; // Frequency increases
+                }
+
+                return n;
+            }
+
+            float cellularNoise(float3 p)
+            {
+                float3 i = floor(p);
+                float3 f = frac(p);
+
+                float minDist1 = 1.0;
+                float minDist2 = 1.0;
+
+                for (int z = -1; z <= 1; z++)
+                {
+                    for (int y = -1; y <= 1; y++)
+                    {
+                        for (int x = -1; x <= 1; x++)
+                        {
+                            float3 neighbor = i + float3(x, y, z);
+                            float3 randomOffset = frac(sin(neighbor * 27.45) * 73.23);
+                            float3 cellPoint = neighbor + randomOffset;
+
+                            float dist = length(f - cellPoint);
+                            if (dist < minDist1)
+                            {
+                                minDist2 = minDist1;
+                                minDist1 = dist;
+                            }
+                            else if (dist < minDist2)
+                            {
+                                minDist2 = dist;
+                            }
+                        }
+                    }
+                }
+
+                return minDist2 - minDist1;
+            }
+
+            float ridgedNoise(float3 p)
+            {
+                float n = sin(p.x * 10.0) * sin(p.y * 10.0) * sin(p.z * 10.0);
+                return 1.0 - abs(n); // Invert and sharpen the noise
+            }
+
+            float combinedNoise(float3 localPos, float baseFrequency, float amplitude, float octaves, float persistence, float voronoiStrength)
+            {
+                float n = 0.0;
+
+                // Base noise layer
+                n += sin(localPos.x * baseFrequency) * sin(localPos.y * baseFrequency) * sin(localPos.z * baseFrequency) * amplitude;
+
+                // Fractal noise
+                float fractal = fractalNoise(localPos, octaves, persistence);
+                n += fractal * amplitude * 0.5;
+
+                // Add turbulence
+                n += turbulence(localPos, int(octaves)) * amplitude * 0.5;
+
+                // Add Voronoi cracks
+                n -= voronoi(localPos) * voronoiStrength;
+
+                return n;
+            }
+
             float rockSDF(float3 worldPos)
             {
                 // Convert world position to local position
@@ -103,17 +239,23 @@ Shader "Custom/RaymarchingWithDepth"
                 scale.y = length(unity_ObjectToWorld[1].xyz); // Scale along Y
                 scale.z = length(unity_ObjectToWorld[2].xyz); // Scale along Z
 
+                // Material-controlled parameters
+                float baseFrequency = _BaseFrequency;
+                float amplitude = _Amplitude;
+                float octaves = _Octaves;
+                float persistence = _Persistence;
+                float voronoiStrength = _VoronoiStrength;
+
                 // Normalize local position by scale ratios
                 float3 normalizedPos = localPos * scale / (scale.x + scale.y + scale.z) * 3;
 
                 // Base sphere shape
                 float sphereBase = length(localPos) - 0.4;
 
-                // Add noise to normalized position
-                float jaggedNoise = combinedNoise(normalizedPos * 1.5); //Multiplied by inverted noise scale
+                float noise = combinedNoise(normalizedPos, baseFrequency, amplitude, octaves, persistence, voronoiStrength);
 
                 // Combine base shape and noise
-                float rock = sphereBase + jaggedNoise;
+                float rock = sphereBase + noise;
 
                 return rock;
             }
