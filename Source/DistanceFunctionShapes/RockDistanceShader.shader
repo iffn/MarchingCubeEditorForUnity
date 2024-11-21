@@ -104,13 +104,13 @@ Shader "Custom/RaymarchingWithDepth"
                 scale.z = length(unity_ObjectToWorld[2].xyz); // Scale along Z
 
                 // Normalize local position by scale ratios
-                float3 normalizedPos = localPos * scale;
+                float3 normalizedPos = localPos * scale / (scale.x + scale.y + scale.z) * 3;
 
                 // Base sphere shape
                 float sphereBase = length(localPos) - 0.4;
 
                 // Add noise to normalized position
-                float jaggedNoise = combinedNoise(normalizedPos);
+                float jaggedNoise = combinedNoise(normalizedPos * 1.5); //Multiplied by inverted noise scale
 
                 // Combine base shape and noise
                 float rock = sphereBase + jaggedNoise;
