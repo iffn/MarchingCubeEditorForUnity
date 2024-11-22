@@ -3,12 +3,16 @@ Shader "Custom/RaymarchingWithDepth"
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
-        _SphereRadius ("Sphere Radius", Float) = 0.5
+        _BaseAmplitude ("Base Amplitude", Range(0, 1)) = 0.05
         _BaseFrequency ("Base Frequency", Range(1, 100)) = 10.0
-        _Amplitude ("Amplitude", Range(0, 1)) = 0.05
-        _Octaves ("Octaves", Range(1, 8)) = 3
-        _Persistence ("Persistence", Range(0, 1)) = 0.5
+        _FractalOctaves ("Fractal Octaves", Range(1, 8)) = 3
+        _FractalAmplitude ("Fractal Amplitude", Range(0, 1)) = 0.3
+        _FractalPersistence ("Fractal Persistence", Range(0, 1)) = 0.5
+        _TurbulenceAmplitude ("Turbulence Amplitude", Range(0, 1)) = 0.2
+        _TurbulenceOctaves ("Turbulence Octaves", Range(1, 8)) = 3
         _VoronoiStrength ("Voronoi Strength", Range(0, 0.1)) = 0.02
+        _RidgeStrength ("Ridged Noise Strength", Range(0, 1)) = 0.3
+        _GradientStrength ("Gradient Noise Strength", Range(0, 1)) = 0.2
     }
     SubShader
     {
@@ -35,12 +39,16 @@ Shader "Custom/RaymarchingWithDepth"
             };
 
             float4 _Color;
-            float _SphereRadius;
             float _BaseFrequency;
-            float _Amplitude;
-            float _Octaves;
-            float _Persistence;
+            float _BaseAmplitude;
+            float _FractalOctaves;
+            float _FractalAmplitude;
+            float _FractalPersistence;
+            float _TurbulenceAmplitude;
+            float _TurbulenceOctaves;
             float _VoronoiStrength;
+            float _RidgeStrength;
+            float _GradientStrength;
 
             v2f vert (appdata_t v)
             {
@@ -209,25 +217,33 @@ Shader "Custom/RaymarchingWithDepth"
                 return 1.0 - abs(n); // Invert and sharpen the noise
             }
 
-            float combinedNoise(float3 localPos, float baseFrequency, float amplitude, float octaves, float persistence, float voronoiStrength)
+            float combinedNoise(
+                float3 localPos
+            )
             {
                 float n = 0.0;
 
                 // Base noise layer
-                n += sin(localPos.x * baseFrequency) * sin(localPos.y * baseFrequency) * sin(localPos.z * baseFrequency) * amplitude;
+                n += sin(localPos.x * _BaseFrequency) * sin(localPos.y * _BaseFrequency) * sin(localPos.z * _BaseFrequency) * _BaseAmplitude;
 
-                // Fractal noise
-                float fractal = fractalNoise(localPos, octaves, persistence);
-                n += fractal * amplitude * 0.5;
+                // Add fractal noise
+                n += fractalNoise(localPos, _FractalOctaves, _FractalPersistence) * _FractalAmplitude * 0.5;
 
                 // Add turbulence
-                n += turbulence(localPos, int(octaves)) * amplitude * 0.5;
+                n += turbulence(localPos, int(_TurbulenceOctaves)) * _TurbulenceAmplitude * 0.5;
 
                 // Add Voronoi cracks
-                n -= voronoi(localPos) * voronoiStrength;
+                n -= voronoi(localPos) * _VoronoiStrength;
+
+                // Add ridged noise (controlled separately)
+                n += ridgedNoise(localPos) * _RidgeStrength;
+
+                // Add gradient noise (controlled separately)
+                n += gradientNoise(localPos) * _GradientStrength;
 
                 return n;
             }
+
 
             float rockSDF(float3 worldPos)
             {
@@ -239,20 +255,15 @@ Shader "Custom/RaymarchingWithDepth"
                 scale.y = length(unity_ObjectToWorld[1].xyz); // Scale along Y
                 scale.z = length(unity_ObjectToWorld[2].xyz); // Scale along Z
 
-                // Material-controlled parameters
-                float baseFrequency = _BaseFrequency;
-                float amplitude = _Amplitude;
-                float octaves = _Octaves;
-                float persistence = _Persistence;
-                float voronoiStrength = _VoronoiStrength;
-
                 // Normalize local position by scale ratios
                 float3 normalizedPos = localPos * scale / (scale.x + scale.y + scale.z) * 3;
 
                 // Base sphere shape
                 float sphereBase = length(localPos) - 0.4;
 
-                float noise = combinedNoise(normalizedPos, baseFrequency, amplitude, octaves, persistence, voronoiStrength);
+                // Add noise to normalized position
+                float noise = combinedNoise(normalizedPos);
+
 
                 // Combine base shape and noise
                 float rock = sphereBase + noise;
