@@ -4,27 +4,27 @@ Shader "Custom/RaymarchingWithDepth"
     {
         _Color ("Color", Color) = (1,1,1,1)
 
-        _BaseScale("Base Scale", Range(0.1, 10)) = 1
         _BaseAmplitude ("Base Amplitude", Range(0, 1)) = 0.05
         _BaseFrequency ("Base Frequency", Range(1, 100)) = 10.0
+        _BaseScale("Base Scale", Range(0.1, 10)) = 1
         
-        _FractalScale("Fractal Scale", Range(0.1, 10)) = 1
-        _FractalOctaves ("Fractal Octaves", Range(1, 8)) = 3
         _FractalAmplitude ("Fractal Amplitude", Range(0, 1)) = 0.3
+        _FractalOctaves ("Fractal Octaves", Range(1, 8)) = 3
         _FractalPersistence ("Fractal Persistence", Range(0, 1)) = 0.5
+        _FractalScale("Fractal Scale", Range(0.1, 10)) = 1
         
-        _TurbulenceScale("Turbulence Scale", Range(0.1, 10)) = 1
         _TurbulenceAmplitude ("Turbulence Amplitude", Range(0, 1)) = 0.2
         _TurbulenceOctaves ("Turbulence Octaves", Range(1, 8)) = 3
+        _TurbulenceScale("Turbulence Scale", Range(0.1, 10)) = 1
         
-        _VoronoieScale("Voronoi Scale", Range(0.1, 10)) = 1
         _VoronoiStrength ("Voronoi Strength", Range(0, 0.1)) = 0.02
+        _VoronoieScale("Voronoi Scale", Range(0.1, 10)) = 1
         
-        _RidgeScale("Ridge Scale", Range(0.1, 10)) = 1
         _RidgeStrength ("Ridged Noise Strength", Range(0, 1)) = 0.3
+        _RidgeScale("Ridge Scale", Range(0.1, 10)) = 1
         
-        _GradientScale("Gradient Scale", Range(0.1, 10)) = 1
         _GradientStrength ("Gradient Noise Strength", Range(0, 1)) = 0.2
+        _GradientScale("Gradient Scale", Range(0.0, 1000)) = 1
     }
     SubShader
     {
@@ -56,7 +56,7 @@ Shader "Custom/RaymarchingWithDepth"
             float _BaseFrequency;
             float _BaseAmplitude;
             
-            float _FractalScale
+            float _FractalScale;
             float _FractalOctaves;
             float _FractalAmplitude;
             float _FractalPersistence;
@@ -249,7 +249,7 @@ Shader "Custom/RaymarchingWithDepth"
 
                 // Base noise layer
                 float3 basePosition = localPos * _BaseFrequency * _BaseScale;
-                n += sin(basePosition.x) * sin(basePosition.y *) * sin(basePosition.z * basePosition) * _BaseAmplitude;
+                n += sin(basePosition.x) * sin(basePosition.y) * sin(basePosition.z) * _BaseAmplitude;
 
                 // Add fractal noise
                 n += fractalNoise(localPos * _FractalScale, _FractalOctaves, _FractalPersistence) * _FractalAmplitude * 0.5;
