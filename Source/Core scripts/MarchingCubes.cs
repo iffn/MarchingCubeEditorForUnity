@@ -307,7 +307,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public static void GenerateCubeMesh(MarchingCubesMeshData meshData, float[] cubeWeights, int x, int y, int z, bool invertNormals = false)
         {
             int cubeIndex = 0;
-            Vector3[] cornerPositions = GetCornerPositions(x, y, z);
 
             // Determine cube configuration based on corner weights
             for (int i = 0; i < 8; i++)
@@ -324,6 +323,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             int[] edgeVertexIndices = new int[12];
 
             // Interpolate vertices on edges where there’s an intersection
+            Vector3[] cornerPositions = GetCornerPositions(x, y, z);
+
             for (int i = 0; i < 12; i++)
             {
                 if ((edgeTable[cubeIndex] & 1 << i) != 0)
