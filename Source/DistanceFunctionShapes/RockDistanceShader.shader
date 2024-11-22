@@ -3,15 +3,27 @@ Shader "Custom/RaymarchingWithDepth"
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
+
+        _BaseScale("Base Scale", Range(0.1, 10)) = 1
         _BaseAmplitude ("Base Amplitude", Range(0, 1)) = 0.05
         _BaseFrequency ("Base Frequency", Range(1, 100)) = 10.0
+        
+        _FractalScale("Fractal Scale", Range(0.1, 10)) = 1
         _FractalOctaves ("Fractal Octaves", Range(1, 8)) = 3
         _FractalAmplitude ("Fractal Amplitude", Range(0, 1)) = 0.3
         _FractalPersistence ("Fractal Persistence", Range(0, 1)) = 0.5
+        
+        _TurbulenceScale("Turbulence Scale", Range(0.1, 10)) = 1
         _TurbulenceAmplitude ("Turbulence Amplitude", Range(0, 1)) = 0.2
         _TurbulenceOctaves ("Turbulence Octaves", Range(1, 8)) = 3
+        
+        _VoronoieScale("Voronoi Scale", Range(0.1, 10)) = 1
         _VoronoiStrength ("Voronoi Strength", Range(0, 0.1)) = 0.02
+        
+        _RidgeScale("Ridge Scale", Range(0.1, 10)) = 1
         _RidgeStrength ("Ridged Noise Strength", Range(0, 1)) = 0.3
+        
+        _GradientScale("Gradient Scale", Range(0.1, 10)) = 1
         _GradientStrength ("Gradient Noise Strength", Range(0, 1)) = 0.2
     }
     SubShader
@@ -39,15 +51,27 @@ Shader "Custom/RaymarchingWithDepth"
             };
 
             float4 _Color;
+
+            float _BaseScale;
             float _BaseFrequency;
             float _BaseAmplitude;
+            
+            float _FractalScale
             float _FractalOctaves;
             float _FractalAmplitude;
             float _FractalPersistence;
+            
+            float _TurbulenceScale;
             float _TurbulenceAmplitude;
             float _TurbulenceOctaves;
+            
+            float _VoronoieScale;
             float _VoronoiStrength;
+
+            float _RidgeScale;
             float _RidgeStrength;
+            
+            float _GradientScale;
             float _GradientStrength;
 
             v2f vert (appdata_t v)
@@ -224,22 +248,23 @@ Shader "Custom/RaymarchingWithDepth"
                 float n = 0.0;
 
                 // Base noise layer
-                n += sin(localPos.x * _BaseFrequency) * sin(localPos.y * _BaseFrequency) * sin(localPos.z * _BaseFrequency) * _BaseAmplitude;
+                float3 basePosition = localPos * _BaseFrequency * _BaseScale;
+                n += sin(basePosition.x) * sin(basePosition.y *) * sin(basePosition.z * basePosition) * _BaseAmplitude;
 
                 // Add fractal noise
-                n += fractalNoise(localPos, _FractalOctaves, _FractalPersistence) * _FractalAmplitude * 0.5;
+                n += fractalNoise(localPos * _FractalScale, _FractalOctaves, _FractalPersistence) * _FractalAmplitude * 0.5;
 
                 // Add turbulence
-                n += turbulence(localPos, int(_TurbulenceOctaves)) * _TurbulenceAmplitude * 0.5;
+                n += turbulence(localPos * _TurbulenceScale, int(_TurbulenceOctaves)) * _TurbulenceAmplitude * 0.5;
 
                 // Add Voronoi cracks
-                n -= voronoi(localPos) * _VoronoiStrength;
+                n -= voronoi(localPos * _VoronoieScale) * _VoronoiStrength;
 
                 // Add ridged noise (controlled separately)
-                n += ridgedNoise(localPos) * _RidgeStrength;
+                n += ridgedNoise(localPos * _RidgeScale) * _RidgeStrength;
 
                 // Add gradient noise (controlled separately)
-                n += gradientNoise(localPos) * _GradientStrength;
+                n += gradientNoise(localPos * _GradientScale) * _GradientStrength;
 
                 return n;
             }
