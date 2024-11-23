@@ -78,37 +78,47 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void ModifyShape(EditShape shape, IVoxelModifier modifier, bool updateCollider)
         {
-            // Precompute transformation
-            Matrix4x4 worldToGrid = transform.worldToLocalMatrix;
-            shape.PrecomputeTransform(transform);
+            // Precompute transformation matrices
+            Matrix4x4 gridToWorld = transform.localToWorldMatrix; // Transform grid space to world space
+            Matrix4x4 worldToGrid = transform.worldToLocalMatrix; // Transform world space to grid space
 
-            // Determine affected grid bounds
+            // Precompute shape transformation
+            shape.PrecomputeTransform(transform); //Passing the transform allows using the grid points directly, since they have a size of one.
+
+            // Get shape bounds in world space and transform to grid space
             (Vector3 worldMin, Vector3 worldMax) = shape.GetWorldBoundingBox();
             Vector3 gridMin = worldToGrid.MultiplyPoint3x4(worldMin);
             Vector3 gridMax = worldToGrid.MultiplyPoint3x4(worldMax);
 
-            Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin));
+            //Expand by Vector3.one due to rounding.
+            Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin) - Vector3Int.one);
             Vector3Int maxGrid = Vector3Int.Min(
                 new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ),
-                Vector3Int.CeilToInt(gridMax)
+                Vector3Int.CeilToInt(gridMax) + Vector3Int.one
             );
 
-            // Modify the voxel data in affected grid region
-            for (int x = minGrid.x; x < maxGrid.x; x++)
+            float worldToGridScaleFactor = transform.localScale.magnitude;
+
+            // Parallel processing
+            System.Threading.Tasks.Parallel.For(minGrid.x, maxGrid.x, x =>
             {
                 for (int y = minGrid.y; y < maxGrid.y; y++)
                 {
                     for (int z = minGrid.z; z < maxGrid.z; z++)
                     {
+                        // Transform grid position to world space
                         Vector3 gridPoint = new(x, y, z);
-                        float distance = shape.OptimizedDistance(gridPoint);
 
+                        // Calculate the distance using the shape's transformation
+                        float distance = shape.OptimizedDistance(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
+
+                        // Modify the voxel value
                         float currentValue = model.GetVoxel(x, y, z);
                         float newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
                         model.SetVoxel(x, y, z, newValue);
                     }
                 }
-            }
+            });
 
             // Mark affected chunks as dirty
             MarkAffectedChunksDirty(minGrid, maxGrid);
