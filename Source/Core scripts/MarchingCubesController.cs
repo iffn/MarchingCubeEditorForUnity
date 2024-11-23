@@ -33,6 +33,16 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             int activeChunkCount = 0;
             Vector3Int gridResolution = new(resolutionX, resolutionY, resolutionZ);
 
+            //Validate views to see if any have been deleted
+            for(int i = 0; i < chunkViews.Count; i++)
+            {
+                if (chunkViews[i] == null) //Unity overrides the null pointer to handle deleted GameObjects
+                {
+                    chunkViews.RemoveAt(i);
+                    i--;
+                }
+            }
+
             for (int x = 0; x < resolutionX; x += chunkSize.x)
             {
                 for (int y = 0; y < resolutionY; y += chunkSize.y)
