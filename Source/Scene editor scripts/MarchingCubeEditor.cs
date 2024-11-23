@@ -98,11 +98,12 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 if (newAddingShape && !addingShape) //Toggle on
                 {
-                    linkedMarchingCubesController.GenerateAndDisplayMesh(true);
+                    linkedMarchingCubesController.EnableAllColliders = true;
                     originalShapePosition = selectedShape.transform.position;
                 }
                 else if(!newAddingShape && addingShape) //Toggle off
                 {
+                    linkedMarchingCubesController.EnableAllColliders = false;
                     selectedShape.transform.position = originalShapePosition;
                     selectedShape.gameObject.SetActive(true);
                 }
@@ -127,8 +128,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void InvertNormals(bool value)
         {
-            linkedMarchingCubesController.invertedNormals = value;
-            linkedMarchingCubesController.GenerateAndDisplayMesh(addingShape);
+            linkedMarchingCubesController.InvertAllNormals = value;
 
             invertNormals = value;
         }

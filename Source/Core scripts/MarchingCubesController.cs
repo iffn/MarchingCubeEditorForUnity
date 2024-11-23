@@ -2,6 +2,7 @@
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
@@ -9,56 +10,164 @@ using static BaseModificationTools;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
-    [RequireComponent(typeof(MarchingCubesView))]
     public class MarchingCubesController : MonoBehaviour
     {
-        MarchingCubesModel model;
-        MarchingCubesMeshData meshData;
-        MarchingCubesView view;
+        private List<MarchingCubesView> chunkViews = new();
+        private MarchingCubesModel model;
+
+        [SerializeField] private Vector3Int chunkSize = new(16, 16, 16);
 
         public bool showGridOutline = false; // Toggle controlled by the editor tool
-        public bool invertedNormals = false;
 
         public int GridResolutionX => model.VoxelData.GetLength(0);
         public int GridResolutionY => model.VoxelData.GetLength(1);
         public int GridResolutionZ => model.VoxelData.GetLength(2);
 
+        [SerializeField] GameObject chunkPrefab; // Prefab for chunk views
+
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
-            view = GetComponent<MarchingCubesView>();
             model = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
 
-            view.Initialize();
+            // Reuse or deactivate excess chunks
+            int activeChunkCount = 0;
+            Vector3Int gridResolution = new(resolutionX, resolutionY, resolutionZ);
 
-            if (setEmpty) SetEmptyGrid();
-        }
-
-        public bool IsInitialized
-        {
-            get
+            for (int x = 0; x < resolutionX; x += chunkSize.x)
             {
-                if (model == null) return false;
-                return true;
-            }
-        }
-
-        public void GenerateAndDisplayMesh(bool updateCollider)
-        {
-            meshData = new MarchingCubesMeshData();
-
-            for (int x = 0; x < model.ResolutionX - 1; x++)
-            {
-                for (int y = 0; y < model.ResolutionY - 1; y++)
+                for (int y = 0; y < resolutionY; y += chunkSize.y)
                 {
-                    for (int z = 0; z < model.ResolutionZ - 1; z++)
+                    for (int z = 0; z < resolutionZ; z += chunkSize.z)
                     {
-                        float[] cubeWeights = model.GetCubeWeights(x, y, z);
-                        MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x, y, z, invertedNormals);
+                        // Define chunk bounds
+                        Vector3Int start = new(x, y, z);
+                        Vector3Int size = Vector3Int.Min(chunkSize, gridResolution - start);
+
+                        MarchingCubesView chunkView;
+
+                        // Reuse an existing chunk view if available
+                        if (activeChunkCount < chunkViews.Count)
+                        {
+                            chunkView = chunkViews[activeChunkCount];
+                            chunkView.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            // Instantiate a new chunk view if no reusable chunk is available
+                            GameObject chunkObj = Instantiate(chunkPrefab, transform);
+                            chunkView = chunkObj.GetComponent<MarchingCubesView>();
+                            chunkViews.Add(chunkView);
+                        }
+
+                        chunkView.Initialize(start, size);
+                        activeChunkCount++;
                     }
                 }
             }
 
-            view.UpdateMesh(meshData, updateCollider);
+            // Deactivate excess chunks
+            for (int i = activeChunkCount; i < chunkViews.Count; i++)
+            {
+                chunkViews[i].gameObject.SetActive(false);
+            }
+
+            if (setEmpty) UpdateAllChunks(false);
+        }
+
+        public bool IsInitialized => model != null;
+
+        public void ModifyShape(EditShape shape, IVoxelModifier modifier, bool updateCollider)
+        {
+            // Precompute transformation
+            Matrix4x4 worldToGrid = transform.worldToLocalMatrix;
+            shape.PrecomputeTransform(transform);
+
+            // Determine affected grid bounds
+            (Vector3 worldMin, Vector3 worldMax) = shape.GetWorldBoundingBox();
+            Vector3 gridMin = worldToGrid.MultiplyPoint3x4(worldMin);
+            Vector3 gridMax = worldToGrid.MultiplyPoint3x4(worldMax);
+
+            Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin));
+            Vector3Int maxGrid = Vector3Int.Min(
+                new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ),
+                Vector3Int.CeilToInt(gridMax)
+            );
+
+            // Modify the voxel data in affected grid region
+            for (int x = minGrid.x; x < maxGrid.x; x++)
+            {
+                for (int y = minGrid.y; y < maxGrid.y; y++)
+                {
+                    for (int z = minGrid.z; z < maxGrid.z; z++)
+                    {
+                        Vector3 gridPoint = new(x, y, z);
+                        float distance = shape.OptimizedDistance(gridPoint);
+
+                        float currentValue = model.GetVoxel(x, y, z);
+                        float newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
+                        model.SetVoxel(x, y, z, newValue);
+                    }
+                }
+            }
+
+            // Mark affected chunks as dirty
+            MarkAffectedChunksDirty(minGrid, maxGrid);
+
+            // Update affected chunk meshes
+            UpdateAffectedChunks(minGrid, maxGrid, updateCollider);
+        }
+
+        private void MarkAffectedChunksDirty(Vector3Int minGrid, Vector3Int maxGrid)
+        {
+            foreach (var chunkView in chunkViews)
+            {
+                if (chunkView.IsWithinBounds(minGrid, maxGrid))
+                {
+                    chunkView.MarkDirty();
+                }
+            }
+        }
+
+        private void UpdateAffectedChunks(Vector3Int minGrid, Vector3Int maxGrid, bool enableCollider)
+        {
+            foreach (var chunkView in chunkViews)
+            {
+                if (chunkView.IsWithinBounds(minGrid, maxGrid))
+                {
+                    chunkView.UpdateMeshIfDirty(model, enableCollider);
+                }
+            }
+        }
+
+        void UpdateAllChunks(bool enableCollider)
+        {
+            foreach (var chunkView in chunkViews)
+            {
+                chunkView.MarkDirty();
+                chunkView.UpdateMeshIfDirty(model, enableCollider);
+            }
+        }
+
+        public bool InvertAllNormals
+        {
+            set
+            {
+                foreach (MarchingCubesView chunkView in chunkViews)
+                {
+                    chunkView.InvertedNormals = value;
+                }
+            }
+        }
+
+        public bool EnableAllColliders
+        {
+            set
+            {
+                foreach (MarchingCubesView chunkView in chunkViews)
+                {
+                    chunkView.ColliderEnabled = true;
+                }
+            }
         }
 
         public void SetEmptyGrid()
@@ -73,71 +182,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     }
                 }
             }
-            GenerateAndDisplayMesh(false); // Update the mesh after modification
+            UpdateAllChunks(false);
         }
-
-        public void ModifyShape(EditShape shape, IVoxelModifier modifier, bool updateCollider)
-        {
-            System.Diagnostics.Stopwatch sw = new();
-#if DEBUG_PERFORMANCE
-            sw.Start();
-#endif
-
-            // Precompute transformation matrices
-            Matrix4x4 gridToWorld = transform.localToWorldMatrix; // Transform grid space to world space
-            Matrix4x4 worldToGrid = transform.worldToLocalMatrix; // Transform world space to grid space
-
-            // Precompute shape transformation
-            shape.PrecomputeTransform(transform); //Passing the transform allows using the grid points directly, since they have a size of one.
-
-            // Get shape bounds in world space and transform to grid space
-            (Vector3 worldMin, Vector3 worldMax) = shape.GetWorldBoundingBox();
-            Vector3 gridMin = worldToGrid.MultiplyPoint3x4(worldMin);
-            Vector3 gridMax = worldToGrid.MultiplyPoint3x4(worldMax);
-
-            //Expand by Vector3.one due to rounding.
-            Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin) - Vector3Int.one);
-            Vector3Int maxGrid = Vector3Int.Min(
-                new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ),
-                Vector3Int.CeilToInt(gridMax) + Vector3Int.one
-            );
-
-            float worldToGridScaleFactor = transform.localScale.magnitude;
-
-            // Parallel processing
-            System.Threading.Tasks.Parallel.For(minGrid.x, maxGrid.x, x =>
-            {
-                for (int y = minGrid.y; y < maxGrid.y; y++)
-                {
-                    for (int z = minGrid.z; z < maxGrid.z; z++)
-                    {
-                        // Transform grid position to world space
-                        Vector3 gridPoint = new(x, y, z);
-
-                        // Calculate the distance using the shape's transformation
-                        float distance = shape.OptimizedDistance(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
-
-                        // Modify the voxel value
-                        float currentValue = model.GetVoxel(x, y, z);
-                        float newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
-                        model.SetVoxel(x, y, z, newValue);
-                    }
-                }
-            });
-
-#if DEBUG_PERFORMANCE
-            Debug.Log($"Modify voxel time = {sw.Elapsed.TotalMilliseconds}ms");
-            sw.Restart();
-#endif
-
-            // Update the mesh and collider if necessary
-            GenerateAndDisplayMesh(updateCollider);
-
-#if DEBUG_PERFORMANCE
-            Debug.Log($"Generate mesh time = {sw.Elapsed.TotalMilliseconds}ms");
-#endif
-        }
-
 
         public void AddShape(EditShape shape, bool updateCollider)
         {
@@ -179,7 +225,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     VoxelData = saveData
                 }; // Initialize model with grid data
 
-                GenerateAndDisplayMesh(updateColliders); // Refresh mesh
+                UpdateAllChunks(updateColliders); // Refresh mesh
             }
         }
 
