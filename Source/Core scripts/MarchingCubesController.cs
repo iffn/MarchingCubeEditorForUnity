@@ -81,7 +81,21 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 chunkViews[i].gameObject.SetActive(false);
             }
 
-            if (setEmpty) UpdateAllChunks(false);
+            if (setEmpty)
+            {
+                for (int x = 0; x < model.ResolutionX; x++)
+                {
+                    for (int y = 0; y < model.ResolutionY; y++)
+                    {
+                        for (int z = 0; z < model.ResolutionZ; z++)
+                        {
+                            model.SetVoxel(x, y, z, -1); // Use signed distance
+                        }
+                    }
+                }
+
+                UpdateAllChunks(false);
+            }
         }
 
         public bool IsInitialized => model != null;
