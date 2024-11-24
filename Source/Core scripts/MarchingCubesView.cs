@@ -39,6 +39,21 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             isDirty = true; // Mark the chunk as dirty upon initialization
         }
 
+        private void OnDestroy()
+        {
+            // Safely destroy the dynamically created mesh
+            if (meshFilter != null && meshFilter.sharedMesh != null)
+            {
+                Destroy(meshFilter.sharedMesh);
+            }
+
+            // Optionally clear the collider's mesh reference
+            if (meshCollider != null)
+            {
+                meshCollider.sharedMesh = null;
+            }
+        }
+
         public void MarkDirty()
         {
             isDirty = true;

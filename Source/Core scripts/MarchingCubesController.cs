@@ -27,6 +27,17 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
+            /*
+            Goals:
+            - Create model
+            - Manage chunk prefabs
+              - Instantiate enough
+              - Initialize them (Including correct positioning)
+            - Set data to empty if needed
+
+            */
+
+            //Create model
             model = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
 
             // Reuse or deactivate excess chunks
