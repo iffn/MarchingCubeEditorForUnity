@@ -12,7 +12,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 {
     public class MarchingCubesController : MonoBehaviour
     {
-        private List<MarchingCubesView> chunkViews = new();
+        private readonly List<MarchingCubesView> chunkViews = new();
         private MarchingCubesModel model;
 
         [SerializeField] private Vector3Int chunkSize = new(16, 16, 16);
@@ -27,33 +27,37 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
-            /*
-            Goals:
-            - Create model
-            - Manage chunk prefabs
-              - Instantiate enough
-              - Initialize them (Including correct positioning)
-            - Set data to empty if needed
-
-            */
-
-            //Create model
+            // Create model
             model = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
 
-            // Reuse or deactivate excess chunks
-            int activeChunkCount = 0;
             Vector3Int gridResolution = new(resolutionX, resolutionY, resolutionZ);
 
-            //Validate views to see if any have been deleted
-            for(int i = 0; i < chunkViews.Count; i++)
+            // Destroy all chunks, save with foreach since Unity doesn't immediately destroy them
+            List<GameObject> chunksToDestroy = new();
+
+            foreach (Transform child in transform)
             {
-                if (chunkViews[i] == null) //Unity overrides the null pointer to handle deleted GameObjects
+                if (child.TryGetComponent<MarchingCubesView>(out MarchingCubesView view))
                 {
-                    chunkViews.RemoveAt(i);
-                    i--;
+                    chunksToDestroy.Add(child.gameObject);
                 }
             }
 
+            foreach (GameObject chunk in chunksToDestroy)
+            {
+                if (Application.isPlaying)
+                {
+                    Destroy(chunk); // Safe for runtime
+                }
+                else
+                {
+                    DestroyImmediate(chunk); // Safe for edit mode
+                }
+            }
+
+            chunkViews.Clear();
+
+            // Create chunks
             for (int x = 0; x < resolutionX; x += chunkSize.x)
             {
                 for (int y = 0; y < resolutionY; y += chunkSize.y)
@@ -64,34 +68,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                         Vector3Int start = new(x, y, z);
                         Vector3Int size = Vector3Int.Min(chunkSize, gridResolution - start);
 
-                        MarchingCubesView chunkView;
-
-                        // Reuse an existing chunk view if available
-                        if (activeChunkCount < chunkViews.Count)
-                        {
-                            chunkView = chunkViews[activeChunkCount];
-                            chunkView.gameObject.SetActive(true);
-                        }
-                        else
-                        {
-                            // Instantiate a new chunk view if no reusable chunk is available
-                            GameObject chunkObj = Instantiate(chunkPrefab, transform);
-                            chunkView = chunkObj.GetComponent<MarchingCubesView>();
-                            chunkViews.Add(chunkView);
-                        }
+                        MarchingCubesView chunkView = Instantiate(chunkPrefab, transform).GetComponent<MarchingCubesView>();
+                        chunkViews.Add(chunkView);
 
                         chunkView.Initialize(start, size);
-                        activeChunkCount++;
                     }
                 }
             }
 
-            // Deactivate excess chunks
-            for (int i = activeChunkCount; i < chunkViews.Count; i++)
-            {
-                chunkViews[i].gameObject.SetActive(false);
-            }
-
+            // Set grid to empty
             if (setEmpty)
             {
                 for (int x = 0; x < model.ResolutionX; x++)

@@ -17,7 +17,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void Initialize(Vector3Int start, Vector3Int size)
         {
-            transform.localPosition = chunkStart;
+            transform.localPosition = new Vector3(start.x, start.y, start.z);
 
             meshFilter = GetComponent<MeshFilter>();
             meshCollider = GetComponent<MeshCollider>();
