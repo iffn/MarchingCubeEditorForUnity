@@ -119,6 +119,28 @@ class ScriptableObjectSaveData <<ScriptableObject>>{
     + float[,,] LoadData()
 }
 
+interface IVoxelModifier {
+    ModifyVoxel(x: int, y: int, z: int, currentValue: float, distance: float) : float
+}
+
+class AddShapeModifier {
+}
+
+class SubtractShapeModifier {
+}
+
+class AddShapeWithMaxHeightModifier {
+    - int maxHeight
+    + AddShapeWithMaxHeightModifier(maxHeight: int)
+}
+
+IVoxelModifier <|.. AddShapeModifier
+IVoxelModifier <|.. SubtractShapeModifier
+IVoxelModifier <|.. AddShapeWithMaxHeightModifier
+
+MarchingCubesController --> IVoxelModifier : "uses"
+
+
 MarchingCubeEditor ..> MarchingCubesController : "controls"
 MarchingCubeEditor ..> EditShape : "uses"
 MarchingCubeEditor ..> ScriptableObjectSaveData : "writes to and reads from"
