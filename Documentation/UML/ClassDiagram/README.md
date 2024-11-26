@@ -1,4 +1,5 @@
 
+# Class diagram
 ```mermaid
 classDiagram
     class MarchingCubesController {
@@ -149,3 +150,4 @@ classDiagram
     EditShape --> MarchingCubesController : "is operated on by"
     MarchingCubesMeshData --> MarchingCubesModel : "visualizes"
     ScriptableObjectSaveData --> MarchingCubesModel : "serializes and deserializes"
+```
