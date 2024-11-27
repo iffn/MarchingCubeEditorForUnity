@@ -57,32 +57,55 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     actor User
-
-    User ->> MarchingCubeEditor: Interacts with UI
-    MarchingCubeEditor ->> MarchingCubesController: AddShape(selectedShape, updateCollider)
-
+    User ->> MarchingCubeEditor : Interacts with UI
+    activate MarchingCubeEditor
+    MarchingCubeEditor ->> MarchingCubesController : AddPreviewShape(selectedShape)
     activate MarchingCubesController
-    MarchingCubesController ->> EditShape: PrecomputeTransform(gridTransform)
-    activate EditShape
-    EditShape -->> MarchingCubesController: PrecomputedTransformMatrix
-    deactivate EditShape
+    MarchingCubesController ->> MarchingCubesModel : CreatePreviewModel(minGrid, maxGrid)
+    activate MarchingCubesModel
+    MarchingCubesModel --> MarchingCubesController : PreviewModelReference
+    deactivate MarchingCubesModel
 
     loop Modify affected grid
-        MarchingCubesController ->> MarchingCubesModel: GetVoxel(x, y, z)
-        MarchingCubesController ->> IVoxelModifier: ModifyVoxel(x, y, z, currentValue, distance)
-        IVoxelModifier -->> MarchingCubesController: ModifiedVoxelValue
-        MarchingCubesController ->> MarchingCubesModel: SetVoxel(x, y, z, newValue)
+        MarchingCubesController ->> PreviewModel : GetVoxel(x, y, z)
+        MarchingCubesController ->> IVoxelModifier : ModifyVoxel(x, y, z, currentValue, distance)
+        IVoxelModifier --> MarchingCubesController : ModifiedVoxelValue
+        MarchingCubesController ->> PreviewModel : SetVoxel(x, y, z, newValue)
     end
 
-    MarchingCubesController ->> MarchingCubesView: MarkAffectedChunksDirty(minGrid, maxGrid)
-    MarchingCubesController ->> MarchingCubesView: UpdateAffectedChunks(minGrid, maxGrid, enableCollider)
+    MarchingCubesController ->> PreviewView : UpdatePreviewMesh(PreviewModel)
+    activate PreviewView
 
-    loop Update chunk meshes
-        MarchingCubesView ->> MarchingCubesModel: GetCubeWeights(x, y, z)
-        MarchingCubesView ->> MarchingCubesMeshData: GenerateCubeMesh(cubeWeights, x, y, z)
-        MarchingCubesMeshData -->> MarchingCubesView: GeneratedMeshData
-        MarchingCubesView ->> MarchingCubesView: UpdateMesh(meshData, enableCollider)
+    loop Generate preview mesh
+        PreviewView ->> PreviewModel : GetCubeWeights(x, y, z)
+        PreviewView ->> MarchingCubesMeshData : GenerateCubeMesh(cubeWeights, x, y, z)
+        MarchingCubesMeshData --> PreviewView : GeneratedMeshData
     end
-
+    PreviewView ->> PreviewView : RenderPreview()
+    deactivate PreviewView
     deactivate MarchingCubesController
+    deactivate MarchingCubeEditor
+
+    %% Applying Changes %%
+    User ->> MarchingCubeEditor : Confirm Apply
+    activate MarchingCubeEditor
+    MarchingCubeEditor ->> MarchingCubesController : ApplyChanges()
+    activate MarchingCubesController
+
+    loop Apply changes to model
+        MarchingCubesController ->> MarchingCubesModel : CopyPreviewToMainModel()
+    end
+
+    MarchingCubesController ->> MarchingCubesView : MarkAffectedChunksDirty(minGrid, maxGrid)
+    MarchingCubesController ->> MarchingCubesView : UpdateAffectedChunks(minGrid, maxGrid, enableCollider)
+
+    loop Update final chunk meshes
+        MarchingCubesView ->> MarchingCubesModel : GetCubeWeights(x, y, z)
+        MarchingCubesView ->> MarchingCubesMeshData : GenerateCubeMesh(cubeWeights, x, y, z)
+        MarchingCubesMeshData --> MarchingCubesView : GeneratedMeshData
+        MarchingCubesView ->> MarchingCubesView : UpdateMesh(meshData, enableCollider)
+    end
+    deactivate MarchingCubesController
+    deactivate MarchingCubeEditor
+
 ```

@@ -5,6 +5,8 @@ classDiagram
     class MarchingCubesController {
         - List~MarchingCubesView~ chunkViews
         - MarchingCubesModel model
+        - MarchingCubesModel previewModel 🟢
+        - MarchingCubesView previewView 🟢
         - Vector3Int chunkSize
         - GameObject chunkPrefab
         + bool showGridOutline
@@ -14,6 +16,9 @@ classDiagram
         + Initialize(resolutionX: int, resolutionY: int, resolutionZ: int, setEmpty: bool) void
         + bool IsInitialized
         + ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
+        + CreatePreviewModel(minGrid: Vector3Int, maxGrid: Vector3Int) void 🟢
+        + UpdatePreview(shape: EditShape) void 🟢
+        + ApplyChanges() void 🟢
         + MarkAffectedChunksDirty(minGrid: Vector3Int, maxGrid: Vector3Int) void
         + UpdateAffectedChunks(minGrid: Vector3Int, maxGrid: Vector3Int, enableCollider: bool) void
         + UpdateAllChunks(enableCollider: bool) void
@@ -45,6 +50,7 @@ classDiagram
         + bool InvertedNormals
         + bool ColliderEnabled
         + bool IsWithinBounds(minGrid: Vector3Int, maxGrid: Vector3Int) bool
+        + RenderPreview() void 🟢
         - GenerateChunkMesh(model: MarchingCubesModel) MarchingCubesMeshData
         - InvertMeshTriangles() void
         - OnDestroy() void
@@ -63,6 +69,7 @@ classDiagram
         + GetVoxel(x: int, y: int, z: int) float
         + GetVoxelData() float[,,]
         + GetCubeWeights(x: int, y: int, z: int) float[]
+        + CopyRegion(source: MarchingCubesModel, minGrid: Vector3Int, maxGrid: Vector3Int) void 🟢
         - IsInGrid(x: int, y: int, z: int) bool
     }
 
@@ -144,6 +151,8 @@ classDiagram
     MarchingCubesController --> MarchingCubesView : controls 1...*
     MarchingCubesController --> EditShape : uses
     MarchingCubesController --> ScriptableObjectSaveData : serializes and deserializes
+    MarchingCubesController --> MarchingCubesView : controls preview 🟢
+    MarchingCubesController --> MarchingCubesModel : modifies preview 🟢
     MarchingCubesView --> MarchingCubesModel : reads from
     MarchingCubesView --> MarchingCubesMeshData : writes to
     MarchingCubesMeshData --> MarchingCubesView : provides
