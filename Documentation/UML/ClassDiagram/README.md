@@ -136,18 +136,18 @@ classDiagram
     IVoxelModifier <|.. SubtractShapeModifier
     IVoxelModifier <|.. AddShapeWithMaxHeightModifier
 
-    MarchingCubesController --> IVoxelModifier : "uses"
-    MarchingCubeEditor ..> MarchingCubesController : "controls"
-    MarchingCubeEditor ..> EditShape : "uses"
-    MarchingCubeEditor ..> ScriptableObjectSaveData : "writes to and reads from"
-    MarchingCubesController --> MarchingCubesModel : "modifies"
-    MarchingCubesController --> MarchingCubesView : "controls 1...*"
-    MarchingCubesController --> EditShape : "uses"
-    MarchingCubesController --> ScriptableObjectSaveData : "serializes and deserializes"
-    MarchingCubesView --> MarchingCubesModel : "reads from"
-    MarchingCubesView --> MarchingCubesMeshData : "writes to"
-    MarchingCubesMeshData --> MarchingCubesView : "provides"
-    EditShape --> MarchingCubesController : "is operated on by"
-    MarchingCubesMeshData --> MarchingCubesModel : "visualizes"
-    ScriptableObjectSaveData --> MarchingCubesModel : "serializes and deserializes"
+    MarchingCubesController --> IVoxelModifier : uses
+    MarchingCubeEditor ..> MarchingCubesController : controls
+    MarchingCubeEditor ..> EditShape : uses
+    MarchingCubeEditor ..> ScriptableObjectSaveData : writes to and reads from
+    MarchingCubesController --> MarchingCubesModel : modifies
+    MarchingCubesController --> MarchingCubesView : controls 1...*
+    MarchingCubesController --> EditShape : uses
+    MarchingCubesController --> ScriptableObjectSaveData : serializes and deserializes
+    MarchingCubesView --> MarchingCubesModel : reads from
+    MarchingCubesView --> MarchingCubesMeshData : writes to
+    MarchingCubesMeshData --> MarchingCubesView : provides
+    EditShape --> MarchingCubesController : is operated on by
+    MarchingCubesMeshData --> MarchingCubesModel : visualizes
+    ScriptableObjectSaveData --> MarchingCubesModel : serializes and deserializes
 ```
