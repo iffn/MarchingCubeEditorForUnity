@@ -7,7 +7,6 @@ sequenceDiagram
     participant MarchingCubesController
     participant MarchingCubesModel
     participant MarchingCubesView
-    participant GameObject
 
     User ->> MarchingCubeEditor: Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, setEmpty)
     MarchingCubeEditor ->> MarchingCubesController: Initialize(resolutionX, resolutionY, resolutionZ, setEmpty)
@@ -19,20 +18,20 @@ sequenceDiagram
     deactivate MarchingCubesModel
     
     loop Destroy existing chunks
-        MarchingCubesController ->> GameObject: Find existing child chunks
-        GameObject --> MarchingCubesController: Found chunk objects
+        MarchingCubesController ->> MarchingCubesView: Find existing child chunks
+        MarchingCubesView --> MarchingCubesController: Found chunk objects
         alt Runtime mode
-            MarchingCubesController ->> GameObject: Destroy(chunk)
+            MarchingCubesController ->> MarchingCubesView: Destroy(chunk)
         else Editor mode
-            MarchingCubesController ->> GameObject: DestroyImmediate(chunk)
+            MarchingCubesController ->> MarchingCubesView: DestroyImmediate(chunk)
         end
     end
 
     MarchingCubesController ->> MarchingCubesController: Clear chunkViews list
     
     loop Create chunks
-        MarchingCubesController ->> GameObject: Instantiate(chunkPrefab)
-        GameObject --> MarchingCubesController: Return chunk GameObject
+        MarchingCubesController ->> MarchingCubesView: Instantiate(chunkPrefab)
+        MarchingCubesView --> MarchingCubesController: Return chunk view
         MarchingCubesController ->> MarchingCubesView: Initialize(start, size)
         MarchingCubesView --> MarchingCubesController: Chunk initialized
         MarchingCubesController ->> MarchingCubesController: Add chunk to chunkViews
