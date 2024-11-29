@@ -1,9 +1,7 @@
 //#define DEBUG_PERFORMANCE
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
-using System;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEditor;
 using UnityEngine;
 using static BaseModificationTools;
@@ -14,6 +12,20 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     {
         private readonly List<MarchingCubesView> chunkViews = new();
         private MarchingCubesModel model;
+        private MarchingCubesView previewView;
+        private MarchingCubesModel previewModelWithOldData;
+
+        public bool DisplayPreviewShape
+        {
+            set
+            {
+                previewView.gameObject.SetActive(value);
+            }
+            get
+            {
+                return previewView.gameObject.activeSelf;
+            }
+        }
 
         [SerializeField] private Vector3Int chunkSize = new(16, 16, 16);
 
@@ -24,11 +36,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public int GridResolutionZ => model.VoxelData.GetLength(2);
 
         [SerializeField] GameObject chunkPrefab; // Prefab for chunk views
+        [SerializeField] private GameObject previewPrefab;
 
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
             // Create model
-            model = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
+            if(model == null)
+            {
+                model = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
+            }
+            else
+            {
+                model.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, setEmpty);
+            }
 
             Vector3Int gridResolution = new(resolutionX, resolutionY, resolutionZ);
 
@@ -92,31 +112,102 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                 UpdateAllChunks(false);
             }
+
+            // Setup preview model
+            if(previewModelWithOldData == null)
+            {
+                previewModelWithOldData = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
+            }
+            else
+            {
+                previewModelWithOldData.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, false);
+            }
+
+            if (!previewView)
+            {
+                previewView = Instantiate(previewPrefab, transform).GetComponent<MarchingCubesView>();
+                previewView.Initialize(Vector3Int.zero, Vector3Int.one);
+                DisplayPreviewShape = false;
+            }
+            
         }
 
         public bool IsInitialized => model != null;
 
+        public void UpdatePreview(EditShape shape, IVoxelModifier modifier)
+        {
+            // Get grid size     
+            (Vector3Int minGrid, Vector3Int maxGrid) = CalculateGridBoundsClamped(shape);
+
+            // Copy model
+            previewModelWithOldData.CopyRegion(model, minGrid, maxGrid);
+
+            // Modify model:
+            ModifyModel(shape, modifier, previewModelWithOldData, minGrid, maxGrid);
+
+            // Update the preview view
+            previewView.UpdateBounds(minGrid, maxGrid);
+            previewView.MarkDirty();
+            previewView.UpdateMeshIfDirty(previewModelWithOldData, false);
+        }
+
+        public void ApplyPreviewChanges(bool updateCollider)
+        {
+            // Get grid size from preview
+            Vector3Int minGrid = previewView.ChunkStart;
+            Vector3Int maxGrid = minGrid + previewView.ChunkSize;
+
+            // Copy data from preview
+            model.CopyRegion(previewModelWithOldData, minGrid, maxGrid);
+            
+            // Mark affected chunks as dirty
+            MarkAffectedChunksDirty(minGrid, maxGrid);
+
+            // Update affected chunk meshes
+            UpdateAffectedChunks(minGrid, maxGrid, updateCollider);
+        }
+
         public void ModifyShape(EditShape shape, IVoxelModifier modifier, bool updateCollider)
+        {
+            // Get grid size
+            (Vector3Int minGrid, Vector3Int maxGrid) = CalculateGridBoundsClamped(shape);
+
+            // Modify model
+            ModifyModel(shape, modifier, model, minGrid, maxGrid);
+
+            // Mark affected chunks as dirty
+            MarkAffectedChunksDirty(minGrid, maxGrid);
+
+            // Update affected chunk meshes
+            UpdateAffectedChunks(minGrid, maxGrid, updateCollider);
+        }
+
+        private (Vector3Int minGrid, Vector3Int maxGrid) CalculateGridBoundsClamped(EditShape shape)
         {
             // Precompute transformation matrices
             Matrix4x4 gridToWorld = transform.localToWorldMatrix; // Transform grid space to world space
             Matrix4x4 worldToGrid = transform.worldToLocalMatrix; // Transform world space to grid space
 
             // Precompute shape transformation
-            shape.PrecomputeTransform(transform); //Passing the transform allows using the grid points directly, since they have a size of one.
+            shape.PrecomputeTransform(transform); // Passing the transform allows using the grid points directly
 
             // Get shape bounds in world space and transform to grid space
             (Vector3 worldMin, Vector3 worldMax) = shape.GetWorldBoundingBox();
             Vector3 gridMin = worldToGrid.MultiplyPoint3x4(worldMin);
             Vector3 gridMax = worldToGrid.MultiplyPoint3x4(worldMax);
 
-            //Expand by Vector3.one due to rounding.
+            // Expand bounds by Vector3.one due to rounding and clamp to valid grid range
             Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin) - Vector3Int.one);
             Vector3Int maxGrid = Vector3Int.Min(
                 new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ),
                 Vector3Int.CeilToInt(gridMax) + Vector3Int.one
             );
 
+            return (minGrid, maxGrid);
+        }
+
+        void ModifyModel(EditShape shape, IVoxelModifier modifier, MarchingCubesModel modelToModify, Vector3Int minGrid, Vector3Int maxGrid)
+        {
             float worldToGridScaleFactor = transform.localScale.magnitude;
 
             // Parallel processing
@@ -135,16 +226,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                         // Modify the voxel value
                         float currentValue = model.GetVoxel(x, y, z);
                         float newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
-                        model.SetVoxel(x, y, z, newValue);
+                        modelToModify.SetVoxel(x, y, z, newValue);
                     }
                 }
             });
-
-            // Mark affected chunks as dirty
-            MarkAffectedChunksDirty(minGrid, maxGrid);
-
-            // Update affected chunk meshes
-            UpdateAffectedChunks(minGrid, maxGrid, updateCollider);
         }
 
         private void MarkAffectedChunksDirty(Vector3Int minGrid, Vector3Int maxGrid)
@@ -226,9 +311,26 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             ModifyShape(shape, new AddShapeWithMaxHeightModifier(maxHeightInt), updateCollider);
         }
 
+
         public void SubtractShape(EditShape shape, bool updateCollider)
         {
             ModifyShape(shape, new SubtractShapeModifier(), updateCollider);
+        }
+
+        public void PreviewAddShape(EditShape shape)
+        {
+            UpdatePreview(shape, new AddShapeModifier());
+        }
+
+        public void PreviewAddShapeWithMaxHeight(EditShape shape, float maxHeight)
+        {
+            int maxHeightInt = Mathf.RoundToInt(Mathf.Min(maxHeight, model.ResolutionY));
+            UpdatePreview(shape, new AddShapeWithMaxHeightModifier(maxHeightInt));
+        }
+
+        public void PreviewSubtractShape(EditShape shape)
+        {
+            UpdatePreview(shape, new SubtractShapeModifier());
         }
 
         public void SaveGridData(ScriptableObjectSaveData gridData)

@@ -72,5 +72,56 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             return cubeWeights;
         }
+
+        public void ChangeGridSizeIfNeeded(int resolutionX, int resolutionY, int resolutionZ, bool copyDataIfChanging)
+        {
+            // Check if the current size matches the new size
+            if (resolutionX == ResolutionX && resolutionY == ResolutionY && resolutionZ == ResolutionZ)
+            {
+                // No changes needed
+                return;
+            }
+
+            // Create a new VoxelData array with the new size
+            float[,,] newVoxelData = new float[resolutionX, resolutionY, resolutionZ];
+
+            if (copyDataIfChanging)
+            {
+                // Determine the size of the overlapping region
+                int overlapX = Mathf.Min(resolutionX, ResolutionX);
+                int overlapY = Mathf.Min(resolutionY, ResolutionY);
+                int overlapZ = Mathf.Min(resolutionZ, ResolutionZ);
+
+                // Copy the overlapping region from the old VoxelData to the new one
+                for (int x = 0; x < overlapX; x++)
+                {
+                    for (int y = 0; y < overlapY; y++)
+                    {
+                        for (int z = 0; z < overlapZ; z++)
+                        {
+                            newVoxelData[x, y, z] = VoxelData[x, y, z];
+                        }
+                    }
+                }
+            }
+
+            // Assign the new VoxelData array
+            VoxelData = newVoxelData;
+        }
+
+        public void CopyRegion(MarchingCubesModel source, Vector3Int minGrid, Vector3Int maxGrid)
+        {
+            // Copy the voxel data from source to this model
+            for (int x = minGrid.x; x <= maxGrid.x; x++)
+            {
+                for (int y = minGrid.y; y <= maxGrid.y; y++)
+                {
+                    for (int z = minGrid.z; z <= maxGrid.z; z++)
+                    {
+                        VoxelData[x, y, z] = source.GetVoxel(x, y, z);
+                    }
+                }
+            }
+        }
     }
 }

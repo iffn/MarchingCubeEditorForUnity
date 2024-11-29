@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
@@ -14,6 +13,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private Vector3Int chunkSize;   // Size of this chunk
         private bool isDirty;           // Whether this chunk's mesh needs updating
         bool invertedNormals = false;
+
+        public Vector3Int ChunkStart => chunkStart;
+        public Vector3Int ChunkSize => chunkSize;
 
         public void Initialize(Vector3Int start, Vector3Int size)
         {
@@ -37,6 +39,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             meshCollider.sharedMesh = meshFilter.sharedMesh;
 
             isDirty = true; // Mark the chunk as dirty upon initialization
+        }
+
+        public void UpdateBounds(Vector3Int min, Vector3Int max)
+        {
+            chunkStart = min;
+            chunkSize = max - min;
+            transform.localPosition = new Vector3(chunkStart.x, chunkStart.y, chunkStart.z);
         }
 
         private void OnDestroy()
@@ -119,7 +128,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             set
             {
-                if(value != invertedNormals)
+                if (value != invertedNormals)
                 {
                     InvertMeshTriangles();
                 }
@@ -166,7 +175,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                         meshCollider.sharedMesh = mesh;
                     }
                 }
-                
+
                 meshCollider.enabled = value;
             }
         }
