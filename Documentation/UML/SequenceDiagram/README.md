@@ -68,22 +68,16 @@ sequenceDiagram
 
     User ->> MarchingCubeEditor: Enable Preview Shape🟢
     MarchingCubeEditor ->> MarchingCubesController: EnablePreview()🟢
-    activate MarchingCubesController
     MarchingCubesController ->> MarchingCubesView: ActivatePreviewView()🟢
-    deactivate MarchingCubesController
 
     User ->> MarchingCubeEditor: Adjust Shape Position/Size🟠
     MarchingCubeEditor ->> MarchingCubesController: UpdatePreviewShape(selectedShape, modifier)🟢
     activate MarchingCubesController
-    MarchingCubesController ->> MarchingCubesPreviewModel 🟢: SetSizeAndPosition()🟢
-    activate MarchingCubesPreviewModel 🟢
-    MarchingCubesPreviewModel 🟢 ->> MarchingCubesModel: CopyData(mainModel, bounds)🟢
-    deactivate MarchingCubesPreviewModel 🟢
+    MarchingCubesController ->> MarchingCubesModel: CopyRegion(mainModel, bounds) 🟢
     MarchingCubesController ->> EditShape: PrecomputeTransform(gridTransform)
     activate EditShape
     EditShape -->> MarchingCubesController: PrecomputedTransformMatrix
     deactivate EditShape
-    deactivate MarchingCubesController
 
     loop Modify Preview Grid
         MarchingCubesController ->> MarchingCubesPreviewModel 🟢: GetVoxel(x, y, z)
@@ -101,11 +95,12 @@ sequenceDiagram
     end
     MarchingCubesView ->> MarchingCubesView: UpdateMesh(meshData, enableCollider)
     deactivate MarchingCubesView
+    deactivate MarchingCubesController
 
     User ->> MarchingCubeEditor: Apply Preview🟢
     MarchingCubeEditor ->> MarchingCubesController: ApplyPreviewShape()🟢
     activate MarchingCubesController
-    MarchingCubesController ->> MarchingCubesModel: CopyPreviewDataToMainModel(previewModel)🟢
+    MarchingCubesController ->> MarchingCubesModel: CopyRegion(previewModel, minGrid, maxGrid) 🟢
 
     loop Update Affected Chunk Meshes
         MarchingCubesController ->> MarchingCubesView: UpdateAffectedChunks(minGrid, maxGrid)🟠
@@ -117,8 +112,5 @@ sequenceDiagram
     deactivate MarchingCubesController
 
     User ->> MarchingCubeEditor: Disable Preview Shape🟢
-    MarchingCubeEditor ->> MarchingCubesController: DisablePreview()🟢
-    activate MarchingCubesController
-    MarchingCubesController ->> MarchingCubesView: DeactivatePreviewView()🟢
-    deactivate MarchingCubesController
+    MarchingCubeEditor ->> MarchingCubesController: Disable preview shape🟢
 ```
