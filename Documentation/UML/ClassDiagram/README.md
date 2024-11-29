@@ -13,17 +13,17 @@ classDiagram
         + int GridResolutionX
         + int GridResolutionY
         + int GridResolutionZ
-        + Initialize(resolutionX: int, resolutionY: int, resolutionZ: int, setEmpty: bool) void
         + bool IsInitialized
+        + bool InvertAllNormals
+        + bool EnableAllColliders
+        + bool DisplayPreviewShape
+        + Initialize(resolutionX: int, resolutionY: int, resolutionZ: int, setEmpty: bool) void
         + ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
-        + CreatePreviewModel(minGrid: Vector3Int, maxGrid: Vector3Int) void 🟢
         + UpdatePreview(shape: EditShape) void 🟢
         + ApplyChanges() void 🟢
         + MarkAffectedChunksDirty(minGrid: Vector3Int, maxGrid: Vector3Int) void
         + UpdateAffectedChunks(minGrid: Vector3Int, maxGrid: Vector3Int, enableCollider: bool) void
         + UpdateAllChunks(enableCollider: bool) void
-        + bool InvertAllNormals
-        + bool EnableAllColliders
         + SetEmptyGrid() void
         + AddShape(shape: EditShape, updateCollider: bool) void
         + AddShapeWithMaxHeight(shape: EditShape, maxHeight: float, updateCollider: bool) void
@@ -50,7 +50,6 @@ classDiagram
         + bool InvertedNormals
         + bool ColliderEnabled
         + bool IsWithinBounds(minGrid: Vector3Int, maxGrid: Vector3Int) bool
-        + RenderPreview() void 🟢
         - GenerateChunkMesh(model: MarchingCubesModel) MarchingCubesMeshData
         - InvertMeshTriangles() void
         - OnDestroy() void
