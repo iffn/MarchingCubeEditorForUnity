@@ -16,7 +16,7 @@ classDiagram
         + bool IsInitialized
         + bool InvertAllNormals
         + bool EnableAllColliders
-        + bool DisplayPreviewShape
+        + bool DisplayPreviewShape 🟢
         + Initialize(resolutionX: int, resolutionY: int, resolutionZ: int, setEmpty: bool) void
         + ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
         + UpdatePreview(shape: EditShape) void 🟢
