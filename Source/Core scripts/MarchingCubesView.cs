@@ -158,7 +158,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 if (value)
                 {
                     meshCollider.sharedMesh = null;
-                    meshCollider.sharedMesh = meshFilter.sharedMesh;
+
+                    Mesh mesh = meshFilter.sharedMesh;
+
+                    if (mesh.vertexCount > 0 && mesh.triangles.Length > 0) // Prevent invalid mesh assignment
+                    {
+                        meshCollider.sharedMesh = mesh;
+                    }
                 }
                 
                 meshCollider.enabled = value;
