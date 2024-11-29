@@ -7,16 +7,18 @@ sequenceDiagram
     participant MarchingCubesController
     participant MarchingCubesModel
     participant MarchingCubesView
+    participant MarchingCubesPreviewModel
+    participant MarchingCubesPreviewView
 
     User ->> MarchingCubeEditor: Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, setEmpty)
     MarchingCubeEditor ->> MarchingCubesController: Initialize(resolutionX, resolutionY, resolutionZ, setEmpty)
     
     activate MarchingCubesController
-    MarchingCubesController ->> MarchingCubesModel: Create model with resolution
+    MarchingCubesController ->> MarchingCubesModel: Create or resize main model with resolution 🟠
     activate MarchingCubesModel
-    MarchingCubesModel --> MarchingCubesController: Model created
+    MarchingCubesModel --> MarchingCubesController: Main model ready 🟠
     deactivate MarchingCubesModel
-    
+
     loop Destroy existing chunks
         MarchingCubesController ->> MarchingCubesView: Find existing child chunks
         MarchingCubesView --> MarchingCubesController: Found chunk objects
@@ -37,8 +39,12 @@ sequenceDiagram
         MarchingCubesController ->> MarchingCubesController: Add chunk to chunkViews
     end
     
-    MarchingCubesController ->> MarchingCubesModel: Create preview model 🟢
-    MarchingCubesModel --> MarchingCubesController: Preview model created 🟢
+    MarchingCubesController ->> MarchingCubesPreviewModel: Create or setup preview model 🟢
+
+    MarchingCubesController ->> MarchingCubesPreviewView: Create or setup preview view 🟢
+
+    MarchingCubesController ->> MarchingCubesPreviewView: Hide preview view 🟢
+
 
     alt setEmpty is true
         loop Set all grid voxels to empty
