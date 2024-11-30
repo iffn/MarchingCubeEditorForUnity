@@ -41,7 +41,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
             // Create model
-            if(model == null)
+            if (model == null)
             {
                 model = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
             }
@@ -85,13 +85,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     for (int z = 0; z < resolutionZ; z += chunkSize.z)
                     {
                         // Define chunk bounds
-                        Vector3Int start = new(x, y, z);
-                        Vector3Int size = Vector3Int.Min(chunkSize, gridResolution - start);
+                        Vector3Int gridBoundsMin = new(x, y, z);
+
+                        Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, model.MaxGrid);
 
                         MarchingCubesView chunkView = Instantiate(chunkPrefab, transform).GetComponent<MarchingCubesView>();
                         chunkViews.Add(chunkView);
-
-                        chunkView.Initialize(start, size);
+                        chunkView.Initialize(gridBoundsMin, gridBoundsMax);
                     }
                 }
             }
@@ -114,7 +114,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
 
             // Setup preview model
-            if(previewModelWithOldData == null)
+            if (previewModelWithOldData == null)
             {
                 previewModelWithOldData = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
             }
@@ -129,7 +129,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 previewView.Initialize(Vector3Int.zero, Vector3Int.one);
                 DisplayPreviewShape = false;
             }
-            
         }
 
         public bool IsInitialized => model != null;
@@ -154,17 +153,17 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void ApplyPreviewChanges(bool updateCollider)
         {
             // Get grid size from preview
-            Vector3Int minGrid = previewView.ChunkStart;
-            Vector3Int maxGrid = minGrid + previewView.ChunkSize;
+            Vector3Int gridBoundsMin = previewView.GridBoundsMin;
+            Vector3Int gridBoundsMax = previewView.GridBoundsMax;
 
             // Copy data from preview
-            model.CopyRegion(previewModelWithOldData, minGrid, maxGrid);
-            
+            model.CopyRegion(previewModelWithOldData, gridBoundsMin, gridBoundsMax);
+
             // Mark affected chunks as dirty
-            MarkAffectedChunksDirty(minGrid, maxGrid);
+            MarkAffectedChunksDirty(gridBoundsMin, gridBoundsMax);
 
             // Update affected chunk meshes
-            UpdateAffectedChunks(minGrid, maxGrid, updateCollider);
+            UpdateAffectedChunks(gridBoundsMin, gridBoundsMax, updateCollider);
         }
 
         public void ModifyShape(EditShape shape, IVoxelModifier modifier, bool updateCollider)
@@ -185,7 +184,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private (Vector3Int minGrid, Vector3Int maxGrid) CalculateGridBoundsClamped(EditShape shape)
         {
             // Precompute transformation matrices
-            Matrix4x4 gridToWorld = transform.localToWorldMatrix; // Transform grid space to world space
             Matrix4x4 worldToGrid = transform.worldToLocalMatrix; // Transform world space to grid space
 
             // Precompute shape transformation
@@ -198,10 +196,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             // Expand bounds by Vector3.one due to rounding and clamp to valid grid range
             Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin) - Vector3Int.one);
-            Vector3Int maxGrid = Vector3Int.Min(
-                new Vector3Int(model.ResolutionX, model.ResolutionY, model.ResolutionZ),
-                Vector3Int.CeilToInt(gridMax) + Vector3Int.one
-            );
+            Vector3Int maxGrid = Vector3Int.Min(Vector3Int.CeilToInt(gridMax) + Vector3Int.one, model.MaxGrid);
 
             return (minGrid, maxGrid);
         }

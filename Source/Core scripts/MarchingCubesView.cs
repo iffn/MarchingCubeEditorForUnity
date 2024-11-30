@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
@@ -9,23 +10,24 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private MeshFilter meshFilter;
         private MeshCollider meshCollider;
 
-        private Vector3Int chunkStart;   // Start position of this chunk in model space
-        private Vector3Int chunkSize;   // Size of this chunk
+        Vector3Int gridBoundsMin;
+        Vector3Int gridBoundsMax;
+
         private bool isDirty;           // Whether this chunk's mesh needs updating
         bool invertedNormals = false;
 
-        public Vector3Int ChunkStart => chunkStart;
-        public Vector3Int ChunkSize => chunkSize;
+        public Vector3Int GridBoundsMin => gridBoundsMin;
+        public Vector3Int GridBoundsMax => gridBoundsMax;
 
-        public void Initialize(Vector3Int start, Vector3Int size)
+        public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax)
         {
-            transform.localPosition = new Vector3(start.x, start.y, start.z);
+            this.gridBoundsMin = gridBoundsMin;
+            this.gridBoundsMax = gridBoundsMax;
 
+            transform.localPosition = new Vector3(gridBoundsMin.x, gridBoundsMin.y, gridBoundsMin.z);
+            
             meshFilter = GetComponent<MeshFilter>();
             meshCollider = GetComponent<MeshCollider>();
-
-            chunkStart = start;
-            chunkSize = size;
 
             if (meshFilter.sharedMesh == null)
             {
@@ -43,9 +45,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void UpdateBounds(Vector3Int min, Vector3Int max)
         {
-            chunkStart = min;
-            chunkSize = max - min;
-            transform.localPosition = new Vector3(chunkStart.x, chunkStart.y, chunkStart.z);
+            gridBoundsMin = min;
+            gridBoundsMax = max;
+
+            transform.localPosition = new Vector3(min.x, min.y, min.z);
         }
 
         private void OnDestroy()
@@ -85,19 +88,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             MarchingCubesMeshData meshData = new();
 
-            int lookupEndX = System.Math.Min(chunkStart.x + chunkSize.x, model.ResolutionX - 1);
-            int lookupEndY = System.Math.Min(chunkStart.y + chunkSize.y, model.ResolutionY - 1);
-            int lookupEndZ = System.Math.Min(chunkStart.z + chunkSize.z, model.ResolutionZ - 1);
-
-            for (int x = chunkStart.x; x < lookupEndX; x++)
+            for (int x = gridBoundsMin.x; x < gridBoundsMax.x; x++)
             {
-                for (int y = chunkStart.y; y < lookupEndY; y++)
+                for (int y = gridBoundsMin.y; y < gridBoundsMax.y; y++)
                 {
-                    for (int z = chunkStart.z; z < lookupEndZ; z++)
+                    for (int z = gridBoundsMin.z; z < gridBoundsMax.z; z++)
                     {
                         // Directly query the model for cube weights
                         float[] cubeWeights = model.GetCubeWeights(x, y, z);
-                        MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x - chunkStart.x, y - chunkStart.y, z - chunkStart.z, invertedNormals);
+                        MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x - gridBoundsMin.x, y - gridBoundsMin.y, z - gridBoundsMin.z, invertedNormals);
                     }
                 }
             }
@@ -180,15 +179,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-
-        public bool IsWithinBounds(Vector3Int minGrid, Vector3Int maxGrid)
+        public bool IsWithinBounds(Vector3Int min, Vector3Int max)
         {
-            Vector3Int chunkEnd = chunkStart + chunkSize;
-
             // Check for overlap between the chunk and the affected region
-            return !(chunkEnd.x <= minGrid.x || chunkStart.x >= maxGrid.x ||
-                     chunkEnd.y <= minGrid.y || chunkStart.y >= maxGrid.y ||
-                     chunkEnd.z <= minGrid.z || chunkStart.z >= maxGrid.z);
+            return !(gridBoundsMax.x <= min.x || gridBoundsMin.x >= max.x ||
+                     gridBoundsMax.y <= min.y || gridBoundsMin.y >= max.y ||
+                     gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
         }
     }
 }
