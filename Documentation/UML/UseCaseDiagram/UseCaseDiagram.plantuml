@@ -1,0 +1,53 @@
+@startuml
+left to right direction
+
+
+skinparam wrapWidth 200
+skinparam horizontalSpacing 50
+
+actor User as "User"
+
+rectangle "Marching Cubes Editor" {
+    rectangle "Setup" #line.dashed {
+        usecase "Initialize" as UC_Initialize #8ED787
+        usecase "Reset grid" as UC_ResetGrid #BBBBBB
+        usecase "Change grid resolution" as UC_ChangeGrid #BBBBBB
+    }
+    rectangle "Modify" #line.dashed {
+        usecase "Modify Shape" as UC_Modify #8ED787
+        usecase "Preview Modification" as UC_Preview #8ED787
+        usecase "Apply Changes" as UC_Apply #8ED787
+        usecase "Change modification logic" as UC_ShapeModLogic #8ED787
+        usecase "Change size" as UC_ShapeSize #8ED787
+        usecase "Change position" as UC_ShapePosition #8ED787
+        usecase "Change geometry" as UC_ShapeGeometry #8ED787
+    }
+    rectangle "History management" #line.dashed {
+        usecase "Save Grid" as UC_Save #8ED787
+        usecase "Load Grid" as UC_Load #8ED787
+        usecase "Undo" as UC_Export #BBBBBB
+        usecase "Redo" as UC_Undo #BBBBBB
+    }
+    rectangle "Exporting" #line.dashed {
+        usecase "Export Mesh" as UC_Redo #BBBBBB
+    }
+}
+
+User --> UC_ResetGrid
+User --> UC_ChangeGrid
+User --> UC_Preview
+User --> UC_Modify
+User --> UC_Apply
+User --> UC_Export
+User --> UC_Save
+User --> UC_Load
+User --> UC_Undo
+User --> UC_Redo
+UC_Modify --> UC_ShapeGeometry
+UC_Modify --> UC_ShapePosition
+UC_Modify --> UC_ShapeSize
+UC_Modify --> UC_ShapeModLogic
+UC_ResetGrid -- UC_Initialize #line.dotted
+UC_ChangeGrid -- UC_Initialize #line.dotted
+
+@enduml
