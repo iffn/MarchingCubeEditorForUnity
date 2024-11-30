@@ -47,3 +47,4 @@ MonoBehaviour:
   chunkSize: {x: 10, y: 10, z: 10}
   showGridOutline: 1
   chunkPrefab: {fileID: 6668174877677390417, guid: 8c7f0aa04ed2ac942b5946ffd90b44bd, type: 3}
+  previewPrefab: {fileID: 1611272695654040593, guid: 91c3411bb45a75245bc53adfd4202f68, type: 3}
