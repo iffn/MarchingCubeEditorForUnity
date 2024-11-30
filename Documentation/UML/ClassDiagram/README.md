@@ -41,12 +41,12 @@ classDiagram
     class MarchingCubesView {
         - MeshFilter meshFilter
         - MeshCollider meshCollider
-        - Vector3Int chunkStart
-        - Vector3Int chunkSize
+        - Vector3Int gridBoundsMin
+        - Vector3Int gridBoundsMax
         - bool isDirty
         - bool invertedNormals
         + Initialize(start: Vector3Int, size: Vector3Int) void
-        + UpdateBounds(min: Vector3Int, max: Vector3Int) void)
+        + UpdateBounds(min: Vector3Int, max: Vector3Int) void
         + MarkDirty() void
         + UpdateMeshIfDirty(model: MarchingCubesModel, enableCollider: bool) void
         + UpdateMesh(meshData: MarchingCubesMeshData, enableCollider: bool) void
@@ -66,6 +66,7 @@ classDiagram
         + int ResolutionX
         + int ResolutionY
         + int ResolutionZ
+        + int MaxGrid -> get, private set
         + SetVoxel(x: int, y: int, z: int, value: float) void
         + AddVoxel(x: int, y: int, z: int, value: float) void
         + SubtractVoxel(x: int, y: int, z: int, value: float) void
