@@ -20,7 +20,7 @@ classDiagram
         + Initialize(resolutionX: int, resolutionY: int, resolutionZ: int, setEmpty: bool) void
         + ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
         + UpdatePreview(shape: EditShape) void 🟢
-        + ApplyChanges() void 🟢
+        + ApplyPreviewChanges(updateCollider: bool) void 🟢
         + MarkAffectedChunksDirty(minGrid: Vector3Int, maxGrid: Vector3Int) void
         + UpdateAffectedChunks(minGrid: Vector3Int, maxGrid: Vector3Int, enableCollider: bool) void
         + UpdateAllChunks(enableCollider: bool) void
@@ -28,6 +28,9 @@ classDiagram
         + AddShape(shape: EditShape, updateCollider: bool) void
         + AddShapeWithMaxHeight(shape: EditShape, maxHeight: float, updateCollider: bool) void
         + SubtractShape(shape: EditShape, updateCollider: bool) void
+        + PreviewAddShape(shape: EditShape) void 🟢
+        + PreviewAddShapeWithMaxHeight(shape: EditShape, maxHeight: float) void 🟢
+        + PreviewSubtractShape(shape: EditShape) void 🟢
         + SaveGridData(gridData: ScriptableObjectSaveData) void
         + LoadGridData(gridData: ScriptableObjectSaveData, updateColliders: bool) void
         + OnDrawGizmos() void
@@ -43,6 +46,7 @@ classDiagram
         - bool isDirty
         - bool invertedNormals
         + Initialize(start: Vector3Int, size: Vector3Int) void
+        + UpdateBounds(min: Vector3Int, max: Vector3Int) void) 🟢
         + MarkDirty() void
         + UpdateMeshIfDirty(model: MarchingCubesModel, enableCollider: bool) void
         + UpdateMesh(meshData: MarchingCubesMeshData, enableCollider: bool) void
@@ -68,6 +72,7 @@ classDiagram
         + GetVoxel(x: int, y: int, z: int) float
         + GetVoxelData() float[,,]
         + GetCubeWeights(x: int, y: int, z: int) float[]
+        + ChangeGridSizeIfNeeded(resolutionX: int, resolutionY: int, resolutionZ: int, copyDataIfChanging: bool) void 🟢
         + CopyRegion(source: MarchingCubesModel, minGrid: Vector3Int, maxGrid: Vector3Int) void 🟢
         - IsInGrid(x: int, y: int, z: int) bool
     }
