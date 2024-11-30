@@ -14,9 +14,9 @@ sequenceDiagram
     MarchingCubeEditor ->> MarchingCubesController: Initialize(resolutionX, resolutionY, resolutionZ, setEmpty)
     
     activate MarchingCubesController
-    MarchingCubesController ->> MarchingCubesModel: Create or resize main model with resolution 🟠
+    MarchingCubesController ->> MarchingCubesModel: Create or resize main model with resolution
     activate MarchingCubesModel
-    MarchingCubesModel --> MarchingCubesController: Main model ready 🟠
+    MarchingCubesModel --> MarchingCubesController: Main model ready
     deactivate MarchingCubesModel
 
     loop Destroy existing chunks
@@ -39,11 +39,11 @@ sequenceDiagram
         MarchingCubesController ->> MarchingCubesController: Add chunk to chunkViews
     end
     
-    MarchingCubesController ->> MarchingCubesPreviewModel: Create or setup preview model 🟢
+    MarchingCubesController ->> MarchingCubesPreviewModel: Create or setup preview model
 
-    MarchingCubesController ->> MarchingCubesPreviewView: Create or setup preview view 🟢
+    MarchingCubesController ->> MarchingCubesPreviewView: Create or setup preview view
 
-    MarchingCubesController ->> MarchingCubesPreviewView: Hide preview view 🟢
+    MarchingCubesController ->> MarchingCubesPreviewView: Hide preview view
 
 
     alt setEmpty is true
@@ -66,30 +66,30 @@ sequenceDiagram
 sequenceDiagram
     actor User
 
-    User ->> MarchingCubeEditor: Enable Preview Shape🟢
-    MarchingCubeEditor ->> MarchingCubesController: EnablePreview()🟢
-    MarchingCubesController ->> MarchingCubesView: ActivatePreviewView()🟢
+    User ->> MarchingCubeEditor: Enable Preview Shape
+    MarchingCubeEditor ->> MarchingCubesController: EnablePreview()
+    MarchingCubesController ->> MarchingCubesView: ActivatePreviewView()
 
-    User ->> MarchingCubeEditor: Adjust Shape Position/Size🟠
-    MarchingCubeEditor ->> MarchingCubesController: UpdatePreviewShape(selectedShape, modifier)🟢
+    User ->> MarchingCubeEditor: Adjust Shape Position/Size
+    MarchingCubeEditor ->> MarchingCubesController: UpdatePreviewShape(selectedShape, modifier)
     activate MarchingCubesController
-    MarchingCubesController ->> MarchingCubesModel: CopyRegion(mainModel, bounds) 🟢
+    MarchingCubesController ->> MarchingCubesModel: CopyRegion(mainModel, bounds)
     MarchingCubesController ->> EditShape: PrecomputeTransform(gridTransform)
     activate EditShape
     EditShape -->> MarchingCubesController: PrecomputedTransformMatrix
     deactivate EditShape
 
     loop Modify Preview Grid
-        MarchingCubesController ->> MarchingCubesPreviewModel 🟢: GetVoxel(x, y, z)
+        MarchingCubesController ->> MarchingCubesPreviewModel: GetVoxel(x, y, z)
         MarchingCubesController ->> IVoxelModifier: ModifyVoxel(x, y, z, currentValue, distance)
         IVoxelModifier --> MarchingCubesController: ModifiedVoxelValue
-        MarchingCubesController ->> MarchingCubesPreviewModel 🟢: SetVoxel(x, y, z, newValue)
+        MarchingCubesController ->> MarchingCubesPreviewModel: SetVoxel(x, y, z, newValue)
     end
 
-    MarchingCubesController ->> MarchingCubesView: UpdatePreviewView(previewModel)🟢
+    MarchingCubesController ->> MarchingCubesView: UpdatePreviewView(previewModel)
     activate MarchingCubesView
     loop Generate preview chunk meshes
-        MarchingCubesView ->> MarchingCubesPreviewModel 🟢: GetCubeWeights(x, y, z)
+        MarchingCubesView ->> MarchingCubesPreviewModel: GetCubeWeights(x, y, z)
         MarchingCubesView ->> MarchingCubesMeshData: GenerateCubeMesh(cubeWeights, x, y, z)
         MarchingCubesMeshData --> MarchingCubesView: GeneratedMeshData
     end
@@ -97,13 +97,13 @@ sequenceDiagram
     deactivate MarchingCubesView
     deactivate MarchingCubesController
 
-    User ->> MarchingCubeEditor: Apply Preview🟢
-    MarchingCubeEditor ->> MarchingCubesController: ApplyPreviewShape()🟢
+    User ->> MarchingCubeEditor: Apply Preview
+    MarchingCubeEditor ->> MarchingCubesController: ApplyPreviewShape()
     activate MarchingCubesController
-    MarchingCubesController ->> MarchingCubesModel: CopyRegion(previewModel, minGrid, maxGrid) 🟢
+    MarchingCubesController ->> MarchingCubesModel: CopyRegion(previewModel, minGrid, maxGrid)
 
     loop Update Affected Chunk Meshes
-        MarchingCubesController ->> MarchingCubesView: UpdateAffectedChunks(minGrid, maxGrid)🟠
+        MarchingCubesController ->> MarchingCubesView: UpdateAffectedChunks(minGrid, maxGrid)
         MarchingCubesView ->> MarchingCubesModel: GetCubeWeights(x, y, z)
         MarchingCubesView ->> MarchingCubesMeshData: GenerateCubeMesh(cubeWeights, x, y, z)
         MarchingCubesMeshData --> MarchingCubesView: GeneratedMeshData
@@ -111,6 +111,6 @@ sequenceDiagram
     end
     deactivate MarchingCubesController
 
-    User ->> MarchingCubeEditor: Disable Preview Shape🟢
-    MarchingCubeEditor ->> MarchingCubesController: Disable preview shape🟢
+    User ->> MarchingCubeEditor: Disable Preview Shape
+    MarchingCubeEditor ->> MarchingCubesController: Disable preview shape
 ```
