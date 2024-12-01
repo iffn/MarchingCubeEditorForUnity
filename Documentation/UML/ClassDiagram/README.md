@@ -1,4 +1,3 @@
-
 # Class diagram
 ```mermaid
 classDiagram
@@ -9,7 +8,6 @@ classDiagram
         - MarchingCubesView previewView
         - Vector3Int chunkSize
         - GameObject chunkPrefab
-        + bool showGridOutline
         + int GridResolutionX
         + int GridResolutionY
         + int GridResolutionZ
@@ -17,24 +15,29 @@ classDiagram
         + bool InvertAllNormals
         + bool EnableAllColliders
         + bool DisplayPreviewShape
+        🔴+ bool showGridOutline
         + Initialize(resolutionX: int, resolutionY: int, resolutionZ: int, setEmpty: bool) void
-        + ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
-        + UpdatePreview(shape: EditShape) void
-        + ApplyPreviewChanges(updateCollider: bool) void
         + MarkAffectedChunksDirty(minGrid: Vector3Int, maxGrid: Vector3Int) void
         + UpdateAffectedChunks(minGrid: Vector3Int, maxGrid: Vector3Int, enableCollider: bool) void
         + UpdateAllChunks(enableCollider: bool) void
         + SetEmptyGrid() void
-        + AddShape(shape: EditShape, updateCollider: bool) void
-        + AddShapeWithMaxHeight(shape: EditShape, maxHeight: float, updateCollider: bool) void
-        + SubtractShape(shape: EditShape, updateCollider: bool) void
-        + PreviewAddShape(shape: EditShape) void
-        + PreviewAddShapeWithMaxHeight(shape: EditShape, maxHeight: float) void
-        + PreviewSubtractShape(shape: EditShape) void
-        + SaveGridData(gridData: ScriptableObjectSaveData) void
-        + LoadGridData(gridData: ScriptableObjectSaveData, updateColliders: bool) void
-        + OnDrawGizmos() void
-        + DrawGridOutline() void
+        + ApplyPreviewChanges(updateCollider: bool) void
+        🔵+ GetDataPoint(x: int, y: int, z: int) float
+        🔵+ SetDataPoint(x: int, y: int, z: int, value: float)
+        🔵+ SetupPreviewZone(minGrid: Vector3Int, maxGrid: Vector3Int)
+        🔵+ SetPreviewPoint(x: int, y: int, z: int, value: float)
+        🔴 ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
+        🔴 UpdatePreview(shape: EditShape) void
+        🔴 AddShape(shape: EditShape, updateCollider: bool) void
+        🔴 AddShapeWithMaxHeight(shape: EditShape, maxHeight: float, updateCollider: bool) void
+        🔴 SubtractShape(shape: EditShape, updateCollider: bool) void
+        🔴 PreviewAddShape(shape: EditShape) void
+        🔴 PreviewAddShapeWithMaxHeight(shape: EditShape, maxHeight: float) void
+        🔴 PreviewSubtractShape(shape: EditShape) void
+        🔴 SaveGridData(gridData: ScriptableObjectSaveData) void
+        🔴 LoadGridData(gridData: ScriptableObjectSaveData, updateColliders: bool) void
+        🔴 OnDrawGizmos() void
+        🔴 DrawGridOutline() void
     }
     <<MonoBehaviour>> MarchingCubesController
 
@@ -102,6 +105,26 @@ classDiagram
     EditShape <|-- SphereShape
     EditShape <|-- CubeShape
 
+
+    class ModificationManager {
+        + bool EnableColliders
+        + ModifyData(shape: EditShape, modifier: IVoxelModifier)
+        + ShowPreview(shape: EditShape, modifier: IVoxelModifier)
+        + ApplyPreviewData()
+        + HidePreview()
+    }
+
+    class SaveLoadManager {
+        + SaveGridData(gridData: ScriptableObjectSaveData) void
+        + LoadGridData(gridData: ScriptableObjectSaveData, updateColliders: bool) void
+    }
+
+    class VisualisationManager {
+        + bool ShowOutline
+        + bool InvertNormals
+    }
+    <<MonoBehaviour>> VisualisationManager
+
     class MarchingCubeEditor {
         - MarchingCubesController linkedMarchingCubesController
         - ScriptableObjectSaveData linkedScriptableObjectSaveData
@@ -148,20 +171,28 @@ classDiagram
     IVoxelModifier <|.. SubtractShapeModifier
     IVoxelModifier <|.. AddShapeWithMaxHeightModifier
 
-    MarchingCubesController --> IVoxelModifier : uses
-    MarchingCubeEditor ..> MarchingCubesController : controls
+    ModificationManager --> IVoxelModifier : uses
+    ModificationManager --> EditShape : uses
+    MarchingCubeEditor ..> ModificationManager : controls
     MarchingCubeEditor ..> EditShape : uses
-    MarchingCubeEditor ..> ScriptableObjectSaveData : writes to and reads from
+    MarchingCubeEditor ..> SaveLoadManager : controls
+    MarchingCubeEditor ..> VisualisationManager : controls
+    SaveLoadManager ..> ScriptableObjectSaveData : writes to and reads from
     MarchingCubesController --> MarchingCubesModel : modifies
     MarchingCubesController --> MarchingCubesView : controls 1...*
-    MarchingCubesController --> EditShape : uses
-    MarchingCubesController --> ScriptableObjectSaveData : serializes and deserializes
     MarchingCubesController --> MarchingCubesView : controls preview
     MarchingCubesController --> MarchingCubesModel : modifies preview
     MarchingCubesView --> MarchingCubesModel : reads from
     MarchingCubesView --> MarchingCubesMeshData : writes to
     MarchingCubesMeshData --> MarchingCubesView : provides
-    EditShape --> MarchingCubesController : is operated on by
     MarchingCubesMeshData --> MarchingCubesModel : visualizes
-    ScriptableObjectSaveData --> MarchingCubesModel : serializes and deserializes
 ```
+    %% Relationships
+    ModificationManager -- MarchingCubesController
+    SaveLoadManager -- MarchingCubesController
+    VisualisationManager -- MarchingCubesController
+
+    %% Styling
+    style ModificationManager fill:#005CFF
+    style SaveLoadManager fill:#005CFF
+    style VisualisationManager fill:#005CFF
