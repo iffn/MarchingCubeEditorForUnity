@@ -1,4 +1,54 @@
 # Marching cube editor
+## Architecture
+### Facade for implementing functions
+```mermaid
+graph LR
+    %% User to Use Cases
+    User["User"] --> Initialization["Initialization"]
+    User --> Modifying["Modifying"]
+    User --> HistoryManagement["History Management"]
+    User --> Exporting["Exporting"]
+
+    %% Use Cases to Editor
+    Initialization --> Editor["Marching Cube Editor"]
+    Modifying --> Editor
+    HistoryManagement --> Editor
+    Exporting --> Editor
+
+    %% Editor to actions
+    Editor --> InitializationAction["initialization"]
+    Editor --> GridModification["Grid Modification"]
+    Editor --> SaveLoad["Save and Load"]
+    Editor --> UndoRedo["Undo and Redo"]
+    Editor --> CopyPaste["Copy and Paste"]
+    Editor --> ExportAction["Exporting"]
+
+    %% Actions to GridController
+    InitializationAction --> GridController["initialization"]
+    GridModification <--> GridController["Grid Controller"]
+    SaveLoad <--> GridController
+    UndoRedo <--> GridController
+    CopyPaste <--> GridController
+    ExportAction <--> GridController
+
+    %% GridController to Model and View
+    GridController <--> Model["Marching Cubes Model"]
+    GridController --> View["Marching Cubes View"]
+
+    %% Styles
+    style Initialization rx:15
+    style Modifying rx:15
+    style HistoryManagement rx:15
+    style Exporting rx:15
+    style InitializationAction rx:15
+    style GridModification rx:15
+    style SaveLoad rx:15
+    style UndoRedo rx:15
+    style CopyPaste rx:15
+    style ExportAction rx:15
+
+```
+
 ## Implementation elements
 ### Save and load
 
