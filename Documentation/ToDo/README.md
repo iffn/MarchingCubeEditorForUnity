@@ -17,12 +17,12 @@
 
 ## Tool isualization
 [ ] Distance function shader
-[ ] Preview modification
+[x] Preview modification
 
 ## Editor visualization
 [ ] Visual cuts
 [ ] Normal direction shader
 
 ## Additional functionalities
-[ ] Chunks
+[x] Chunks
 [ ] Coloring with weight and vertex colors
