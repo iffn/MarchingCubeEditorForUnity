@@ -186,7 +186,6 @@ classDiagram
     MarchingCubesView --> MarchingCubesMeshData : writes to
     MarchingCubesMeshData --> MarchingCubesView : provides
     MarchingCubesMeshData --> MarchingCubesModel : visualizes
-```
     %% Relationships
     ModificationManager -- MarchingCubesController
     SaveLoadManager -- MarchingCubesController
@@ -196,3 +195,4 @@ classDiagram
     style ModificationManager fill:#005CFF
     style SaveLoadManager fill:#005CFF
     style VisualisationManager fill:#005CFF
+```
