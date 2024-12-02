@@ -26,6 +26,7 @@ classDiagram
         🔵+ SetDataPoint(x: int, y: int, z: int, value: float)
         🔵+ SetupPreviewZone(minGrid: Vector3Int, maxGrid: Vector3Int)
         🔵+ SetPreviewPoint(x: int, y: int, z: int, value: float)
+        🔵+ UpdatePreviewShape()
         🔴 ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
         🔴 UpdatePreview(shape: EditShape) void
         🔴 AddShape(shape: EditShape, updateCollider: bool) void
