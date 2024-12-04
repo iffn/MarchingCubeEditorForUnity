@@ -3,7 +3,6 @@
 classDiagram
     class MarchingCubesController {
         - List~MarchingCubesView~ chunkViews
-        - MarchingCubesModel model
         - MarchingCubesModel previewModel
         - MarchingCubesView previewView
         - Vector3Int chunkSize
@@ -11,22 +10,29 @@ classDiagram
         + int GridResolutionX
         + int GridResolutionY
         + int GridResolutionZ
-        + bool IsInitialized
+        + bool IsInitialized as Get
         + bool InvertAllNormals
         + bool EnableAllColliders
         + bool DisplayPreviewShape
+        🟠- MarchingCubesModel mainModel
+        🔵+ float[,,] VoxelDataReference as Get
+        🔵+ Vector3Int MaxGrid as Get
+        🔵+ ModificationManager as Get, private Set
+        🔵+ SaveAndLoadManager as Get, private Set
+        🔵+ VisualisationManager as Get
         🔴+ bool showGridOutline
         + Initialize(resolutionX: int, resolutionY: int, resolutionZ: int, setEmpty: bool) void
-        + MarkAffectedChunksDirty(minGrid: Vector3Int, maxGrid: Vector3Int) void
-        + UpdateAffectedChunks(minGrid: Vector3Int, maxGrid: Vector3Int, enableCollider: bool) void
-        + UpdateAllChunks(enableCollider: bool) void
-        + SetEmptyGrid() void
-        + ApplyPreviewChanges(updateCollider: bool) void
+        🟠+ SetEmptyGrid(updateModel: bool) void
+        🟠+ MarkRegionDirty(minGrid: Vector3Int, maxGrid: Vector3Int) void
+        🟠+ UpdateAffectedChunks(minGrid: Vector3Int, maxGrid: Vector3Int) void
+        🟠+ UpdateAllChunks() void
+        🟠+ ApplyPreviewChanges() void
         🔵+ GetDataPoint(x: int, y: int, z: int) float
         🔵+ SetDataPoint(x: int, y: int, z: int, value: float)
         🔵+ SetupPreviewZone(minGrid: Vector3Int, maxGrid: Vector3Int)
         🔵+ SetPreviewPoint(x: int, y: int, z: int, value: float)
         🔵+ UpdatePreviewShape()
+        🔵+ SetAllGridDataAndUpdateMesh(newData: float[,,])
         🔴 ModifyShape(shape: EditShape, modifier: IVoxelModifier, updateCollider: bool) void
         🔴 UpdatePreview(shape: EditShape) void
         🔴 AddShape(shape: EditShape, updateCollider: bool) void
@@ -65,7 +71,7 @@ classDiagram
     <<MonoBehaviour>> MarchingCubesView
 
     class MarchingCubesModel {
-        + float[,,] VoxelData
+        + float[,,] VoxelData with get and private set
         + MarchingCubesModel(xResolution: int, yResolution: int, zResolution: int)
         + int ResolutionX
         + int ResolutionY
@@ -77,6 +83,7 @@ classDiagram
         + GetVoxel(x: int, y: int, z: int) float
         + GetVoxelData() float[,,]
         + GetCubeWeights(x: int, y: int, z: int) float[]
+        🔵+ SetDataAndResizeIfNeeded(newData: float[,,]) void
         + ChangeGridSizeIfNeeded(resolutionX: int, resolutionY: int, resolutionZ: int, copyDataIfChanging: bool) void
         + CopyRegion(source: MarchingCubesModel, minGrid: Vector3Int, maxGrid: Vector3Int) void
         - IsInGrid(x: int, y: int, z: int) bool
@@ -108,21 +115,20 @@ classDiagram
 
 
     class ModificationManager {
-        + bool EnableColliders
         + ModifyData(shape: EditShape, modifier: IVoxelModifier)
         + ShowPreview(shape: EditShape, modifier: IVoxelModifier)
         + ApplyPreviewData()
         + HidePreview()
     }
 
-    class SaveLoadManager {
+    class SaveAndLoadManager {
         + SaveGridData(gridData: ScriptableObjectSaveData) void
         + LoadGridData(gridData: ScriptableObjectSaveData, updateColliders: bool) void
     }
 
     class VisualisationManager {
         + bool ShowOutline
-        + bool InvertNormals
+        + bool InvertAllNormals as Set
     }
     <<MonoBehaviour>> VisualisationManager
 
@@ -176,9 +182,9 @@ classDiagram
     ModificationManager --> EditShape : uses
     MarchingCubeEditor ..> ModificationManager : controls
     MarchingCubeEditor ..> EditShape : uses
-    MarchingCubeEditor ..> SaveLoadManager : controls
+    MarchingCubeEditor ..> SaveAndLoadManager : controls
     MarchingCubeEditor ..> VisualisationManager : controls
-    SaveLoadManager ..> ScriptableObjectSaveData : writes to and reads from
+    SaveAndLoadManager ..> ScriptableObjectSaveData : writes to and reads from
     MarchingCubesController --> MarchingCubesModel : modifies
     MarchingCubesController --> MarchingCubesView : controls 1...*
     MarchingCubesController --> MarchingCubesView : controls preview
@@ -189,11 +195,11 @@ classDiagram
     MarchingCubesMeshData --> MarchingCubesModel : visualizes
     %% Relationships
     ModificationManager -- MarchingCubesController
-    SaveLoadManager -- MarchingCubesController
+    SaveAndLoadManager -- MarchingCubesController
     VisualisationManager -- MarchingCubesController
 
     %% Styling
     style ModificationManager fill:#005CFF
-    style SaveLoadManager fill:#005CFF
+    style SaveAndLoadManager fill:#005CFF
     style VisualisationManager fill:#005CFF
 ```

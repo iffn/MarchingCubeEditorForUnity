@@ -4,7 +4,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 {
     public class MarchingCubesModel
     {
-        public float[,,] VoxelData;
+        public float[,,] VoxelData { get; private set; }
 
         public Vector3Int MaxGrid { get; private set; }
         public int ResolutionX => VoxelData.GetLength(0);
@@ -15,7 +15,22 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             VoxelData = new float[resolutionX, resolutionY, resolutionZ];
 
-            MaxGrid = new Vector3Int(resolutionX, resolutionY, resolutionZ) - Vector3Int.one;
+            RecalculateMaxGrid();
+        }
+
+        void RecalculateMaxGrid()
+        {
+            MaxGrid = new Vector3Int(ResolutionX, ResolutionY, ResolutionZ) - Vector3Int.one;
+        }
+
+        bool IsInGrid(int x, int y, int z)
+        {
+            return x >= 0
+                && x < ResolutionX
+                && y >= 0
+                && y < ResolutionY
+                && z >= 0
+                && z < ResolutionZ;
         }
 
         // Method to set a single voxel’s value
@@ -38,16 +53,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (!IsInGrid(x, y, z)) return;
 
             VoxelData[x, y, z] = Mathf.Min(VoxelData[x, y, z], value);
-        }
-
-        bool IsInGrid(int x, int y, int z)
-        {
-            return x >= 0
-                && x < ResolutionX
-                && y >= 0
-                && y < ResolutionY
-                && z >= 0
-                && z < ResolutionZ;
         }
 
         public float GetVoxel(int x, int y, int z)
@@ -76,6 +81,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             return cubeWeights;
         }
 
+        public void SetDataAndResizeIfNeeded(float[,,] newData)
+        {
+            VoxelData = newData;
+
+            RecalculateMaxGrid();
+        }
+
         public void ChangeGridSizeIfNeeded(int resolutionX, int resolutionY, int resolutionZ, bool copyDataIfChanging)
         {
             // Check if the current size matches the new size
@@ -88,7 +100,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Create a new VoxelData array with the new size
             float[,,] newVoxelData = new float[resolutionX, resolutionY, resolutionZ];
 
-            MaxGrid = new Vector3Int(resolutionX, resolutionY, resolutionZ) - Vector3Int.one;
+            RecalculateMaxGrid();
 
             if (copyDataIfChanging)
             {
