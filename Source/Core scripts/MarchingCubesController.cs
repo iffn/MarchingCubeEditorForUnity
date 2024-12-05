@@ -1,9 +1,7 @@
 //#define DEBUG_PERFORMANCE
 
-using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEngine;
-using static BaseModificationTools;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
