@@ -40,10 +40,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public float[,,] VoxelDataReference => mainModel.VoxelData;
 
         public Vector3Int MaxGrid => mainModel.MaxGrid;
-        
+
         //Managers
         public ModificationManager ModificationManager { get; private set; }
-        public SaveAndLoadManager SaveAndLoadAction { get; private set; }
+        public SaveAndLoadManager SaveAndLoadManager { get; private set; }
         public VisualisationManager VisualisationManager
         {
             get
@@ -74,7 +74,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             //Setup managers
             if(ModificationManager == null) ModificationManager = new(this);
-            if(SaveAndLoadAction == null) SaveAndLoadAction = new (this);
+            if(SaveAndLoadManager == null) SaveAndLoadManager = new (this);
+            VisualisationManager.Initialize(this);
 
             // Create model
             if (mainModel == null)

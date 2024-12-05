@@ -9,7 +9,7 @@ public class VisualisationManager : MonoBehaviour
     MarchingCubesController linkedController;
     Transform linkedControllerTransform;
 
-    public bool ShowGridOutline;
+    public bool ShowGridOutline = true;
 
     public bool InvertNormals
     {

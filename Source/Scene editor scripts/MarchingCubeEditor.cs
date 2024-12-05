@@ -78,7 +78,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if(linkedScriptableObjectSaveData != null)
             {
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveGridData(linkedScriptableObjectSaveData);
+                if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveAndLoadManager.SaveGridData(linkedScriptableObjectSaveData);
                 if (GUILayout.Button($"Load data")) LoadData();
                 EditorGUILayout.EndHorizontal();
             }
@@ -94,8 +94,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (selectedShape)
             {
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.AddShape(selectedShape, false);
-                if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.SubtractShape(selectedShape, false);
+                if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
+                if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                 EditorGUILayout.EndHorizontal();
 
                 bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
@@ -135,7 +135,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void LoadData()
         {
-            linkedMarchingCubesController.LoadGridData(linkedScriptableObjectSaveData, addingShape);
+            linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedScriptableObjectSaveData);
             gridResolutionX = linkedMarchingCubesController.GridResolutionX;
             gridResolutionY = linkedMarchingCubesController.GridResolutionY;
             gridResolutionZ = linkedMarchingCubesController.GridResolutionZ;
@@ -170,11 +170,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     {
                         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
                         {
-                            if (e.control) linkedMarchingCubesController.PreviewSubtractShape(selectedShape);
+                            if (e.control) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                             else
                             {
+                                linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
+                                /*
                                 if (limitMaxHeight) linkedMarchingCubesController.PreviewAddShapeWithMaxHeight(selectedShape, hit.point.y);
                                 else linkedMarchingCubesController.PreviewAddShape(selectedShape);
+                                */
                             }
 
                             selectedShape.gameObject.SetActive(false);
@@ -185,7 +188,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                         if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
                         {
-                            linkedMarchingCubesController.ApplyPreviewChanges(true);
+                            linkedMarchingCubesController.ModificationManager.ApplyPreviewChanges();
                             e.Use();
                         }
                     }
@@ -196,11 +199,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                         if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
                         {
-                            if (e.control) linkedMarchingCubesController.SubtractShape(selectedShape, true);
+                            if (e.control) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                             else
                             {
+                                linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
+                                /*
                                 if (limitMaxHeight) linkedMarchingCubesController.AddShapeWithMaxHeight(selectedShape, hit.point.y, true);
                                 else linkedMarchingCubesController.AddShape(selectedShape, true);
+                                */
                             }
 
                             e.Use();
