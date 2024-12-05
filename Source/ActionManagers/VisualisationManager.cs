@@ -26,7 +26,7 @@ public class VisualisationManager : MonoBehaviour
     {
         if (!ShowGridOutline) return;
 
-        if (linkedController == null && !linkedController.IsInitialized) return;
+        if (linkedController == null || !linkedController.IsInitialized) return;
 
         Gizmos.color = Color.cyan; // Set outline color
 
