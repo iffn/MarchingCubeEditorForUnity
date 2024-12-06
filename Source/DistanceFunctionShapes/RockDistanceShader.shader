@@ -4,8 +4,8 @@ Shader "Custom/RaymarchingWithDepth"
     {
         _Color ("Color", Color) = (1,1,1,1)
 
-        _BaseAmplitude ("Base Amplitude", Range(0, 1)) = 0.05
-        _BaseFrequency ("Base Frequency", Range(1, 100)) = 10.0
+        _BaseAmplitude ("Base Amplitude", Range(0, 0.15)) = 0.05
+        _BaseFrequency ("Base Frequency", Range(1, 50)) = 10.0
         _BaseScale("Base Scale", Range(0.1, 10)) = 1
         
         _FractalAmplitude ("Fractal Amplitude", Range(0, 1)) = 0.3
