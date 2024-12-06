@@ -167,7 +167,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
-                if (value && !ColliderEnabled)
+                if (!value)
+                {
+                    meshCollider.sharedMesh = null;
+                }
+                else if(!ColliderEnabled)
                 {
                     meshCollider.sharedMesh = null;
 
