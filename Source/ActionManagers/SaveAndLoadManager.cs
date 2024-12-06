@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class SaveAndLoadManager
 {
+    // ToDo: Fix mirror when loading
     MarchingCubesController linkedController;
 
     public SaveAndLoadManager(MarchingCubesController linkedController)

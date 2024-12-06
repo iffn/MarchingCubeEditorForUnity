@@ -68,11 +68,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        //ToFix: Reinitialize with lower resolution outputs error
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
             //Setup managers
-            if(ModificationManager == null) ModificationManager = new(this);
-            if(SaveAndLoadManager == null) SaveAndLoadManager = new (this);
+            ModificationManager ??= new(this);
+            SaveAndLoadManager ??= new (this);
             VisualisationManager.Initialize(this);
 
             // Create model

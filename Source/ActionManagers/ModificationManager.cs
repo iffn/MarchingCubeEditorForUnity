@@ -6,6 +6,9 @@ using static BaseModificationTools;
 
 public class ModificationManager
 {
+    // ToDo: Fix unable to add preview shape
+    // ToDo: Implement max height
+
     MarchingCubesController linkedController;
     Transform linkedControllerTransform;
 
