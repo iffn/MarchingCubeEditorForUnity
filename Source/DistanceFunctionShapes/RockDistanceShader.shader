@@ -167,22 +167,32 @@ Shader "Custom/RaymarchingWithDepth"
 
             float voronoi(float3 p)
             {
-                float2 cell = floor(p.xy);
+                float3 cell = floor(p);
                 float minDist = 1.0;
 
-                for (int y = -1; y <= 1; y++)
+                for (int z = -1; z <= 1; z++) // Loop over neighboring cells in the z-direction
                 {
-                    for (int x = -1; x <= 1; x++)
+                    for (int y = -1; y <= 1; y++) // Loop over neighboring cells in the y-direction
                     {
-                        float2 neighbor = cell + float2(x, y);
-                        float2 cellPoint = neighbor + frac(sin(dot(neighbor, float2(12.9898, 78.233))) * 43758.5453);
-                        float dist = length(p.xy - cellPoint);
-                        minDist = min(minDist, dist);
+                        for (int x = -1; x <= 1; x++) // Loop over neighboring cells in the x-direction
+                        {
+                            float3 neighbor = cell + float3(x, y, z);
+
+                            // Generate a random offset for the cell point
+                            float3 cellPoint = neighbor + frac(sin(dot(neighbor, float3(12.9898, 78.233, 37.719))) * 43758.5453);
+
+                            // Compute the distance from the input point to this cell point
+                            float dist = length(p - cellPoint);
+
+                            // Track the minimum distance
+                            minDist = min(minDist, dist);
+                        }
                     }
                 }
 
                 return minDist;
             }
+
 
             float turbulence(float3 p, int octaves)
             {
