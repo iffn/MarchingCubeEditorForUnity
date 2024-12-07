@@ -68,7 +68,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        //ToFix: Reinitialize with lower resolution outputs error
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
             //Setup managers
