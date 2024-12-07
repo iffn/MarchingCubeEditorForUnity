@@ -126,7 +126,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                         MarchingCubesView chunkView = Instantiate(chunkPrefab, transform).GetComponent<MarchingCubesView>();
                         chunkViews.Add(chunkView);
-                        chunkView.Initialize(gridBoundsMin, gridBoundsMax);
+                        chunkView.Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders);
                     }
                 }
             }
@@ -150,7 +150,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (!previewView)
             {
                 previewView = Instantiate(previewPrefab, transform).GetComponent<MarchingCubesView>();
-                previewView.Initialize(Vector3Int.zero, Vector3Int.one);
+                previewView.Initialize(Vector3Int.zero, Vector3Int.one, enableAllColliders);
                 DisplayPreviewShape = false;
             }
         }
@@ -190,7 +190,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 if (chunkView.IsWithinBounds(minGrid, maxGrid))
                 {
-                    chunkView.UpdateMeshIfDirty(mainModel, enableAllColliders);
+                    chunkView.UpdateMeshIfDirty(mainModel);
                 }
             }
         }
@@ -200,7 +200,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             foreach (var chunkView in chunkViews)
             {
                 chunkView.MarkDirty();
-                chunkView.UpdateMeshIfDirty(mainModel, enableAllColliders);
+                chunkView.UpdateMeshIfDirty(mainModel);
             }
         }
 
@@ -297,7 +297,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void UpdatePreviewShape()
         {
             previewView.MarkDirty();
-            previewView.UpdateMeshIfDirty(previewModelWithOldData, false);
+            previewView.UpdateMeshIfDirty(previewModelWithOldData);
         }
     }
 }
