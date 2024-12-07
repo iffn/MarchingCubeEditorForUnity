@@ -26,9 +26,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _Amplitude: 0.042
-    - _BaseAmplitude: 0.066
-    - _BaseFrequency: 20.6
-    - _BaseScale: 0.54
+    - _BaseAmplitude: 0.053
+    - _BaseFrequency: 8.2
+    - _BaseScale: 1.11
     - _FractalAmplitude: 0
     - _FractalOctaves: 3.69
     - _FractalPersistence: 0.815
@@ -41,10 +41,10 @@ Material:
     - _RidgeStrength: 0
     - _SphereRadius: 0.5
     - _TurbulenceAmplitude: 0
-    - _TurbulenceOctaves: 2.63
+    - _TurbulenceOctaves: 3.37
     - _TurbulenceScale: 4.14
-    - _VoronoiStrength: 0.0429
-    - _VoronoieScale: 6.76
+    - _VoronoiStrength: 0.1
+    - _VoronoieScale: 3.94
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
