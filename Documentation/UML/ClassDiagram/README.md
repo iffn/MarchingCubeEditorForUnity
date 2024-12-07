@@ -55,12 +55,12 @@ classDiagram
         - Vector3Int gridBoundsMax
         - bool isDirty
         - bool invertedNormals
-        + Initialize(start: Vector3Int, size: Vector3Int) void
+        🟠+ Initialize(start: Vector3Int, size: Vector3Int, collidersEnabled: bool) void
         + UpdateBounds(min: Vector3Int, max: Vector3Int) void
         + MarkDirty() void
-        + UpdateMeshIfDirty(model: MarchingCubesModel, enableCollider: bool) void
-        + UpdateMesh(meshData: MarchingCubesMeshData, enableCollider: bool) void
-        + UpdateMesh(vertices: List~Vector3~, triangles: List~int~, enableCollider: bool) void
+        🟠+ UpdateMeshIfDirty(model: MarchingCubesModel) void
+        🟠+ UpdateMesh(meshData: MarchingCubesMeshData) void
+        🟠+ UpdateMesh(vertices: List~Vector3~, triangles: List~int~) void
         + bool InvertedNormals
         + bool ColliderEnabled
         + bool IsWithinBounds(minGrid: Vector3Int, maxGrid: Vector3Int) bool
