@@ -150,7 +150,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (!previewView)
             {
                 previewView = Instantiate(previewPrefab, transform).GetComponent<MarchingCubesView>();
-                previewView.Initialize(Vector3Int.zero, Vector3Int.one, enableAllColliders);
+                previewView.Initialize(Vector3Int.zero, Vector3Int.one, false);
                 DisplayPreviewShape = false;
             }
         }

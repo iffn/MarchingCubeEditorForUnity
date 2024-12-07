@@ -40,6 +40,8 @@ public class ModificationManager
 
         //Modify the model
         ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetDataPoint, linkedController.SetPreviewDataPoint); // Warning: In this case, get has access to the old data
+
+        linkedController.UpdatePreviewShape();
     }
 
     public void ApplyPreviewChanges()
