@@ -83,7 +83,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             else
             {
-                mainModel.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, setEmpty);
+                mainModel.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, !setEmpty);
             }
 
             Vector3Int gridResolution = new(resolutionX, resolutionY, resolutionZ);
@@ -93,7 +93,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             foreach (Transform child in transform)
             {
-                if (child.TryGetComponent<MarchingCubesView>(out MarchingCubesView view))
+                if (child.TryGetComponent(out MarchingCubesView view))
                 {
                     chunksToDestroy.Add(child.gameObject);
                 }

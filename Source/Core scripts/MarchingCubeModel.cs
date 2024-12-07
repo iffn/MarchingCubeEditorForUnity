@@ -100,8 +100,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Create a new VoxelData array with the new size
             float[,,] newVoxelData = new float[resolutionX, resolutionY, resolutionZ];
 
-            RecalculateMaxGrid();
-
+            // Copying data over. Warning, max grid not calculated yet!
             if (copyDataIfChanging)
             {
                 // Determine the size of the overlapping region
@@ -124,6 +123,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             // Assign the new VoxelData array
             VoxelData = newVoxelData;
+
+            RecalculateMaxGrid();
         }
 
         public void CopyRegion(MarchingCubesModel source, Vector3Int minGrid, Vector3Int maxGrid)
