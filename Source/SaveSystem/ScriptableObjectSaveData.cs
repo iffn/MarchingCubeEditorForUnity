@@ -47,18 +47,21 @@ public class ScriptableObjectSaveData : ScriptableObject
             return new float[resolutionX, resolutionY, resolutionZ];
         }
 
-        int totalValues = resolutionX * resolutionY * resolutionZ;
         byte[] byteArray = Convert.FromBase64String(packedData);
         float[,,] voxelValues = new float[resolutionX, resolutionY, resolutionZ];
 
-        for (int i = 0, byteIndex = 0; i < totalValues; i++)
-        {
-            int x = i % resolutionX;
-            int y = (i / resolutionX) % resolutionY;
-            int z = i / (resolutionX * resolutionY);
+        int byteIndex = 0;
 
-            voxelValues[x, y, z] = BitConverter.ToSingle(byteArray, byteIndex);
-            byteIndex += 4;
+        for (int x = 0; x < resolutionX; x++)
+        {
+            for (int y = 0; y < resolutionY; y++)
+            {
+                for (int z = 0; z < resolutionZ; z++)
+                {
+                    voxelValues[x, y, z] = BitConverter.ToSingle(byteArray, byteIndex);
+                    byteIndex += 4;
+                }
+            }
         }
 
         return voxelValues;
