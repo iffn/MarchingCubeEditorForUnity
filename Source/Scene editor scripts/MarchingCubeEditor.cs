@@ -1,6 +1,7 @@
 # if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +9,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 {
     public class MarchingCubeEditor : EditorWindow
     {
-        MarchingCubesController linkedMarchingCubesController;
         ScriptableObjectSaveData linkedScriptableObjectSaveData;
         EditShape selectedShape;
         int gridResolutionX = 20;
@@ -27,6 +27,43 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         public static void ShowWindow()
         {
             GetWindow(typeof(MarchingCubeEditor));
+        }
+
+        readonly static List<MarchingCubeEditor> editors = new();
+        static MarchingCubesController linkedMarchingCubesController;
+        static void FindMarchingCubeControllerIfNeeded()
+        {
+            if(linkedMarchingCubesController == null)
+            {
+                linkedMarchingCubesController = Object.FindObjectOfType<MarchingCubesController>(false);
+
+                foreach(MarchingCubeEditor editor in editors)
+                {
+                    editor.Repaint();
+                }
+            }
+        }
+
+        private void OnEnable()
+        {
+            FindMarchingCubeControllerIfNeeded();
+
+            editors.Add(this);
+
+            if(editors.Count == 1)
+            {
+                EditorApplication.hierarchyChanged += FindMarchingCubeControllerIfNeeded;
+            }
+        }
+
+        private void OnDisable()
+        {
+            editors.Remove(this);
+
+            if(editors.Count == 0)
+            {
+                EditorApplication.hierarchyChanged -= FindMarchingCubeControllerIfNeeded;
+            }
         }
 
         void OnGUI()
