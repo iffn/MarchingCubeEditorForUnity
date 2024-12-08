@@ -77,7 +77,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if (linkedMarchingCubesController == null)
             {
-                EditorGUILayout.HelpBox("Add a Marching cube prefab to your scene and link it to this scrip", MessageType.Warning); //ToDo: Check if in scene. ToDo: Auto detect?
+                EditorGUILayout.HelpBox("Add a Marching cube prefab to your scene and link it to this scrip", MessageType.Warning);
                 return;
             }
 
@@ -92,7 +92,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
             EditorGUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Initialize"))
+            if (GUILayout.Button("Apply and set empty"))
             {
                 linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
                 nextUpdateTime = EditorApplication.timeSinceStartup;
@@ -107,8 +107,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
 
             GUILayout.Label("Save data:");
-            linkedScriptableObjectSaveData = EditorGUILayout.ObjectField(
-               linkedScriptableObjectSaveData,
+            linkedMarchingCubesController.linkedSaveData = EditorGUILayout.ObjectField(
+               linkedMarchingCubesController.linkedSaveData,
                typeof(ScriptableObjectSaveData),
                true) as ScriptableObjectSaveData;
 
@@ -120,7 +120,17 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.EndHorizontal();
             }
 
-            if (!linkedMarchingCubesController.IsInitialized) return;
+            // Auto initialize and load
+            // ToDo: Check if it makes sense to move this into the MarchingCubeController using [ExecuteInEditMode] and OnEnable
+            if (!linkedMarchingCubesController.IsInitialized)
+            {
+                bool loadData = linkedScriptableObjectSaveData != null;
+
+                linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, !loadData);
+
+                if(loadData) linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedScriptableObjectSaveData);
+
+            }
 
             GUILayout.Label("Editing:");
             selectedShape = EditorGUILayout.ObjectField(

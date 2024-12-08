@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2802,6 +2802,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MarchingCube
       objectReference: {fileID: 0}
+    - target: {fileID: 5658932759107640818, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6021694136058829924, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -3307,6 +3311,10 @@ PrefabInstance:
     - target: {fileID: 627088662335013851, guid: 80a68a08c7b74e14888f5d72aa931808, type: 3}
       propertyPath: m_Name
       value: Edit Box
+      objectReference: {fileID: 0}
+    - target: {fileID: 627088662335013851, guid: 80a68a08c7b74e14888f5d72aa931808, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6795647259914061947, guid: 80a68a08c7b74e14888f5d72aa931808, type: 3}
       propertyPath: m_LocalPosition.x
