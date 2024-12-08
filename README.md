@@ -1,6 +1,9 @@
 # MarchingCubeEditor
 Goal: Create an editor for creating marching cube terrains
 
+## Current state
+In active development and likely with a bunch of bugs.
+
 ## Sources and references
 Implementing generation data by Paul Bourke: https://paulbourke.net/geometry/polygonise/
 
