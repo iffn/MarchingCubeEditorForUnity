@@ -9,7 +9,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 {
     public class MarchingCubeEditor : EditorWindow
     {
-        ScriptableObjectSaveData linkedScriptableObjectSaveData;
         EditShape selectedShape;
         int gridResolutionX = 20;
         int gridResolutionY = 20;
@@ -46,13 +45,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable()
         {
-            FindMarchingCubeControllerIfNeeded();
+            FindSceneObjectsIfNeeded();
 
             editors.Add(this);
 
             if(editors.Count == 1)
             {
-                EditorApplication.hierarchyChanged += FindMarchingCubeControllerIfNeeded;
+                EditorApplication.hierarchyChanged += FindSceneObjectsIfNeeded;
             }
         }
 
@@ -62,7 +61,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if(editors.Count == 0)
             {
-                EditorApplication.hierarchyChanged -= FindMarchingCubeControllerIfNeeded;
+                EditorApplication.hierarchyChanged -= FindSceneObjectsIfNeeded;
             }
         }
 
@@ -112,10 +111,10 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                typeof(ScriptableObjectSaveData),
                true) as ScriptableObjectSaveData;
 
-            if(linkedScriptableObjectSaveData != null)
+            if(linkedMarchingCubesController.linkedSaveData != null)
             {
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveAndLoadManager.SaveGridData(linkedScriptableObjectSaveData);
+                if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveAndLoadManager.SaveGridData(linkedMarchingCubesController.linkedSaveData);
                 if (GUILayout.Button($"Load data")) LoadData();
                 EditorGUILayout.EndHorizontal();
             }
@@ -124,11 +123,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             // ToDo: Check if it makes sense to move this into the MarchingCubeController using [ExecuteInEditMode] and OnEnable
             if (!linkedMarchingCubesController.IsInitialized)
             {
-                bool loadData = linkedScriptableObjectSaveData != null;
+                bool loadData = linkedMarchingCubesController.linkedSaveData != null;
 
                 linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, !loadData);
 
-                if(loadData) linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedScriptableObjectSaveData);
+                if(loadData) linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
 
             }
 
@@ -182,7 +181,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void LoadData()
         {
-            linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedScriptableObjectSaveData);
+            linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
             gridResolutionX = linkedMarchingCubesController.GridResolutionX;
             gridResolutionY = linkedMarchingCubesController.GridResolutionY;
             gridResolutionZ = linkedMarchingCubesController.GridResolutionZ;
