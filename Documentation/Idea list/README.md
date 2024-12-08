@@ -46,7 +46,52 @@ graph LR
     style UndoRedo rx:15
     style CopyPaste rx:15
     style ExportAction rx:15
+```
 
+### Improved user experience
+```mermaid
+flowchart TD
+    
+    Start[Start] --> TryToFindController[Try to find controller]
+
+    %% Initial controller assignment
+    TryToFindController --> ControllerFoundCheck{Controller found?}
+    ControllerFoundCheck -->|No| PromptUserToAddController(Prompt user to find controller)
+    PromptUserToAddController --> UserAddsController([User adds controller])
+    UserAddsController --> ControllerFoundCheck
+    
+    ControllerFoundCheck -->|Yes| InitializeController[Initialize controller]
+
+    %% Main user action
+    InitializeController --> UserMainActions{{User main actions in parallel}}
+    
+    %% Redefine controller
+    UserMainActions -->|Redefine controller| AllowUserToRedefineController(Allow user to redefine controller)
+    AllowUserToRedefineController --> UserAddsController
+    
+    %% Save and load
+    UserMainActions -->|Save and load| AllowUserToDefineSaveFile(Allow user to define save file)
+    AllowUserToDefineSaveFile --> UserDefinesSaveFile([User defines save file])
+    UserDefinesSaveFile --> DisplaySaveAndLoadOptions(Display save and load options)
+    DisplaySaveAndLoadOptions --> UserSaveAndLoadAction((User save and load action))
+    UserSaveAndLoadAction --> |User clicks save| SaveData[Save data]
+    UserSaveAndLoadAction --> |User clicks load| LoadData[Load data]
+    
+    %% Modify shape
+    UserMainActions -->|Modify| SelectEditShape(Allow the user to select a modification shape)
+    SelectEditShape --> UserSelectsEditShape([User selects edit shape])
+    UserSelectsEditShape --> AllowUserToSelectModificationOption(Allow user to select modification option)
+    AllowUserToSelectModificationOption --> UserModificationAction((User modification action))
+    UserModificationAction --> |Use shape directly| UserEditsShape([User edits shape])
+    UserEditsShape --> SelectAddOrSubrtactShape([User selects add or subtract shape])
+    SelectAddOrSubrtactShape --> AddOrSubtractShape[Add or subtract shape]
+    UserModificationAction --> |Add shape with raycast|RaycastToFindIntersection[Raycast to find intersection]
+    RaycastToFindIntersection --> UserSelectsSimpleOrComplexPreview([User selects simple or complex preview])
+    UserSelectsSimpleOrComplexPreview --> UserSelectsAddOrRemove([User indicates add or remove])
+    UserSelectsAddOrRemove -->|If hit| DisplayPreview[Display preview]
+    DisplayPreview --> UserSelectsApplyModification([User selects apply modification])
+    UserSelectsApplyModification --> ModifyShape[Modify shape]
+    ModifyShape --> RaycastToFindIntersection
 ```
 
 ## Implementation elements
