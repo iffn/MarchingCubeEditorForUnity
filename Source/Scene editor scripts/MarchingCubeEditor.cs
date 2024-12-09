@@ -77,6 +77,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void OnGUI()
         {
+            DrawSetupUI();
+            DrawEditUI();
+        }
+
+        //Components
+        void DrawSetupUI()
+        {
             GUILayout.Label("Scene component:");
 
             linkedMarchingCubesController = EditorGUILayout.ObjectField(
@@ -107,21 +114,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 nextUpdateTime = EditorApplication.timeSinceStartup;
             }
 
-            bool newInvertedNormals = EditorGUILayout.Toggle("Inverted normals", invertNormals);
-
-            if(newInvertedNormals != invertNormals)
-            {
-                linkedMarchingCubesController.InvertAllNormals = newInvertedNormals;
-                invertNormals = newInvertedNormals;
-            }
-
             GUILayout.Label("Save data:");
             linkedMarchingCubesController.linkedSaveData = EditorGUILayout.ObjectField(
                linkedMarchingCubesController.linkedSaveData,
                typeof(ScriptableObjectSaveData),
                true) as ScriptableObjectSaveData;
 
-            if(linkedMarchingCubesController.linkedSaveData != null)
+            if (linkedMarchingCubesController.linkedSaveData != null)
             {
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button($"Save data")) linkedMarchingCubesController.SaveAndLoadManager.SaveGridData(linkedMarchingCubesController.linkedSaveData);
@@ -137,9 +136,12 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, !loadData);
 
-                if(loadData) linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
-
+                if (loadData) linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
             }
+        }
+
+        void DrawEditUI()
+        {
 
             GUILayout.Label("Editing:");
             selectedShape = EditorGUILayout.ObjectField(
@@ -149,29 +151,40 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if (selectedShape)
             {
+                // Add and subtract
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
                 if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                 EditorGUILayout.EndHorizontal();
 
-                bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
+                // Max height
                 limitMaxHeight = EditorGUILayout.Toggle("Limit max height", limitMaxHeight);
 
+                // Adding shape
+                bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
                 if (newAddingShape && !addingShape) //Toggle on
                 {
                     linkedMarchingCubesController.EnableAllColliders = true;
                     originalShapePosition = selectedShape.transform.position;
                 }
-                else if(!newAddingShape && addingShape) //Toggle off
+                else if (!newAddingShape && addingShape) //Toggle off
                 {
                     linkedMarchingCubesController.EnableAllColliders = false;
                     selectedShape.transform.position = originalShapePosition;
                     selectedShape.gameObject.SetActive(true);
                 }
+                addingShape = newAddingShape;
 
+                // Display preview shape
                 displayPreviewShape = EditorGUILayout.Toggle("Display preview shape", displayPreviewShape);
 
-                addingShape = newAddingShape;
+                // Invert normals
+                bool newInvertedNormals = EditorGUILayout.Toggle("Inverted normals", invertNormals);
+                if (newInvertedNormals != invertNormals)
+                {
+                    linkedMarchingCubesController.InvertAllNormals = newInvertedNormals;
+                    invertNormals = newInvertedNormals;
+                }
             }
 
             if (addingShape)
@@ -189,6 +202,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
+        //Helper functions
         void LoadData()
         {
             linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
