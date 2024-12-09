@@ -3,6 +3,7 @@ using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditorInternal.VR;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.SceneEditor
@@ -53,6 +54,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
+        static void RepaintWindow()
+        {
+            foreach (MarchingCubeEditor editor in editors)
+            {
+                editor.Repaint();
+            }
+        }
+
         private void OnEnable()
         {
             FindSceneObjectsIfNeeded();
@@ -62,6 +71,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if(editors.Count == 1)
             {
                 EditorApplication.hierarchyChanged += FindSceneObjectsIfNeeded;
+                Undo.undoRedoPerformed += RepaintWindow;
             }
         }
 
@@ -72,6 +82,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if(editors.Count == 0)
             {
                 EditorApplication.hierarchyChanged -= FindSceneObjectsIfNeeded;
+                Undo.undoRedoPerformed -= RepaintWindow;
             }
         }
 
@@ -115,10 +126,19 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
 
             GUILayout.Label("Save data:");
-            linkedMarchingCubesController.linkedSaveData = EditorGUILayout.ObjectField(
+            ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
                linkedMarchingCubesController.linkedSaveData,
                typeof(ScriptableObjectSaveData),
                true) as ScriptableObjectSaveData;
+
+            if(newSaveData != linkedMarchingCubesController.linkedSaveData)
+            {
+                Undo.RecordObject(linkedMarchingCubesController, "Set save data file");
+                linkedMarchingCubesController.linkedSaveData = newSaveData;
+                EditorUtility.SetDirty(linkedMarchingCubesController);
+                if (!Application.isPlaying)
+                    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(linkedMarchingCubesController.gameObject.scene);
+            }
 
             if (linkedMarchingCubesController.linkedSaveData != null)
             {
@@ -142,7 +162,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void DrawEditUI()
         {
-
             GUILayout.Label("Editing:");
             selectedShape = EditorGUILayout.ObjectField(
                selectedShape,
