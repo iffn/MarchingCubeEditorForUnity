@@ -9,7 +9,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 {
     public class MarchingCubeEditor : EditorWindow
     {
-        EditShape selectedShape;
         int gridResolutionX = 20;
         int gridResolutionY = 20;
         int gridResolutionZ = 20;
@@ -30,13 +29,24 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         readonly static List<MarchingCubeEditor> editors = new();
         static MarchingCubesController linkedMarchingCubesController;
-        static void FindMarchingCubeControllerIfNeeded()
+        static EditShape selectedShape;
+        static void FindSceneObjectsIfNeeded()
         {
             if(linkedMarchingCubesController == null)
             {
                 linkedMarchingCubesController = Object.FindObjectOfType<MarchingCubesController>(false);
 
                 foreach(MarchingCubeEditor editor in editors)
+                {
+                    editor.Repaint();
+                }
+            }
+
+            if (selectedShape == null)
+            {
+                selectedShape = Object.FindObjectOfType<EditShape>(false);
+
+                foreach (MarchingCubeEditor editor in editors)
                 {
                     editor.Repaint();
                 }
