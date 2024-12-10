@@ -3,7 +3,6 @@ using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorInternal.VR;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.SceneEditor
@@ -156,7 +155,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, !loadData);
 
-                if (loadData) linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
+                if (loadData) LoadData();
             }
         }
 
@@ -222,7 +221,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         }
 
         //Helper functions
-        void LoadData()
+        void LoadData() //Note: Only load data using this function to ensure that the grid resolution values are correctly set.
         {
             linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
             gridResolutionX = linkedMarchingCubesController.GridResolutionX;
