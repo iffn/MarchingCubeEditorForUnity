@@ -94,6 +94,90 @@ flowchart TD
     ModifyShape --> RaycastToFindIntersection
 ```
 
+### Better tool integration
+```mermaid
+classDiagram
+    class MarchingCubeEditor {
+        MarchingCubeEditor
+        + DrawUI() : void
+        + HanldeUIUpdate() : void
+    }
+
+    %% Base class for tools
+    class BaseTool {
+        + *DrawUI()* : void
+        + *HanldeUIUpdate()* : void
+        + *DrawGizmos()* : void
+        + *OnEnable()* : void
+        + *OnDisable()* : void
+        # RaycastAtMousePosition() : Hit
+    }
+    <<abstract>> BaseTool
+
+    %% Basic Tools
+    class SimpleSceneModifyTool {
+        - currentShape : EditShape
+        - AddShape() : void
+        - RemoveShape () : void
+    }
+    
+    class SimpleClickToModifyTool {
+        - currentShape : EditShape
+        - showPreview : bool
+        - limitHeight : bool
+        - AddShape() : void
+        - RemoveShape () : void
+    }
+
+    class ModifySurfaceTool {
+        - size : float
+        - type : enum -> makeSmooth, makeRough...
+    }
+
+    class CopyPasteTool {
+        - currentShape : EditShape
+    }
+
+    %% Path Tools
+    class PathElement {
+        + CreateLine(start: Vector3, end: Vector3) void
+        + SnapToGrid(position: Vector3) Vector3
+        + VisualizeLine() void
+    }
+
+    class PathShape {
+
+    }
+
+    class TunnelAlongLineTool {
+        
+    }
+
+    class PathAlongLineTool {
+        
+    }
+
+    %% Relationships
+    MarchingCubeEditor --> BaseTool : implements
+    
+    BaseTool <|-- SimpleSceneModifyTool
+    BaseTool <|-- SimpleClickToModifyTool
+    BaseTool <|-- ModifySurfaceTool
+    BaseTool <|-- CopyPasteTool
+    BaseTool <|-- TunnelAlongLineTool
+    BaseTool <|-- PathAlongLineTool
+
+    SimpleSceneModifyTool --> EditShape : uses
+    SimpleClickToModifyTool --> EditShape : uses
+    ModifySurfaceTool --> EditShape : uses
+    CopyPasteTool --> EditShape : uses
+
+    PathAlongLineTool --> PathElement : uses
+    PathElTunnelAlongLineToolement --> PathElement : uses
+    TunnelAlongLineTool --> PathShape : uses
+    PathAlongLineTool --> PathShape : uses
+```
+
 ## Implementation elements
 ### Save and load
 
