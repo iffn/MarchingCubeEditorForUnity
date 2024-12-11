@@ -1,19 +1,11 @@
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEditor;
 using UnityEngine;
 
 public class SimpleSceneModifyTool : BaseTool
 {
     EditShape selectedShape;
-    
-    public SimpleSceneModifyTool(MarchingCubesController linkedController) : base(linkedController)
-    {
-        
-    }
 
     public override string displayName
     {
@@ -23,9 +15,19 @@ public class SimpleSceneModifyTool : BaseTool
         }
     }
 
-    public override void DrawGizmos()
+    public SimpleSceneModifyTool(MarchingCubesController linkedController) : base(linkedController)
     {
         
+    }
+
+    public override void OnEnable()
+    {
+
+    }
+
+    public override void OnDisable()
+    {
+
     }
 
     public override void DrawUI()
@@ -49,12 +51,7 @@ public class SimpleSceneModifyTool : BaseTool
         
     }
 
-    public override void OnDisable()
-    {
-        
-    }
-
-    public override void OnEnable()
+    public override void DrawGizmos()
     {
         
     }
