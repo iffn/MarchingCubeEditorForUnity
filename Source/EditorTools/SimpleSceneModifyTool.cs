@@ -35,10 +35,13 @@ public class SimpleSceneModifyTool : BaseTool
             typeof(EditShape),
             true) as EditShape;
 
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-        if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-        EditorGUILayout.EndHorizontal();
+        if (selectedShape)
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
+            if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+            EditorGUILayout.EndHorizontal();
+        }
     }
 
     public override void HandleUIUpdate(Event e)

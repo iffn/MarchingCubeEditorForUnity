@@ -4,6 +4,7 @@ using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static UnityEngine.GridBrushBase;
 
 namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 {
@@ -21,6 +22,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         Color additionColor = new Color(1f, 0.5f, 0f, 0.5f);
         Color subtractionColor = new Color(1f, 0f, 0f, 0.5f);
 
+        readonly List<BaseTool> tools = new();
+        BaseTool currentTool;
+
         [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
         public static void ShowWindow()
         {
@@ -30,6 +34,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         readonly static List<MarchingCubeEditor> editors = new();
         static MarchingCubesController linkedMarchingCubesController;
         static EditShape selectedShape;
+
         static void FindSceneObjectsIfNeeded()
         {
             if(linkedMarchingCubesController == null)
@@ -159,22 +164,30 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
-        readonly List<BaseTool> tools = new List<BaseTool>();
-        SimpleSceneModifyTool simpleSceneModifyTool;
-
         void DrawEditUI()
         {
             // Create elements if needed
-            if (simpleSceneModifyTool == null)
-            {
-                simpleSceneModifyTool = new SimpleSceneModifyTool(linkedMarchingCubesController);
-                tools.Add(simpleSceneModifyTool);
-            }
+            //ToDo: Implement setup differently, since somewhat slow and running every update
+            if (!tools.Exists(tool => tool is SimpleSceneModifyTool))
+                tools.Add(new SimpleSceneModifyTool(linkedMarchingCubesController));
 
             // Show element buttons
-            foreach(BaseTool tool in tools)
+            GUILayout.Label("Elements:");
+            foreach (BaseTool tool in tools)
             {
-                if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
+                if (GUILayout.Button(tool.displayName))
+                {
+                    currentTool?.OnDisable();
+                    currentTool = tool;
+                    currentTool.OnEnable();
+                }
+            }
+
+            //Draw current tool
+            if(currentTool != null)
+            {
+                GUILayout.Label($"{currentTool.displayName}:");
+                currentTool.DrawUI();
             }
         }
 
