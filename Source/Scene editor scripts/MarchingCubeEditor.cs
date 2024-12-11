@@ -159,7 +159,26 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
+        readonly List<BaseTool> tools = new List<BaseTool>();
+        SimpleSceneModifyTool simpleSceneModifyTool;
+
         void DrawEditUI()
+        {
+            // Create elements if needed
+            if (simpleSceneModifyTool == null)
+            {
+                simpleSceneModifyTool = new SimpleSceneModifyTool(linkedMarchingCubesController);
+                tools.Add(simpleSceneModifyTool);
+            }
+
+            // Show element buttons
+            foreach(BaseTool tool in tools)
+            {
+                if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
+            }
+        }
+
+        void DrawEditUIAlternative()
         {
             GUILayout.Label("Editing:");
             selectedShape = EditorGUILayout.ObjectField(
