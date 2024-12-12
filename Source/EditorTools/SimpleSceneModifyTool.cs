@@ -46,7 +46,7 @@ public class SimpleSceneModifyTool : BaseTool
         }
     }
 
-    public override void HandleUIUpdate(Event e)
+    public override void HandleSceneUpdate(Event e)
     {
         
     }
