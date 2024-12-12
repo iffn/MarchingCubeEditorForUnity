@@ -209,8 +209,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.EndHorizontal();
 
                 paintColor = EditorGUILayout.ColorField("Paint color", paintColor);
-                bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
-                limitMaxHeight = EditorGUILayout.Toggle("Limit max height", limitMaxHeight);
 
                 // Adding shape
                 bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
@@ -246,7 +244,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.HelpBox("Controls:\n" +
                     "Click to add\n" +
                     "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale\nShift click to paint (Temporary)", MessageType.None);
+                    "Shift Scroll to scale\n" +
+                    "Shift click to paint (Temporary)", MessageType.None);
             }
             else
             {
