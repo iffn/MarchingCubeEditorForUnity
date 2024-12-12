@@ -97,8 +97,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     for (int z = gridBoundsMin.z; z < gridBoundsMax.z; z++)
                     {
                         // Directly query the model for cube weights
-                        float[] cubeWeights = model.GetCubeWeights(x, y, z);
-                        MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x - gridBoundsMin.x, y - gridBoundsMin.y, z - gridBoundsMin.z, invertedNormals);
+                        VoxelData[] cubeData = model.GetCubeWeights(x, y, z);
+                        MarchingCubes.GenerateCubeMesh(meshData, cubeData, x - gridBoundsMin.x, y - gridBoundsMin.y, z - gridBoundsMin.z, invertedNormals);
                     }
                 }
             }
@@ -108,16 +108,17 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void UpdateMesh(MarchingCubesMeshData meshData)
         {
-            UpdateMesh(meshData.vertices, meshData.triangles);
+            UpdateMesh(meshData.vertices, meshData.triangles, meshData.colors);
         }
 
-        public void UpdateMesh(List<Vector3> vertices, List<int> triangles)
+        public void UpdateMesh(List<Vector3> vertices, List<int> triangles, List<Color32> colors)
         {
             Mesh mesh = meshFilter.sharedMesh;
             mesh.Clear();
 
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
+            mesh.SetColors(colors);
             mesh.RecalculateNormals();
 
             // Update collider if needed.

@@ -65,18 +65,18 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             return VoxelData;
         }
 
-        public float[] GetCubeWeights(int x, int y, int z)
+        public VoxelData[] GetCubeWeights(int x, int y, int z)
         {
-            float[] cubeWeights = new float[8];
+            VoxelData[] cubeWeights = new VoxelData[8];
 
-            cubeWeights[0] = VoxelData[x,     y,     z    ].Weight; // {0, 0, 0}
-            cubeWeights[1] = VoxelData[x + 1, y,     z    ].Weight; // {1, 0, 0}
-            cubeWeights[2] = VoxelData[x + 1, y + 1, z    ].Weight; // {1, 1, 0}
-            cubeWeights[3] = VoxelData[x,     y + 1, z    ].Weight; // {0, 1, 0}
-            cubeWeights[4] = VoxelData[x,     y,     z + 1].Weight; // {0, 0, 1}
-            cubeWeights[5] = VoxelData[x + 1, y,     z + 1].Weight; // {1, 0, 1}
-            cubeWeights[6] = VoxelData[x + 1, y + 1, z + 1].Weight; // {1, 1, 1}
-            cubeWeights[7] = VoxelData[x,     y + 1, z + 1].Weight; // {0, 1, 1}
+            cubeWeights[0] = VoxelData[x,     y,     z    ]; // {0, 0, 0}
+            cubeWeights[1] = VoxelData[x + 1, y,     z    ]; // {1, 0, 0}
+            cubeWeights[2] = VoxelData[x + 1, y + 1, z    ]; // {1, 1, 0}
+            cubeWeights[3] = VoxelData[x,     y + 1, z    ]; // {0, 1, 0}
+            cubeWeights[4] = VoxelData[x,     y,     z + 1]; // {0, 0, 1}
+            cubeWeights[5] = VoxelData[x + 1, y,     z + 1]; // {1, 0, 1}
+            cubeWeights[6] = VoxelData[x + 1, y + 1, z + 1]; // {1, 1, 1}
+            cubeWeights[7] = VoxelData[x,     y + 1, z + 1]; // {0, 1, 1}
 
             return cubeWeights;
         }

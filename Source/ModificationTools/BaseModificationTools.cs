@@ -42,4 +42,19 @@ public class BaseModificationTools
             return base.ModifyVoxel(x, y, z, currentValue, distance);
         }
     }
+
+    public class ChangeColorModifier : IVoxelModifier
+    {
+        private readonly Color32 color;
+
+        public ChangeColorModifier(Color32 color) 
+        {
+            this.color = color;
+        }
+
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
+        {
+            return currentValue.With(color);
+        }
+    }
 }

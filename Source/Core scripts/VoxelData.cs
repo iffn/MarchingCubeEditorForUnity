@@ -23,25 +23,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public readonly VoxelData With(float weight) => new(weight, Color);
         public readonly VoxelData With(Color32 color) => new(Weight, color);
 
-        public readonly void Serialize(Array dst, int dstOffset)
+        public readonly void Serialize(byte[] dst, int dstOffset)
         {
-            Buffer.BlockCopy(BitConverter.GetBytes(Weight),  0, dst, dstOffset + 0,  4);
-            Buffer.BlockCopy(BitConverter.GetBytes(Color.r), 0, dst, dstOffset + 4,  4);
-            Buffer.BlockCopy(BitConverter.GetBytes(Color.g), 0, dst, dstOffset + 8,  4);
-            Buffer.BlockCopy(BitConverter.GetBytes(Color.b), 0, dst, dstOffset + 16, 4);
-            Buffer.BlockCopy(BitConverter.GetBytes(Color.a), 0, dst, dstOffset + 24, 4);
+            Buffer.BlockCopy(BitConverter.GetBytes(Weight), 0, dst, dstOffset,  4);
+            dst[dstOffset + 4] = Color.r;
+            dst[dstOffset + 5] = Color.g;
+            dst[dstOffset + 6] = Color.b;
+            dst[dstOffset + 7] = Color.a;
         }
 
         public void Deserialize(byte[] src, int srcOffset) 
         {
             Weight = BitConverter.ToSingle(src, srcOffset);
-            Color = new Color32
-            (
-                (byte)BitConverter.ToChar(src, srcOffset + 4),
-                (byte)BitConverter.ToChar(src, srcOffset + 8),
-                (byte)BitConverter.ToChar(src, srcOffset + 16),
-                (byte)BitConverter.ToChar(src, srcOffset + 24)
-            );
+            Color = new Color32(src[srcOffset + 4], src[srcOffset + 5], src[srcOffset + 6], src[srcOffset + 7]);
         }
     }
 }

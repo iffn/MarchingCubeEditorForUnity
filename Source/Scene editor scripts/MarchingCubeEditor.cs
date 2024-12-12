@@ -19,6 +19,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool invertNormals;
         bool displayPreviewShape;
         Vector3 originalShapePosition;
+        Color paintColor;
 
         Color additionColor = new Color(1f, 0.5f, 0f, 0.5f);
         Color subtractionColor = new Color(1f, 0f, 0f, 0.5f);
@@ -98,6 +99,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                 EditorGUILayout.EndHorizontal();
 
+                paintColor = EditorGUILayout.ColorField("Paint color", paintColor);
                 bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
                 limitMaxHeight = EditorGUILayout.Toggle("Limit max height", limitMaxHeight);
 
@@ -125,7 +127,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.HelpBox("Controls:\n" +
                     "Click to add\n" +
                     "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale", MessageType.None);
+                    "Shift Scroll to scale\nShift click to paint (Temporary)", MessageType.None);
             }
             else
             {
@@ -235,7 +237,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     {
                         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
                         {
-                            if (e.control) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+                            if (e.shift) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.ChangeColorModifier(paintColor));
+                            else if (e.control) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                             else
                             {
                                 linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
@@ -264,7 +267,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                         if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
                         {
-                            if (e.control) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+                            if (e.shift) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.ChangeColorModifier(paintColor));
+                            else if (e.control) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                             else
                             {
                                 linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
