@@ -4,7 +4,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 {
     public class MarchingCubesModel
     {
-        public float[,,] VoxelData { get; private set; }
+        public VoxelData[,,] VoxelData { get; private set; }
 
         public Vector3Int MaxGrid { get; private set; }
         public int ResolutionX => VoxelData.GetLength(0);
@@ -13,7 +13,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public MarchingCubesModel(int resolutionX, int resolutionY, int resolutionZ)
         {
-            VoxelData = new float[resolutionX, resolutionY, resolutionZ];
+            VoxelData = new VoxelData[resolutionX, resolutionY, resolutionZ];
 
             RecalculateMaxGrid();
         }
@@ -33,15 +33,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 && z < ResolutionZ;
         }
 
-        // Method to set a single voxel’s value
-        public void SetVoxel(int x, int y, int z, float value)
+        // Method to set a single voxel's value
+        public void SetVoxel(int x, int y, int z, VoxelData value)
         {
             if(!IsInGrid(x, y, z)) return;
 
             VoxelData[x, y, z] = value;
         }
 
-        public void AddVoxel(int x, int y, int z, float value)
+        /*public void AddVoxel(int x, int y, int z, float value)
         {
             if (!IsInGrid(x, y, z)) return;
 
@@ -53,14 +53,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (!IsInGrid(x, y, z)) return;
 
             VoxelData[x, y, z] = Mathf.Min(VoxelData[x, y, z], value);
-        }
+        }*/
 
-        public float GetVoxel(int x, int y, int z)
+        public VoxelData GetVoxel(int x, int y, int z)
         {
             return VoxelData[x, y, z];
         }
 
-        public float[,,] GetVoxelData()
+        public VoxelData[,,] GetVoxelData()
         {
             return VoxelData;
         }
@@ -69,19 +69,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             float[] cubeWeights = new float[8];
 
-            cubeWeights[0] = VoxelData[x,     y,     z    ]; // {0, 0, 0}
-            cubeWeights[1] = VoxelData[x + 1, y,     z    ]; // {1, 0, 0}
-            cubeWeights[2] = VoxelData[x + 1, y + 1, z    ]; // {1, 1, 0}
-            cubeWeights[3] = VoxelData[x,     y + 1, z    ]; // {0, 1, 0}
-            cubeWeights[4] = VoxelData[x,     y,     z + 1]; // {0, 0, 1}
-            cubeWeights[5] = VoxelData[x + 1, y,     z + 1]; // {1, 0, 1}
-            cubeWeights[6] = VoxelData[x + 1, y + 1, z + 1]; // {1, 1, 1}
-            cubeWeights[7] = VoxelData[x,     y + 1, z + 1]; // {0, 1, 1}
+            cubeWeights[0] = VoxelData[x,     y,     z    ].Weight; // {0, 0, 0}
+            cubeWeights[1] = VoxelData[x + 1, y,     z    ].Weight; // {1, 0, 0}
+            cubeWeights[2] = VoxelData[x + 1, y + 1, z    ].Weight; // {1, 1, 0}
+            cubeWeights[3] = VoxelData[x,     y + 1, z    ].Weight; // {0, 1, 0}
+            cubeWeights[4] = VoxelData[x,     y,     z + 1].Weight; // {0, 0, 1}
+            cubeWeights[5] = VoxelData[x + 1, y,     z + 1].Weight; // {1, 0, 1}
+            cubeWeights[6] = VoxelData[x + 1, y + 1, z + 1].Weight; // {1, 1, 1}
+            cubeWeights[7] = VoxelData[x,     y + 1, z + 1].Weight; // {0, 1, 1}
 
             return cubeWeights;
         }
 
-        public void SetDataAndResizeIfNeeded(float[,,] newData)
+        public void SetDataAndResizeIfNeeded(VoxelData[,,] newData)
         {
             VoxelData = newData;
 
@@ -98,7 +98,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
 
             // Create a new VoxelData array with the new size
-            float[,,] newVoxelData = new float[resolutionX, resolutionY, resolutionZ];
+            VoxelData[,,] newVoxelData = new VoxelData[resolutionX, resolutionY, resolutionZ];
 
             // Copying data over. Warning, max grid not calculated yet!
             if (copyDataIfChanging)

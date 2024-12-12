@@ -15,7 +15,7 @@ public class SaveAndLoadManager
 
     public void SaveGridData(ScriptableObjectSaveData saveData)
     {
-        float[,,] voxelDataReference = linkedController.VoxelDataReference;
+        VoxelData[,,] voxelDataReference = linkedController.VoxelDataReference;
 
         saveData.SaveData(voxelDataReference);
 
@@ -27,7 +27,7 @@ public class SaveAndLoadManager
 
     public void LoadGridData(ScriptableObjectSaveData saveData)
     {
-        float[,,] voxelData = saveData.LoadData();
+        VoxelData[,,] voxelData = saveData.LoadData();
 
         linkedController.SetAllGridDataAndUpdateMesh(voxelData);
     }

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using iffnsStuff.MarchingCubeEditor.Core;
 
 [CreateAssetMenu(fileName = "SO SaveData", menuName = "Marching Cubes/ScriptableObjectSaveData")]
 public class ScriptableObjectSaveData : ScriptableObject
@@ -15,21 +16,20 @@ public class ScriptableObjectSaveData : ScriptableObject
     /// Saves the entire 3D voxel grid as a Base64-encoded string.
     /// </summary>
     /// <param name="voxelValues">3D array of voxel values to save.</param>
-    public void SaveData(float[,,] voxelValues)
+    public void SaveData(VoxelData[,,] voxelValues)
     {
         resolutionX = voxelValues.GetLength(0);
         resolutionY = voxelValues.GetLength(1);
         resolutionZ = voxelValues.GetLength(2);
 
         int totalValues = resolutionX * resolutionY * resolutionZ;
-        byte[] byteArray = new byte[totalValues * 4]; // Each float is 4 bytes
+        byte[] byteArray = new byte[totalValues * VoxelData.Size];
         int byteIndex = 0;
 
-        foreach (float value in voxelValues)
+        foreach (VoxelData value in voxelValues)
         {
-            byte[] bytes = BitConverter.GetBytes(value);
-            Buffer.BlockCopy(bytes, 0, byteArray, byteIndex, 4);
-            byteIndex += 4;
+            value.Serialize(byteArray, byteIndex);
+            byteIndex += VoxelData.Size;
         }
 
         packedData = Convert.ToBase64String(byteArray); // Encode as Base64
@@ -39,16 +39,16 @@ public class ScriptableObjectSaveData : ScriptableObject
     /// Loads the voxel grid from the Base64-encoded string.
     /// </summary>
     /// <returns>3D array of voxel values.</returns>
-    public float[,,] LoadData()
+    public VoxelData[,,] LoadData()
     {
         if (string.IsNullOrEmpty(packedData))
         {
             Debug.LogWarning("Packed data is empty. Returning default grid.");
-            return new float[resolutionX, resolutionY, resolutionZ];
+            return new VoxelData[resolutionX, resolutionY, resolutionZ];
         }
 
         byte[] byteArray = Convert.FromBase64String(packedData);
-        float[,,] voxelValues = new float[resolutionX, resolutionY, resolutionZ];
+        VoxelData[,,] voxelValues = new VoxelData[resolutionX, resolutionY, resolutionZ];
 
         int byteIndex = 0;
 
@@ -58,8 +58,8 @@ public class ScriptableObjectSaveData : ScriptableObject
             {
                 for (int z = 0; z < resolutionZ; z++)
                 {
-                    voxelValues[x, y, z] = BitConverter.ToSingle(byteArray, byteIndex);
-                    byteIndex += 4;
+                    voxelValues[x, y, z].Deserialize(byteArray, byteIndex);
+                    byteIndex += VoxelData.Size;
                 }
             }
         }
