@@ -36,6 +36,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         static MarchingCubesController linkedMarchingCubesController;
         static EditShape selectedShape;
 
+        public void UpdateLinkedCubesController(MarchingCubesController controller) 
+        {
+            linkedMarchingCubesController = controller;
+        }
+
         static void FindSceneObjectsIfNeeded()
         {
             if(linkedMarchingCubesController == null)
