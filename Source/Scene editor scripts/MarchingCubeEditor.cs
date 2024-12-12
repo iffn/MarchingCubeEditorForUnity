@@ -171,6 +171,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (!tools.Exists(tool => tool is SimpleSceneModifyTool))
                 tools.Add(new SimpleSceneModifyTool(linkedMarchingCubesController));
 
+            if (!tools.Exists(tool => tool is SimpleClickToModifyTool))
+                tools.Add(new SimpleClickToModifyTool(linkedMarchingCubesController));
+
             // Show element buttons
             GUILayout.Label("Elements:");
             foreach (BaseTool tool in tools)
@@ -188,6 +191,16 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 GUILayout.Label($"{currentTool.displayName}:");
                 currentTool.DrawUI();
+            }
+
+            //Update scene interactions
+            if (currentTool != null)
+            {
+                SceneView.duringSceneGui += UpdateSceneInteractionForController;
+            }
+            else
+            {
+                SceneView.duringSceneGui -= UpdateSceneInteractionForController;
             }
         }
 
@@ -239,7 +252,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if (addingShape)
             {
-                SceneView.duringSceneGui += OnSceneGUI; // Subscribe to SceneView GUI event
+                SceneView.duringSceneGui += UpdateSceneInteractionForController; // Subscribe to SceneView GUI event
 
                 EditorGUILayout.HelpBox("Controls:\n" +
                     "Click to add\n" +
@@ -248,7 +261,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
             else
             {
-                SceneView.duringSceneGui -= OnSceneGUI; // Unsubscribe when not in use
+                SceneView.duringSceneGui -= UpdateSceneInteractionForController; // Unsubscribe when not in use
             }
         }
 
@@ -264,7 +277,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         double nextUpdateTime;
         readonly double timeBetweenUpdates = 0.1f;
 
-        void OnSceneGUI(SceneView sceneView)
+        void UpdateSceneInteractionForController(SceneView sceneView)
+        {
+            Event currentEvent = Event.current;
+
+            currentTool.HandleSceneUpdate(currentEvent);
+        }
+
+        void OnSceneGUIOld(SceneView sceneView)
         {
             Event e = Event.current;
             /*

@@ -106,7 +106,7 @@ classDiagram
     %% Base class for tools
     class BaseTool {
         + *DrawUI()* : void
-        + *HanldeUIUpdate()* : void
+        + *HandleSceneUpdate(currentEvent : Event)* : void
         + *DrawGizmos()* : void
         + *OnEnable()* : void
         + *OnDisable()* : void

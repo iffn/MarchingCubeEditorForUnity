@@ -14,7 +14,7 @@ public abstract class BaseTool
     }
 
     public abstract void DrawUI();
-    public abstract void HandleUIUpdate(Event e);
+    public abstract void HandleSceneUpdate(Event currentEvent);
     public abstract void DrawGizmos();
     public abstract void OnEnable();
     public abstract void OnDisable();
