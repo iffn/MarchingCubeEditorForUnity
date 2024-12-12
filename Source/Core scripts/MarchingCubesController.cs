@@ -13,6 +13,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private MarchingCubesModel previewModelWithOldData;
         private static readonly Vector3Int chunkSize = new(16, 16, 16);
 
+        public ScriptableObjectSaveData linkedSaveData;
+
         public bool DisplayPreviewShape
         {
             set

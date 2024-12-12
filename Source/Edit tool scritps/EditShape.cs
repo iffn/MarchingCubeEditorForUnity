@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.EditTools
@@ -87,7 +88,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
                 new (localMin.x, localMax.y, localMax.z),
                 new (localMax.x, localMax.y, localMax.z)
             };
-
+    
             // Transform the corners to world space
             Vector3 worldMin = Vector3.positiveInfinity;
             Vector3 worldMax = Vector3.negativeInfinity;
