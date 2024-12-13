@@ -10,7 +10,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// <summary>
         /// Precompute the world-to-local transformation matrix for optimized distance calculations.
         /// </summary>
-        public void PrecomputeTransform(Transform gridTransform)
+        public virtual void PrepareParameters(Transform gridTransform)
         {
             worldToLocalMatrix = transform.worldToLocalMatrix * gridTransform.localToWorldMatrix;
         }
@@ -48,6 +48,9 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         {
             set
             {
+                //ToDo: Make better
+                return;
+
                 if (linkedMaterial == null)
                 {
                     Renderer renderer = GetComponent<Renderer>();

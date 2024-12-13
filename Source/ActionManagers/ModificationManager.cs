@@ -55,7 +55,7 @@ public class ModificationManager
         Matrix4x4 worldToGrid = linkedControllerTransform.worldToLocalMatrix; // Transform world space to grid space
 
         // Precompute shape transformation
-        shape.PrecomputeTransform(linkedControllerTransform); // Passing the transform allows using the grid points directly
+        shape.PrepareParameters(linkedControllerTransform); // Passing the transform allows using the grid points directly
 
         // Get shape bounds in world space and transform to grid space
         (Vector3 worldMin, Vector3 worldMax) = shape.GetWorldBoundingBox();
