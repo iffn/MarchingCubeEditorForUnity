@@ -37,7 +37,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public int GridResolutionY => mainModel.VoxelData.GetLength(1);
         public int GridResolutionZ => mainModel.VoxelData.GetLength(2);
 
-        public float[,,] VoxelDataReference => mainModel.VoxelData;
+        public VoxelData[,,] VoxelDataReference => mainModel.VoxelData;
 
         public Vector3Int MaxGrid => mainModel.MaxGrid;
 
@@ -225,7 +225,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 {
                     for (int z = 0; z < mainModel.ResolutionZ; z++)
                     {
-                        mainModel.SetVoxel(x, y, z, -1); // Use signed distance
+                        mainModel.SetVoxel(x, y, z, VoxelData.Empty); // Use signed distance
                     }
                 }
             }
@@ -233,7 +233,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if(updateModel) UpdateAllChunks();
         }
 
-        public void SetAllGridDataAndUpdateMesh(float[,,] newData)
+        public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             mainModel.SetDataAndResizeIfNeeded(newData);
             UpdateAllChunks();
@@ -246,7 +246,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// <param name="y">The y-coordinate of the voxel.</param>
         /// <param name="z">The z-coordinate of the voxel.</param>
         /// <returns>The value of the voxel.</returns>
-        public float GetDataPoint(int x, int y, int z)
+        public VoxelData GetDataPoint(int x, int y, int z)
         {
             return mainModel.GetVoxel(x, y, z);
         }
@@ -258,13 +258,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// <param name="y">The y-coordinate of the voxel.</param>
         /// <param name="z">The z-coordinate of the voxel.</param>
         /// <param name="value">The value to set.</param>
-        public void SetDataPointWithSettingItToDirty(int x, int y, int z, float value)
+        public void SetDataPointWithSettingItToDirty(int x, int y, int z, VoxelData value)
         {
             SetDataPointWithoutSettingItToDirty(x, y, z, value);
             MarkRegionDirty(new Vector3Int(x, y, z), new Vector3Int(x + 1, y + 1, z + 1)); // ToDo: Optimize my only passing one element
         }
 
-        public void SetDataPointWithoutSettingItToDirty(int x, int y, int z, float value)
+        public void SetDataPointWithoutSettingItToDirty(int x, int y, int z, VoxelData value)
         {
             mainModel.SetVoxel(x, y, z, value);
         }
@@ -288,7 +288,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// <param name="y">The y-coordinate of the voxel.</param>
         /// <param name="z">The z-coordinate of the voxel.</param>
         /// <param name="value">The value to set in the preview model.</param>
-        public void SetPreviewDataPoint(int x, int y, int z, float value)
+        public void SetPreviewDataPoint(int x, int y, int z, VoxelData value)
         {
             previewModelWithOldData.SetVoxel(x, y, z, value);
         }

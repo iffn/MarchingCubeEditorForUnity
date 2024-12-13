@@ -18,6 +18,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool invertNormals;
         bool displayPreviewShape;
         Vector3 originalShapePosition;
+        Color paintColor;
 
         Color additionColor = new Color(1f, 0.5f, 0f, 0.5f);
         Color subtractionColor = new Color(1f, 0f, 0f, 0.5f);
@@ -34,6 +35,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         readonly static List<MarchingCubeEditor> editors = new();
         static MarchingCubesController linkedMarchingCubesController;
         static EditShape selectedShape;
+
+        public void UpdateLinkedCubesController(MarchingCubesController controller) 
+        {
+            linkedMarchingCubesController = controller;
+        }
 
         static void FindSceneObjectsIfNeeded()
         {
@@ -174,6 +180,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (!tools.Exists(tool => tool is SimpleClickToModifyTool))
                 tools.Add(new SimpleClickToModifyTool(linkedMarchingCubesController));
 
+            if (!tools.Exists(tool => tool is SimpleClickToPaintTool))
+                tools.Add(new SimpleClickToPaintTool(linkedMarchingCubesController));
+
             // Show element buttons
             GUILayout.Label("Elements:");
             foreach (BaseTool tool in tools)
@@ -220,8 +229,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                 EditorGUILayout.EndHorizontal();
 
-                // Max height
-                limitMaxHeight = EditorGUILayout.Toggle("Limit max height", limitMaxHeight);
+                paintColor = EditorGUILayout.ColorField("Paint color", paintColor);
 
                 // Adding shape
                 bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
@@ -257,7 +265,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.HelpBox("Controls:\n" +
                     "Click to add\n" +
                     "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale", MessageType.None);
+                    "Shift Scroll to scale\n" +
+                    "Shift click to paint (Temporary)", MessageType.None);
             }
             else
             {
@@ -302,9 +311,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
-                if (Physics.Raycast(ray, out RaycastHit hit))
+                if (Physics.Raycast(ray, out RaycastHit hitInfo))
                 {
-                    selectedShape.transform.position = hit.point;
+                    selectedShape.transform.position = hitInfo.point;
 
                     if (displayPreviewShape)
                     {

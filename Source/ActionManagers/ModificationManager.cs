@@ -69,7 +69,7 @@ public class ModificationManager
         return (minGrid, maxGrid);
     }
 
-    void ModifyModel(EditShape shape, IVoxelModifier modifier, Vector3Int minGrid, Vector3Int maxGrid, Func<int, int, int, float> getDataPoint, Action<int, int, int, float> setDataPoint)
+    void ModifyModel(EditShape shape, IVoxelModifier modifier, Vector3Int minGrid, Vector3Int maxGrid, Func<int, int, int, VoxelData> getDataPoint, Action<int, int, int, VoxelData> setDataPoint)
     {
         float worldToGridScaleFactor = linkedControllerTransform.localScale.magnitude; //ToDo: Reimplement scaling
 
@@ -87,8 +87,8 @@ public class ModificationManager
                     float distance = shape.OptimizedDistance(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
 
                     // Modify the voxel value
-                    float currentValue = getDataPoint(x, y, z);
-                    float newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
+                    VoxelData currentValue = getDataPoint(x, y, z);
+                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
                     setDataPoint(x, y, z, newValue);
                 }
             }
