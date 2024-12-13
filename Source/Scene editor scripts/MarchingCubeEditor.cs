@@ -13,15 +13,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionX = 20;
         int gridResolutionY = 20;
         int gridResolutionZ = 20;
-        bool addingShape = false;
-        bool limitMaxHeight;
         bool invertNormals;
-        bool displayPreviewShape;
-        Vector3 originalShapePosition;
-        Color paintColor;
-
-        Color additionColor = new Color(1f, 0.5f, 0f, 0.5f);
-        Color subtractionColor = new Color(1f, 0f, 0f, 0.5f);
 
         readonly List<BaseTool> tools = new();
         BaseTool currentTool;
@@ -132,7 +124,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (GUILayout.Button("Apply and set empty"))
             {
                 linkedMarchingCubesController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-                nextUpdateTime = EditorApplication.timeSinceStartup;
             }
 
             GUILayout.Label("Save data:");
@@ -141,7 +132,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                typeof(ScriptableObjectSaveData),
                true) as ScriptableObjectSaveData;
 
-            if(newSaveData != linkedMarchingCubesController.linkedSaveData)
+
+            if (newSaveData != linkedMarchingCubesController.linkedSaveData)
             {
                 Undo.RecordObject(linkedMarchingCubesController, "Set save data file");
                 linkedMarchingCubesController.linkedSaveData = newSaveData;
@@ -168,6 +160,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 if (loadData) LoadData();
             }
+
+            GUILayout.Label("Visualization:");
+            // Invert normals
+            bool newInvertedNormals = EditorGUILayout.Toggle("Inverted normals", invertNormals);
+            if (newInvertedNormals != invertNormals)
+            {
+                linkedMarchingCubesController.InvertAllNormals = newInvertedNormals;
+                invertNormals = newInvertedNormals;
+            }
         }
 
         void DrawEditUI()
@@ -184,7 +185,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 tools.Add(new SimpleClickToPaintTool(linkedMarchingCubesController));
 
             // Show element buttons
-            GUILayout.Label("Elements:");
+            GUILayout.Label("Edit tools:");
             foreach (BaseTool tool in tools)
             {
                 if (GUILayout.Button(tool.displayName))
@@ -213,65 +214,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
-        void DrawEditUIAlternative()
+        void UpdateSceneInteractionForController(SceneView sceneView)
         {
-            GUILayout.Label("Editing:");
-            selectedShape = EditorGUILayout.ObjectField(
-               selectedShape,
-               typeof(EditShape),
-               true) as EditShape;
+            Event currentEvent = Event.current;
 
-            if (selectedShape)
-            {
-                // Add and subtract
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button($"Add {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-                if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-                EditorGUILayout.EndHorizontal();
-
-                paintColor = EditorGUILayout.ColorField("Paint color", paintColor);
-
-                // Adding shape
-                bool newAddingShape = EditorGUILayout.Toggle("Add Shape Mode", addingShape);
-                if (newAddingShape && !addingShape) //Toggle on
-                {
-                    linkedMarchingCubesController.EnableAllColliders = true;
-                    originalShapePosition = selectedShape.transform.position;
-                }
-                else if (!newAddingShape && addingShape) //Toggle off
-                {
-                    linkedMarchingCubesController.EnableAllColliders = false;
-                    selectedShape.transform.position = originalShapePosition;
-                    selectedShape.gameObject.SetActive(true);
-                }
-                addingShape = newAddingShape;
-
-                // Display preview shape
-                displayPreviewShape = EditorGUILayout.Toggle("Display preview shape", displayPreviewShape);
-
-                // Invert normals
-                bool newInvertedNormals = EditorGUILayout.Toggle("Inverted normals", invertNormals);
-                if (newInvertedNormals != invertNormals)
-                {
-                    linkedMarchingCubesController.InvertAllNormals = newInvertedNormals;
-                    invertNormals = newInvertedNormals;
-                }
-            }
-
-            if (addingShape)
-            {
-                SceneView.duringSceneGui += UpdateSceneInteractionForController; // Subscribe to SceneView GUI event
-
-                EditorGUILayout.HelpBox("Controls:\n" +
-                    "Click to add\n" +
-                    "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale\n" +
-                    "Shift click to paint (Temporary)", MessageType.None);
-            }
-            else
-            {
-                SceneView.duringSceneGui -= UpdateSceneInteractionForController; // Unsubscribe when not in use
-            }
+            currentTool.HandleSceneUpdate(currentEvent);
         }
 
         //Helper functions
@@ -281,103 +228,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             gridResolutionX = linkedMarchingCubesController.GridResolutionX;
             gridResolutionY = linkedMarchingCubesController.GridResolutionY;
             gridResolutionZ = linkedMarchingCubesController.GridResolutionZ;
-        }
-
-        double nextUpdateTime;
-        readonly double timeBetweenUpdates = 0.1f;
-
-        void UpdateSceneInteractionForController(SceneView sceneView)
-        {
-            Event currentEvent = Event.current;
-
-            currentTool.HandleSceneUpdate(currentEvent);
-        }
-
-        void OnSceneGUIOld(SceneView sceneView)
-        {
-            Event e = Event.current;
-            /*
-            if (e.type == EventType.KeyUp && e.keyCode == KeyCode.Tab)
-            {
-                InvertNormals(!invertNormals);
-
-                Debug.Log("Invert");
-
-                e.Use();
-            }
-            */
-
-            if (addingShape && selectedShape)
-            {
-                Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
-
-                if (Physics.Raycast(ray, out RaycastHit hitInfo))
-                {
-                    selectedShape.transform.position = hitInfo.point;
-
-                    if (displayPreviewShape)
-                    {
-                        if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
-                        {
-                            if (e.control) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-                            else
-                            {
-                                linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
-                                /*
-                                if (limitMaxHeight) linkedMarchingCubesController.PreviewAddShapeWithMaxHeight(selectedShape, hit.point.y);
-                                else linkedMarchingCubesController.PreviewAddShape(selectedShape);
-                                */
-                            }
-
-                            selectedShape.gameObject.SetActive(false);
-                            linkedMarchingCubesController.DisplayPreviewShape = true;
-
-                            nextUpdateTime = EditorApplication.timeSinceStartup + timeBetweenUpdates;
-                        }
-
-                        if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
-                        {
-                            linkedMarchingCubesController.ModificationManager.ApplyPreviewChanges();
-                            e.Use();
-                        }
-                    }
-                    else
-                    {
-                        selectedShape.gameObject.SetActive(true);
-                        selectedShape.Color = e.control ? subtractionColor : additionColor;
-
-                        if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
-                        {
-                            if (e.control) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-                            else
-                            {
-                                linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-                                /*
-                                if (limitMaxHeight) linkedMarchingCubesController.AddShapeWithMaxHeight(selectedShape, hit.point.y, true);
-                                else linkedMarchingCubesController.AddShape(selectedShape, true);
-                                */
-                            }
-
-                            e.Use();
-                            return;
-                        }
-                    }
-
-                    if (e.shift && e.type == EventType.ScrollWheel)
-                    {
-                        float scaleDelta = e.delta.x * -0.03f; // Scale factor; reverse direction if needed
-
-                        selectedShape.transform.localScale *= (scaleDelta + 1);
-
-                        e.Use(); // Mark event as handled
-                    }
-                }
-                else
-                {
-                    linkedMarchingCubesController.DisplayPreviewShape = false;
-                    selectedShape.gameObject.SetActive(false);
-                }
-            }
         }
     }
 }
