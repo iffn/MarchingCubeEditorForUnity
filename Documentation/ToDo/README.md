@@ -8,7 +8,7 @@
 - [ ] Normal expansion
 
 ## Editor options
-- [ ] Select tool from UI
+- [x] Select tool from UI
 - [ ] Editor library
 - [ ] Link save file to prefab
 
@@ -16,7 +16,7 @@
 - [ ] Triplanar shader
 
 ## Tool isualization
-- [ ] Distance function shader
+- [x] Distance function shader
 - [x] Preview modification
 
 ## Editor visualization
@@ -25,4 +25,4 @@
 
 ## Additional functionalities
 - [x] Chunks
-- [ ] Coloring with weight and vertex colors
+- [x] Coloring with weight and vertex colors
