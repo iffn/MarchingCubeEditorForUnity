@@ -85,11 +85,9 @@ public class SimpleClickToModifyTool : BaseTool
     {
         if (!raycastActive) return;
 
-        RaycastHit hit = RaycastAtMousePosition(e);
-
-        if(hit.collider != null)
+        if(RaycastAtMousePosition(e, out Vector3 hitPoint))
         {
-            selectedShape.transform.position = hit.point;
+            selectedShape.transform.position = hitPoint;
 
             if (displayPreviewShape)
             {

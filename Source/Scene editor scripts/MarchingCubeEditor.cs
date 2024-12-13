@@ -180,6 +180,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (!tools.Exists(tool => tool is SimpleClickToModifyTool))
                 tools.Add(new SimpleClickToModifyTool(linkedMarchingCubesController));
 
+            if (!tools.Exists(tool => tool is SimpleClickToPaintTool))
+                tools.Add(new SimpleClickToPaintTool(linkedMarchingCubesController));
+
             // Show element buttons
             GUILayout.Label("Elements:");
             foreach (BaseTool tool in tools)
@@ -283,71 +286,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         double nextUpdateTime;
         readonly double timeBetweenUpdates = 0.1f;
 
-        bool RaycastWithArea(Ray ray, out Vector3 point)
-        {
-            point = Vector3.zero;
-
-            // if normal Raycast workes, we can just its point
-            if (Physics.Raycast(ray, out RaycastHit hit)) 
-            {
-                point = hit.point;
-                return true;
-            }
-
-            // Otherwise we will do a bounds intersection check with the area
-            // and if this succeeds we will calculate the furthest point away
-            // of the intersection.
-            // ChatGPT: https://chatgpt.com/share/675ac236-2840-800e-b128-9d570ca5b6d8
-            // Define the bounds of the cube
-            Bounds bounds = new Bounds(linkedMarchingCubesController.transform.position + linkedMarchingCubesController.MaxGrid / 2, linkedMarchingCubesController.MaxGrid);
-
-            // Check if the ray intersects the bounds
-            if (!bounds.IntersectRay(ray))
-            {
-                return false; // No intersection
-            }
-
-            // Calculate intersection points (entry and exit)
-            Vector3 min = bounds.min;
-            Vector3 max = bounds.max;
-
-            float tMin = float.MinValue, tMax = float.MaxValue;
-
-            for (int i = 0; i < 3; i++)
-            {
-                if (ray.direction[i] != 0)
-                {
-                    float t1 = (min[i] - ray.origin[i]) / ray.direction[i];
-                    float t2 = (max[i] - ray.origin[i]) / ray.direction[i];
-
-                    if (t1 > t2)
-                    {
-                        (t1, t2) = (t2, t1); // Swap if t1 > t2
-                    }
-
-                    tMin = Mathf.Max(tMin, t1);
-                    tMax = Mathf.Min(tMax, t2);
-                }
-                else if (ray.origin[i] < min[i] || ray.origin[i] > max[i])
-                {
-                    return false; // Ray is parallel and outside the bounds
-                }
-            }
-
-            if (tMin > tMax || tMax < 0)
-            {
-                return false; // No valid intersection
-            }
-
-            // Calculate intersection points
-            Vector3 entryPoint = ray.origin + tMin * ray.direction;
-            Vector3 exitPoint = ray.origin + tMax * ray.direction;
-
-            // Return the furthest point
-            point = Vector3.Distance(ray.origin, entryPoint) > Vector3.Distance(ray.origin, exitPoint) ? entryPoint : exitPoint;
-            return true;
-        }
-
         void UpdateSceneInteractionForController(SceneView sceneView)
         {
             Event currentEvent = Event.current;
@@ -373,16 +311,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
-                if (RaycastWithArea(ray, out Vector3 point))
+                if (Physics.Raycast(ray, out RaycastHit hitInfo))
                 {
-                    selectedShape.transform.position = point;
+                    selectedShape.transform.position = hitInfo.point;
 
                     if (displayPreviewShape)
                     {
                         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
                         {
-                            if (e.shift) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.ChangeColorModifier(paintColor));
-                            else if (e.control) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+                            if (e.control) linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                             else
                             {
                                 linkedMarchingCubesController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
@@ -411,8 +348,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                         if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
                         {
-                            if (e.shift) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.ChangeColorModifier(paintColor));
-                            else if (e.control) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+                            if (e.control) linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
                             else
                             {
                                 linkedMarchingCubesController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());

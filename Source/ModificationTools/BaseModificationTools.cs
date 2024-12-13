@@ -1,5 +1,6 @@
 using UnityEngine;
 using iffnsStuff.MarchingCubeEditor.Core;
+using Unity.VisualScripting;
 
 public class BaseModificationTools
 {
@@ -46,15 +47,21 @@ public class BaseModificationTools
     public class ChangeColorModifier : IVoxelModifier
     {
         private readonly Color32 color;
+        private readonly AnimationCurve curve;  // Not sure if curve makes sense as there is already a shape that 
+                                                // defines the how the painting should look like. So either remove 
+                                                // the shape or the curve.
 
-        public ChangeColorModifier(Color32 color) 
+        public ChangeColorModifier(Color32 color, AnimationCurve curve) 
         {
             this.color = color;
+            this.curve = curve;
         }
 
         public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
         {
-            return currentValue.With(color);
+            Color32 newColor = Color.Lerp(color, currentValue.Color, curve.Evaluate(distance));
+
+            return currentValue.With(newColor);
         }
     }
 }
