@@ -4,11 +4,11 @@ using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static UnityEngine.GridBrushBase;
 
 namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 {
-    public class MarchingCubeEditor : EditorWindow
+    [CustomEditor(typeof(MarchingCubesController))]
+    public class MarchingCubeEditor : Editor
     {
         int gridResolutionX = 20;
         int gridResolutionY = 20;
@@ -18,22 +18,22 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         readonly List<BaseTool> tools = new();
         BaseTool currentTool;
 
-        [MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
+        /*[MenuItem("Tools/iffnsStuff/MarchingCubeEditor")]
         public static void ShowWindow()
         {
             GetWindow(typeof(MarchingCubeEditor));
-        }
+        }*/
 
         readonly static List<MarchingCubeEditor> editors = new();
-        static MarchingCubesController linkedMarchingCubesController;
+       // static MarchingCubesController linkedMarchingCubesController;
         static EditShape selectedShape;
 
-        public void UpdateLinkedCubesController(MarchingCubesController controller) 
+       /* public void UpdateLinkedCubesController(MarchingCubesController controller) 
         {
             linkedMarchingCubesController = controller;
-        }
+        }*/
 
-        static void FindSceneObjectsIfNeeded()
+        /*static void FindSceneObjectsIfNeeded()
         {
             if(linkedMarchingCubesController == null)
             {
@@ -54,7 +54,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     editor.Repaint();
                 }
             }
-        }
+        }*/
 
         static void RepaintWindow()
         {
@@ -66,13 +66,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable()
         {
-            FindSceneObjectsIfNeeded();
+           // FindSceneObjectsIfNeeded();
 
             editors.Add(this);
 
             if(editors.Count == 1)
             {
-                EditorApplication.hierarchyChanged += FindSceneObjectsIfNeeded;
+              //  EditorApplication.hierarchyChanged += FindSceneObjectsIfNeeded;
                 Undo.undoRedoPerformed += RepaintWindow;
             }
         }
@@ -83,13 +83,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if(editors.Count == 0)
             {
-                EditorApplication.hierarchyChanged -= FindSceneObjectsIfNeeded;
+            //    EditorApplication.hierarchyChanged -= FindSceneObjectsIfNeeded;
                 Undo.undoRedoPerformed -= RepaintWindow;
             }
         }
 
-        void OnGUI()
+        public override void OnInspectorGUI()
         {
+
             DrawSetupUI();
             DrawEditUI();
         }
@@ -97,9 +98,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         //Components
         void DrawSetupUI()
         {
-            GUILayout.Label("Scene component:");
+          //  GUILayout.Label("Scene component:");
 
-            linkedMarchingCubesController = EditorGUILayout.ObjectField(
+           /* linkedMarchingCubesController = EditorGUILayout.ObjectField(
                linkedMarchingCubesController,
                typeof(MarchingCubesController),
                true) as MarchingCubesController;
@@ -108,7 +109,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 EditorGUILayout.HelpBox("Add a Marching cube prefab to your scene and link it to this scrip", MessageType.Warning);
                 return;
-            }
+            }*/
+
+            var linkedMarchingCubesController = (MarchingCubesController)target;
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("X");
@@ -173,6 +176,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void DrawEditUI()
         {
+            var linkedMarchingCubesController = (MarchingCubesController)target;
+
             // Create elements if needed
             //ToDo: Implement setup differently, since somewhat slow and running every update
             if (!tools.Exists(tool => tool is SimpleSceneModifyTool))
@@ -224,6 +229,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         //Helper functions
         void LoadData() //Note: Only load data using this function to ensure that the grid resolution values are correctly set.
         {
+            var linkedMarchingCubesController = (MarchingCubesController)target;
             linkedMarchingCubesController.SaveAndLoadManager.LoadGridData(linkedMarchingCubesController.linkedSaveData);
             gridResolutionX = linkedMarchingCubesController.GridResolutionX;
             gridResolutionY = linkedMarchingCubesController.GridResolutionY;
