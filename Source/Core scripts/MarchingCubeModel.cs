@@ -4,7 +4,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 {
     public class MarchingCubesModel
     {
-        public float[,,] VoxelData;
+        public VoxelData[,,] VoxelData { get; private set; }
 
         public Vector3Int MaxGrid { get; private set; }
         public int ResolutionX => VoxelData.GetLength(0);
@@ -13,31 +13,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public MarchingCubesModel(int resolutionX, int resolutionY, int resolutionZ)
         {
-            VoxelData = new float[resolutionX, resolutionY, resolutionZ];
+            VoxelData = new VoxelData[resolutionX, resolutionY, resolutionZ];
 
-            MaxGrid = new Vector3Int(resolutionX, resolutionY, resolutionZ) - Vector3Int.one;
+            RecalculateMaxGrid();
         }
 
-        // Method to set a single voxel’s value
-        public void SetVoxel(int x, int y, int z, float value)
+        void RecalculateMaxGrid()
         {
-            if(!IsInGrid(x, y, z)) return;
-
-            VoxelData[x, y, z] = value;
-        }
-
-        public void AddVoxel(int x, int y, int z, float value)
-        {
-            if (!IsInGrid(x, y, z)) return;
-
-            VoxelData[x, y, z] = Mathf.Max(VoxelData[x, y, z], value);
-        }
-
-        public void SubtractVoxel(int x, int y, int z, float value)
-        {
-            if (!IsInGrid(x, y, z)) return;
-
-            VoxelData[x, y, z] = Mathf.Min(VoxelData[x, y, z], value);
+            MaxGrid = new Vector3Int(ResolutionX, ResolutionY, ResolutionZ) - Vector3Int.one;
         }
 
         bool IsInGrid(int x, int y, int z)
@@ -50,19 +33,41 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 && z < ResolutionZ;
         }
 
-        public float GetVoxel(int x, int y, int z)
+        // Method to set a single voxel's value
+        public void SetVoxel(int x, int y, int z, VoxelData value)
+        {
+            if(!IsInGrid(x, y, z)) return;
+
+            VoxelData[x, y, z] = value;
+        }
+
+        /*public void AddVoxel(int x, int y, int z, float value)
+        {
+            if (!IsInGrid(x, y, z)) return;
+
+            VoxelData[x, y, z] = Mathf.Max(VoxelData[x, y, z], value);
+        }
+
+        public void SubtractVoxel(int x, int y, int z, float value)
+        {
+            if (!IsInGrid(x, y, z)) return;
+
+            VoxelData[x, y, z] = Mathf.Min(VoxelData[x, y, z], value);
+        }*/
+
+        public VoxelData GetVoxel(int x, int y, int z)
         {
             return VoxelData[x, y, z];
         }
 
-        public float[,,] GetVoxelData()
+        public VoxelData[,,] GetVoxelData()
         {
             return VoxelData;
         }
 
-        public float[] GetCubeWeights(int x, int y, int z)
+        public VoxelData[] GetCubeWeights(int x, int y, int z)
         {
-            float[] cubeWeights = new float[8];
+            VoxelData[] cubeWeights = new VoxelData[8];
 
             cubeWeights[0] = VoxelData[x,     y,     z    ]; // {0, 0, 0}
             cubeWeights[1] = VoxelData[x + 1, y,     z    ]; // {1, 0, 0}
@@ -76,6 +81,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             return cubeWeights;
         }
 
+        public void SetDataAndResizeIfNeeded(VoxelData[,,] newData)
+        {
+            VoxelData = newData;
+
+            RecalculateMaxGrid();
+        }
+
         public void ChangeGridSizeIfNeeded(int resolutionX, int resolutionY, int resolutionZ, bool copyDataIfChanging)
         {
             // Check if the current size matches the new size
@@ -86,10 +98,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
 
             // Create a new VoxelData array with the new size
-            float[,,] newVoxelData = new float[resolutionX, resolutionY, resolutionZ];
+            VoxelData[,,] newVoxelData = new VoxelData[resolutionX, resolutionY, resolutionZ];
 
-            MaxGrid = new Vector3Int(resolutionX, resolutionY, resolutionZ) - Vector3Int.one;
-
+            // Copying data over. Warning, max grid not calculated yet!
             if (copyDataIfChanging)
             {
                 // Determine the size of the overlapping region
@@ -112,6 +123,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             // Assign the new VoxelData array
             VoxelData = newVoxelData;
+
+            RecalculateMaxGrid();
         }
 
         public void CopyRegion(MarchingCubesModel source, Vector3Int minGrid, Vector3Int maxGrid)

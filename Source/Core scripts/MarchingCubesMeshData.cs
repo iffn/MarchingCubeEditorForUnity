@@ -7,6 +7,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     {
         public List<Vector3> vertices = new List<Vector3>();
         public List<int> triangles = new List<int>();
+        public List<Color32> colors = new List<Color32>();
         private Dictionary<Vector3, int> vertexCache = new Dictionary<Vector3, int>();
 
         /// <summary>
@@ -14,7 +15,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// </summary>
         /// <param name="vertex">Vertex position to add.</param>
         /// <returns>Index of the vertex in the vertices list.</returns>
-        public int AddVertex(Vector3 vertex)
+        public int AddVertex(Vector3 vertex, Color32 color)
         {
             if (vertexCache.TryGetValue(vertex, out int index))
             {
@@ -25,6 +26,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Add the vertex and cache its index
             index = vertices.Count;
             vertices.Add(vertex);
+            colors.Add(color);
             vertexCache[vertex] = index;
 
             return index;
@@ -47,6 +49,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             vertices.Clear();
             triangles.Clear();
+            colors.Clear();
             vertexCache.Clear();
         }
     }

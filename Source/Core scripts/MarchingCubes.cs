@@ -9,14 +9,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         // Constants
         // Source: https://paulbourke.net/geometry/polygonise/
         
-        public static void GenerateCubeMesh(MarchingCubesMeshData meshData, float[] cubeWeights, int x, int y, int z, bool invertNormals = false)
+        public static void GenerateCubeMesh(MarchingCubesMeshData meshData, VoxelData[] cubeData, int x, int y, int z, bool invertNormals = false)
         {
             int cubeIndex = 0;
 
             // Determine cube configuration based on corner weights
             for (int i = 0; i < 8; i++)
             {
-                if (cubeWeights[i] > 0)
+                if (cubeData[i].Weight > 0)
                     cubeIndex |= 1 << i;
             }
 
@@ -27,7 +27,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Dictionary to cache edge vertices by edge index to avoid duplicates
             int[] edgeVertexIndices = new int[12];
 
-            // Interpolate vertices on edges where there’s an intersection
+            // Interpolate vertices on edges where there's an intersection
             Vector3[] cornerPositions = GetCornerPositions(x, y, z);
 
             for (int i = 0; i < 12; i++)
@@ -36,10 +36,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 {
                     int cornerA = CornerFromEdge(i, 0);
                     int cornerB = CornerFromEdge(i, 1);
-                    Vector3 edgeVertex = InterpolateEdge(cornerPositions[cornerA], cornerPositions[cornerB], cubeWeights[cornerA], cubeWeights[cornerB]);
+                    (Vector3 edgeVertex, Color32 color) = InterpolateEdge(cornerPositions[cornerA], cornerPositions[cornerB], cubeData[cornerA], cubeData[cornerB]);
 
                     // Store the vertex index in the edge vertex index array
-                    edgeVertexIndices[i] = meshData.AddVertex(edgeVertex);
+                    edgeVertexIndices[i] = meshData.AddVertex(edgeVertex, color);
                 }
             }
 
@@ -85,10 +85,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             };
         }
 
-        private static Vector3 InterpolateEdge(Vector3 p1, Vector3 p2, float val1, float val2)
+        private static (Vector3, Color32) InterpolateEdge(Vector3 p1, Vector3 p2, VoxelData val1, VoxelData val2)
         {
-            float t = (0 - val1) / (val2 - val1);  // t is the interpolation factor
-            return p1 + t * (p2 - p1);
+            float t = (0 - val1.Weight) / (val2.Weight - val1.Weight);  // t is the interpolation factor
+            return (p1 + t * (p2 - p1), Color32.Lerp(val1.Color, val2.Color, t));
         }
 
         private static int CornerFromEdge(int edgeIndex, int cornerPosition)

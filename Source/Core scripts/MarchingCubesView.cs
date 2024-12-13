@@ -19,7 +19,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public Vector3Int GridBoundsMin => gridBoundsMin;
         public Vector3Int GridBoundsMax => gridBoundsMax;
 
-        public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax)
+        public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)
         {
             this.gridBoundsMin = gridBoundsMin;
             this.gridBoundsMax = gridBoundsMax;
@@ -37,6 +37,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 meshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
             }
+
+            meshCollider.enabled = colliderEnabled;
 
             meshCollider.sharedMesh = meshFilter.sharedMesh;
 
@@ -71,7 +73,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             isDirty = true;
         }
 
-        public void UpdateMeshIfDirty(MarchingCubesModel model, bool enableCollider)
+        public void UpdateMeshIfDirty(MarchingCubesModel model)
         {
             if (!isDirty) return;
 
@@ -79,7 +81,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             MarchingCubesMeshData meshData = GenerateChunkMesh(model);
 
             // Update the view's mesh
-            UpdateMesh(meshData, enableCollider);
+            UpdateMesh(meshData);
 
             isDirty = false; // Mark as clean
         }
@@ -95,8 +97,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     for (int z = gridBoundsMin.z; z < gridBoundsMax.z; z++)
                     {
                         // Directly query the model for cube weights
-                        float[] cubeWeights = model.GetCubeWeights(x, y, z);
-                        MarchingCubes.GenerateCubeMesh(meshData, cubeWeights, x - gridBoundsMin.x, y - gridBoundsMin.y, z - gridBoundsMin.z, invertedNormals);
+                        VoxelData[] cubeData = model.GetCubeWeights(x, y, z);
+                        MarchingCubes.GenerateCubeMesh(meshData, cubeData, x - gridBoundsMin.x, y - gridBoundsMin.y, z - gridBoundsMin.z, invertedNormals);
                     }
                 }
             }
@@ -104,23 +106,34 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             return meshData;
         }
 
-        public void UpdateMesh(MarchingCubesMeshData meshData, bool enableCollider)
+        public void UpdateMesh(MarchingCubesMeshData meshData)
         {
-            UpdateMesh(meshData.vertices, meshData.triangles, enableCollider);
+            UpdateMesh(meshData.vertices, meshData.triangles, meshData.colors);
         }
 
-        public void UpdateMesh(List<Vector3> vertices, List<int> triangles, bool enableCollider)
+        public void UpdateMesh(List<Vector3> vertices, List<int> triangles, List<Color32> colors)
         {
             Mesh mesh = meshFilter.sharedMesh;
             mesh.Clear();
 
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
+            mesh.SetColors(colors);
             mesh.RecalculateNormals();
 
-            meshCollider.enabled = enableCollider;
+            // Update collider if needed.
+            if (ColliderEnabled) UpdateCollider();
+        }
 
-            ColliderEnabled = enableCollider;
+        void UpdateCollider()
+        {
+            meshCollider.sharedMesh = null;
+
+            Mesh mesh = meshFilter.sharedMesh;
+
+            if (mesh.vertexCount == 0 || mesh.triangles.Length == 0) return; // Prevent invalid mesh assignment
+
+            meshCollider.sharedMesh = mesh;
         }
 
         public bool InvertedNormals
@@ -161,19 +174,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public bool ColliderEnabled
         {
+            get
+            {
+                return meshCollider.enabled;
+            }
             set
             {
-                if (value)
-                {
-                    meshCollider.sharedMesh = null;
-
-                    Mesh mesh = meshFilter.sharedMesh;
-
-                    if (mesh.vertexCount > 0 && mesh.triangles.Length > 0) // Prevent invalid mesh assignment
-                    {
-                        meshCollider.sharedMesh = mesh;
-                    }
-                }
+                if (!ColliderEnabled && value) UpdateCollider();
 
                 meshCollider.enabled = value;
             }
