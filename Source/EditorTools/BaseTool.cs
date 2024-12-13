@@ -1,3 +1,4 @@
+using System;
 using iffnsStuff.MarchingCubeEditor.Core;
 using UnityEditor;
 using UnityEngine;
@@ -19,33 +20,25 @@ public abstract class BaseTool
     public abstract void OnEnable();
     public abstract void OnDisable();
 
-    // Replaced the result from RaycastHit to just a Vector3 because of all
-    // the values required in RaycastHit that I wasn't able to reproduce.
-    // Maybe consider returning a custom struct holding hitPoint as well as
-    // hitNormal, as the normal could be useful for some tools.
-    protected bool RaycastAtMousePosition(Event e, out Vector3 hitPoint)
+    protected RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
     {
         Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit hitInfo)) 
-        {
-            hitPoint = hitInfo.point;
-            return true;
-        }
+        if (Physics.Raycast(ray, out RaycastHit hitInfo))
+            return new RayHitResult(hitInfo.point, hitInfo.normal);
+            
+        if (!detectBoundingBox)
+            return RayHitResult.None;
 
         Vector3 areaPosition = linkedMarchingCubesController.transform.position;
         Vector3Int areaSize = linkedMarchingCubesController.MaxGrid;
         Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
         
         var result = bounds.GetIntersectRayPoints(ray);
-        if (result != null)
-        {
-            hitPoint = result.Value.Item2;
-            return true;
-        }
+        if (result is (Vector3, Vector3 point))
+            return new RayHitResult(point, bounds.GetNormalToSurface(point));
         
         // Both normal Raycast and Bounds intersection did not succeed 
-        hitPoint = Vector3.zero;
-        return false;
+        return RayHitResult.None;
     }
 }
