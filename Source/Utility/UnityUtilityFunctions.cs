@@ -74,4 +74,21 @@ public static class UnityUtilityFunctions
 
         return (entryPoint, exitPoint);
     }
+
+    public static Vector3 GetNormalToSurface(this Bounds bounds, Vector3 point)
+    {
+        // Convert to local cube space
+        Vector3 localPoint = point - bounds.center;
+        Vector3 halfSize = bounds.size * 0.5f;
+
+        // Check which face the point lies on
+        if (Mathf.Approximately(localPoint.x, halfSize.x)) return Vector3.right;
+        else if (Mathf.Approximately(localPoint.x, -halfSize.x)) return Vector3.left;
+        else if (Mathf.Approximately(localPoint.y, halfSize.y)) return Vector3.up;
+        else if (Mathf.Approximately(localPoint.y, -halfSize.y)) return Vector3.down;
+        else if (Mathf.Approximately(localPoint.z, halfSize.z)) return Vector3.forward;
+        else if (Mathf.Approximately(localPoint.z, -halfSize.z)) return Vector3.back;
+
+        return Vector3.zero;
+    }
 }

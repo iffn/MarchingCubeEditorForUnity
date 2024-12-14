@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
+    [SelectionBase]
     public class MarchingCubesController : MonoBehaviour
     {
         private readonly List<MarchingCubesView> chunkViews = new();
