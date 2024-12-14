@@ -73,6 +73,12 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 else
                     LoadData();
             }
+            else
+            {
+                gridResolutionX = Controller.GridResolutionX;
+                gridResolutionY = Controller.GridResolutionY;
+                gridResolutionZ = Controller.GridResolutionZ;
+            }
 
             SceneView.duringSceneGui += UpdateSceneInteractionForController;
         }
