@@ -179,6 +179,57 @@ classDiagram
 ```
 
 ## Implementation elements
+```mermaid
+mindmap
+  root(Marching cube editor)
+    Tools
+        Actions
+            ✅ Modify using scene object
+            ✅ Click to add and remove
+                ➡️ Add height limit
+            Add path/tunnel
+            ✅ Paint colors
+            ➡️ Smooth/roughen
+            Copy, cut, paste
+            Scale
+        Shapes
+            ✅ Basic shapes like sphere or cube
+            ✅ Distance function like rock
+            ➡️ Terrain heightmap
+    Visualization
+        ✅ Grid outline
+        Tool previews: Only show difference
+            ✅ Addition: Offset vertecies back relative to normal
+            Subtraction: Only show behind mesh
+        Modify mesh display
+            ✅ Invert normals, both visually and for collider
+            Visually cut through terrain
+        Mesh materials
+            ✅ Basic colors
+            Triplanar shader
+            Steepness shader
+            Height shader
+    Mesh generation
+        ✅ Model view controller pattern
+            ✅ Model for storing the data
+            ✅ View for generating the mesh
+            ✅ Controller for giving access to functions
+        Chunk concept
+            ✅ Mark dirty before updating mesh
+            Smooth chunk borders
+            Create as needed
+            Individual LODs
+    Import/Export
+        Import/export data
+            Custom data layout
+                gltf/glb data
+                ✅ scriptable object
+        Export mesh
+            obj
+            fbx
+            gltf/glb mesh
+```
+
 ### Save and load
 
 
