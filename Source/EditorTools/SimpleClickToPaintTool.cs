@@ -74,10 +74,12 @@ public class SimpleClickToPaintTool : BaseTool
     {
         if (!raycastActive) return;
 
-        if(RaycastAtMousePosition(e, out Vector3 hitPoint))
+        RayHitResult result = RaycastAtMousePosition(e);
+
+        if(result != RayHitResult.None)
         {
             selectedShape.gameObject.SetActive(true);
-            selectedShape.transform.position = hitPoint;
+            selectedShape.transform.position = result.point;
 
             HandleDirectUpdate(e);
         }
