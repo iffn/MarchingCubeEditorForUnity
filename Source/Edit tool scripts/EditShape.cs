@@ -82,14 +82,14 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             // Define the 8 corners of the local bounding box
             Vector3[] corners = new Vector3[8]
             {
-                new (localMin.x, localMin.y, localMin.z),
-                new (localMax.x, localMin.y, localMin.z),
-                new (localMin.x, localMax.y, localMin.z),
-                new (localMax.x, localMax.y, localMin.z),
-                new (localMin.x, localMin.y, localMax.z),
-                new (localMax.x, localMin.y, localMax.z),
-                new (localMin.x, localMax.y, localMax.z),
-                new (localMax.x, localMax.y, localMax.z)
+                new Vector3(localMin.x, localMin.y, localMin.z),
+                new Vector3(localMax.x, localMin.y, localMin.z),
+                new Vector3(localMin.x, localMax.y, localMin.z),
+                new Vector3(localMax.x, localMax.y, localMin.z),
+                new Vector3(localMin.x, localMin.y, localMax.z),
+                new Vector3(localMax.x, localMin.y, localMax.z),
+                new Vector3(localMin.x, localMax.y, localMax.z),
+                new Vector3(localMax.x, localMax.y, localMax.z)
             };
     
             // Transform the corners to world space

@@ -8,11 +8,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     [SelectionBase]
     public class MarchingCubesController : MonoBehaviour
     {
-        private readonly List<MarchingCubesView> chunkViews = new();
+        private readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
         private MarchingCubesModel mainModel;
         private MarchingCubesView previewView;
         private MarchingCubesModel previewModelWithOldData;
-        private static readonly Vector3Int chunkSize = new(16, 16, 16);
+        private static readonly Vector3Int chunkSize = new Vector3Int(16, 16, 16);
 
         public ScriptableObjectSaveData linkedSaveData;
 
@@ -74,8 +74,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
             //Setup managers
-            ModificationManager ??= new(this);
-            SaveAndLoadManager ??= new (this);
+            if (ModificationManager == null)
+                ModificationManager = new ModificationManager(this);
+            if (SaveAndLoadManager == null)
+                SaveAndLoadManager = new SaveAndLoadManager(this);
             VisualisationManager.Initialize(this);
 
             // Create model
@@ -88,10 +90,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 mainModel.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, !setEmpty);
             }
 
-            Vector3Int gridResolution = new(resolutionX, resolutionY, resolutionZ);
+            Vector3Int gridResolution = new Vector3Int(resolutionX, resolutionY, resolutionZ);
 
             // Destroy all chunks, save with foreach since Unity doesn't immediately destroy them
-            List<GameObject> chunksToDestroy = new();
+            List<GameObject> chunksToDestroy = new List<GameObject>();
 
             foreach (Transform child in transform)
             {
@@ -123,7 +125,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     for (int z = 0; z < resolutionZ; z += chunkSize.z)
                     {
                         // Define chunk bounds
-                        Vector3Int gridBoundsMin = new(x, y, z);
+                        Vector3Int gridBoundsMin = new Vector3Int(x, y, z);
 
                         Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 

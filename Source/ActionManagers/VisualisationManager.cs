@@ -41,7 +41,7 @@ public class VisualisationManager : MonoBehaviour
 
         // Calculate the starting position of the grid (bottom-left-front corner)
         Vector3 gridOrigin = linkedControllerTransform.position;
-        Vector3 outlineSize = new(linkedController.GridResolutionX - 1, linkedController.GridResolutionY - 1, linkedController.GridResolutionZ - 1);
+        Vector3 outlineSize = new Vector3(linkedController.GridResolutionX - 1, linkedController.GridResolutionY - 1, linkedController.GridResolutionZ - 1);
         outlineSize = UnityUtilityFunctions.ComponentwiseMultiply(outlineSize, cellSize);
 
         // Calculate all eight corners of the grid box

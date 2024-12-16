@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
@@ -88,7 +87,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         private MarchingCubesMeshData GenerateChunkMesh(MarchingCubesModel model)
         {
-            MarchingCubesMeshData meshData = new();
+            MarchingCubesMeshData meshData = new MarchingCubesMeshData();
 
             for (int x = gridBoundsMin.x; x < gridBoundsMax.x; x++)
             {

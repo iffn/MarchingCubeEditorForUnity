@@ -18,7 +18,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         // This stores all the currently selectedTools across different Editors by using the
         // MarchingCubesController as a Key.
-        readonly static Dictionary<Object, BaseTool> selectedTool = new();
+        readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
 
         BaseTool CurrentTool 
         {
@@ -59,7 +59,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable() 
         {
-            tools ??= new List<BaseTool>() 
+            tools = new List<BaseTool>() 
             {
                 new SimpleSceneModifyTool(Controller),
                 new SimpleClickToModifyTool(Controller),

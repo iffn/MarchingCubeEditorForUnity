@@ -35,8 +35,8 @@ public abstract class BaseTool
         Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
         
         var result = bounds.GetIntersectRayPoints(ray);
-        if (result is (Vector3, Vector3 point))
-            return new RayHitResult(point, bounds.GetNormalToSurface(point));
+        if (result != null)
+            return new RayHitResult(result.Value.Item2, bounds.GetNormalToSurface(result.Value.Item2));
         
         // Both normal Raycast and Bounds intersection did not succeed 
         return RayHitResult.None;

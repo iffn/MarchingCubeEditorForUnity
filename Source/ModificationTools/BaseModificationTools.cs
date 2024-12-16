@@ -1,6 +1,5 @@
 using UnityEngine;
 using iffnsStuff.MarchingCubeEditor.Core;
-using Unity.VisualScripting;
 
 public class BaseModificationTools
 {

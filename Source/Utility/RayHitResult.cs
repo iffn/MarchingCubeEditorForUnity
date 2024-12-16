@@ -2,7 +2,7 @@ using UnityEngine;
 
 public readonly struct RayHitResult
 {
-    public static readonly RayHitResult None = new(Vector3.zero, Vector3.zero);
+    public static readonly RayHitResult None = new RayHitResult(Vector3.zero, Vector3.zero);
 
     public readonly Vector3 point;
     public readonly Vector3 normal;
