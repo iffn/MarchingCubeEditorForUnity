@@ -73,6 +73,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
+            // We don't want to initialize if we are inside a prefab
+            if (gameObject.scene.name == null)
+                return;
+
             //Setup managers
             if (ModificationManager == null)
                 ModificationManager = new ModificationManager(this);
