@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEngine;
-using static UnityEngine.Mesh;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
@@ -74,14 +73,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             return new Vector3[]
             {
-                new (x, y, z),
-                new (x + 1, y, z),
-                new (x + 1, y + 1, z),
-                new (x, y + 1, z),
-                new (x, y, z + 1),
-                new (x + 1, y, z + 1),
-                new (x + 1, y + 1, z + 1),
-                new (x, y + 1, z + 1)
+                new Vector3(x, y, z),
+                new Vector3(x + 1, y, z),
+                new Vector3(x + 1, y + 1, z),
+                new Vector3(x, y + 1, z),
+                new Vector3(x, y, z + 1),
+                new Vector3(x + 1, y, z + 1),
+                new Vector3(x + 1, y + 1, z + 1),
+                new Vector3(x, y + 1, z + 1)
             };
         }
 
@@ -105,3 +104,4 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ public class VisualisationManager : MonoBehaviour
 
         // Calculate the starting position of the grid (bottom-left-front corner)
         Vector3 gridOrigin = linkedControllerTransform.position;
-        Vector3 outlineSize = new(linkedController.GridResolutionX - 1, linkedController.GridResolutionY - 1, linkedController.GridResolutionZ - 1);
+        Vector3 outlineSize = new Vector3(linkedController.GridResolutionX - 1, linkedController.GridResolutionY - 1, linkedController.GridResolutionZ - 1);
         outlineSize = UnityUtilityFunctions.ComponentwiseMultiply(outlineSize, cellSize);
 
         // Calculate all eight corners of the grid box
@@ -72,3 +73,4 @@ public class VisualisationManager : MonoBehaviour
         Gizmos.DrawLine(corners[3], corners[7]); // Back left vertical edge
     }
 }
+#endif

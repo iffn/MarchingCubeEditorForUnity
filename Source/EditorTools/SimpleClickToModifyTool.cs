@@ -1,7 +1,7 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -184,3 +184,5 @@ public class SimpleClickToModifyTool : BaseTool
         if (selectedShape) selectedShape.transform.position = originalShapePosition;
     }
 }
+
+#endif

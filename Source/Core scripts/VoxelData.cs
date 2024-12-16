@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using UnityEngine;
 
@@ -5,7 +7,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 {
     public struct VoxelData
     {
-        public readonly static VoxelData Empty = new(-1.0f, new Color32(255, 255, 255, 255));
+        public readonly static VoxelData Empty = new VoxelData(-1.0f, new Color32(255, 255, 255, 255));
         public readonly static int Size = 4 + 32;
 
         public VoxelData(float weight, Color32 color)
@@ -17,13 +19,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public float Weight { get; private set; }
         public Color32 Color { get; private set; }
 
-        public override readonly string ToString() 
+        public override string ToString() 
             => $"(w: {Weight}, (r: {Color.r}, g: {Color.g}, b: {Color.b}, a: {Color.a}))";
 
-        public readonly VoxelData With(float weight) => new(weight, Color);
-        public readonly VoxelData With(Color32 color) => new(Weight, color);
+        public VoxelData With(float weight) => new VoxelData(weight, Color);
+        public VoxelData With(Color32 color) => new VoxelData(Weight, color);
 
-        public readonly void Serialize(byte[] dst, int dstOffset)
+        public void Serialize(byte[] dst, int dstOffset)
         {
             Buffer.BlockCopy(BitConverter.GetBytes(Weight), 0, dst, dstOffset,  4);
             dst[dstOffset + 4] = Color.r;
@@ -39,3 +41,5 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
     }
 }
+
+#endif

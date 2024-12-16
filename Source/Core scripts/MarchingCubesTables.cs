@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 public static class MarchingCubesTables
 {
     // Start is called before the first frame update
@@ -298,3 +300,4 @@ public static class MarchingCubesTables
     }; // Predefined triangle table for marching cubes
 
 }
+#endif
