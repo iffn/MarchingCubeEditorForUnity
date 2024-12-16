@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using UnityEngine;
 
@@ -72,3 +73,4 @@ public class VisualisationManager : MonoBehaviour
         Gizmos.DrawLine(corners[3], corners[7]); // Back left vertical edge
     }
 }
+#endif

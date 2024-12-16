@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
@@ -143,3 +144,4 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
     }
 }
+#endif

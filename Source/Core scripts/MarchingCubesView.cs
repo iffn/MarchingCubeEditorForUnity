@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -194,3 +196,5 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
     }
 }
+
+#endif

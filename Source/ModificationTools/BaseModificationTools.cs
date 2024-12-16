@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using iffnsStuff.MarchingCubeEditor.Core;
 
@@ -64,3 +65,4 @@ public class BaseModificationTools
         }
     }
 }
+#endif

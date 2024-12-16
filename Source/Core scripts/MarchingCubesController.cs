@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 //#define DEBUG_PERFORMANCE
 
 using System.Collections.Generic;
@@ -310,3 +311,4 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
     }
 }
+#endif

@@ -1,8 +1,6 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 
 public class SaveAndLoadManager
 {
@@ -32,3 +30,4 @@ public class SaveAndLoadManager
         linkedController.SetAllGridDataAndUpdateMesh(voxelData);
     }
 }
+#endif

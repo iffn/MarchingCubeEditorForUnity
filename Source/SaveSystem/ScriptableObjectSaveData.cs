@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using UnityEngine;
 using iffnsStuff.MarchingCubeEditor.Core;
@@ -67,3 +68,4 @@ public class ScriptableObjectSaveData : ScriptableObject
         return voxelValues;
     }
 }
+#endif

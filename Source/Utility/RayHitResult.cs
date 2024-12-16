@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 
 public readonly struct RayHitResult
@@ -21,3 +22,4 @@ public readonly struct RayHitResult
 
     public static bool operator != (RayHitResult a, RayHitResult b) => !a.Equals(b);
 }
+#endif

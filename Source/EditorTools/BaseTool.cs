@@ -1,4 +1,5 @@
-using System;
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.Core;
 using UnityEditor;
 using UnityEngine;
@@ -42,3 +43,5 @@ public abstract class BaseTool
         return RayHitResult.None;
     }
 }
+
+#endif

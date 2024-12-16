@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
@@ -95,3 +96,4 @@ public class ModificationManager
         });
     }
 }
+#endif

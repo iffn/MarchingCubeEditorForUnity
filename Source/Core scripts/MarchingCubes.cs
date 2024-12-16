@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEngine;
-using static UnityEngine.Mesh;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
@@ -105,3 +104,4 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
     }
 }
+#endif
