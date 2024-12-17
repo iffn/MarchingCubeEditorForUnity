@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionZ = 20;
         bool invertNormals;
 
-        IEnumerable<BaseTool> tools;
+        List<BaseTool> tools;
 
         // This stores all the currently selectedTools across different Editors by using the
         // MarchingCubesController as a Key.
@@ -59,7 +60,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable() 
         {
-            tools = BaseTool.GetTools(this);
+            tools = BaseTool.GetTools(this).ToList();
 
             if (!Controller.IsInitialized)
             {
@@ -133,19 +134,17 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void DrawEditUI()
         {
-            // Show element buttons
-            GUILayout.Label("Edit tools:");
+            string[] tabs = tools.Select(tool => tool.DisplayName).ToArray();
+            int index = tools.FindIndex(tab => tab == CurrentTool);
 
-            foreach (BaseTool tool in tools)
-                if (GUILayout.Button(tool.DisplayName))
-                    CurrentTool = tool;
-
-            //Draw current tool
-            if(CurrentTool != null)
-            {
-                GUILayout.Label($"{CurrentTool.DisplayName}:");
+            // Draw Toolbar
+            int newIndex = GUILayout.Toolbar(index, tabs);
+            if (newIndex != index)
+                CurrentTool = tools[newIndex];
+                
+            // Draw current tool
+            if (CurrentTool != null)
                 CurrentTool.DrawUI();
-            }
         }
 
         void UpdateSceneInteractionForController(SceneView sceneView)

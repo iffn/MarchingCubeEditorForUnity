@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,18 +24,20 @@ public class BaseTool
 
     // Search for all Classes inheriting from BaseTool. We do this here so
     // that we only need to search once.
-    private static readonly IEnumerable<Type> Tools = AppDomain.CurrentDomain
+    public static readonly IEnumerable<Type> Tools = AppDomain.CurrentDomain
         .GetAssemblies()
         .SelectMany(assembly => assembly.GetTypes())
         .Where(type => type.IsSubclassOf(typeof(BaseTool)));
 
     // Instantiates the found BaseTool Classes and sets the reference to the
     // current editor.
-    public static IEnumerable<BaseTool> GetTools(MarchingCubeEditor editor) => Tools.Select(type => {
-        BaseTool tool = type.Instantiate(editor) as BaseTool;
-        tool.Editor = editor;
-        return tool;
-    });
+    public static IEnumerable<BaseTool> GetTools(MarchingCubeEditor editor) 
+    {
+        var tools = Tools.Select(type => Activator.CreateInstance(type) as BaseTool).ToList();
+        tools.ForEach(x => x.Editor = editor);
+
+        return tools;
+    }
 }
 
 #endif
