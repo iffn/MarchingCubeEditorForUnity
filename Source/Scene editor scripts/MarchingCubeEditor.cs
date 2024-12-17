@@ -14,7 +14,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionZ = 20;
         bool invertNormals;
 
-        List<BaseTool> tools;
+        IEnumerable<BaseTool> tools;
 
         // This stores all the currently selectedTools across different Editors by using the
         // MarchingCubesController as a Key.
@@ -32,7 +32,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
-        MarchingCubesController Controller => (MarchingCubesController)target;
+        public MarchingCubesController Controller => (MarchingCubesController)target;
 
         public void LoadData()
         {
@@ -59,12 +59,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable() 
         {
-            tools = new List<BaseTool>() 
-            {
-                new SimpleSceneModifyTool(Controller),
-                new SimpleClickToModifyTool(Controller),
-                new SimpleClickToPaintTool(Controller),
-            };
+            tools = BaseTool.GetTools(this);
 
             if (!Controller.IsInitialized)
             {
@@ -142,13 +137,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             GUILayout.Label("Edit tools:");
 
             foreach (BaseTool tool in tools)
-                if (GUILayout.Button(tool.displayName))
+                if (GUILayout.Button(tool.DisplayName))
                     CurrentTool = tool;
 
             //Draw current tool
             if(CurrentTool != null)
             {
-                GUILayout.Label($"{CurrentTool.displayName}:");
+                GUILayout.Label($"{CurrentTool.DisplayName}:");
                 CurrentTool.DrawUI();
             }
         }
@@ -156,6 +151,29 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         void UpdateSceneInteractionForController(SceneView sceneView)
         {
             CurrentTool?.HandleSceneUpdate(Event.current);
+        }
+
+        
+        public RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
+        {
+            Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hitInfo))
+                return new RayHitResult(hitInfo.point, hitInfo.normal);
+                
+            if (!detectBoundingBox)
+                return RayHitResult.None;
+
+            Vector3 areaPosition = Controller.transform.position;
+            Vector3Int areaSize = Controller.MaxGrid;
+            Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
+            
+            var result = bounds.GetIntersectRayPoints(ray);
+            if (result != null)
+                return new RayHitResult(result.Value.Item2, bounds.GetNormalToSurface(result.Value.Item2));
+            
+            // Both normal Raycast and Bounds intersection did not succeed 
+            return RayHitResult.None;
         }
     }
 }

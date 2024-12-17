@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 
-using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using UnityEditor;
 using UnityEngine;
@@ -13,9 +12,7 @@ public class SimpleClickToPaintTool : BaseTool
     Color32 brushColor;
     AnimationCurve brushCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    public override string displayName { get => "Click to paint tool"; }
-
-    public SimpleClickToPaintTool(MarchingCubesController linkedController) : base(linkedController) {}
+    public override string DisplayName => "Click to paint tool";
 
     public override void OnEnable()
     {
@@ -59,8 +56,8 @@ public class SimpleClickToPaintTool : BaseTool
         if(raycastActive != newRaycastActive)
         {
             selectedShape.gameObject.SetActive(false);
-            linkedMarchingCubesController.DisplayPreviewShape = false;
-            linkedMarchingCubesController.EnableAllColliders = newRaycastActive;
+            Controller.DisplayPreviewShape = false;
+            Controller.EnableAllColliders = newRaycastActive;
             raycastActive = newRaycastActive;
         }
 
@@ -76,7 +73,7 @@ public class SimpleClickToPaintTool : BaseTool
     {
         if (!raycastActive) return;
 
-        RayHitResult result = RaycastAtMousePosition(e);
+        RayHitResult result = Editor.RaycastAtMousePosition(e);
 
         if(result != RayHitResult.None)
         {
@@ -88,7 +85,7 @@ public class SimpleClickToPaintTool : BaseTool
         else
         {
             selectedShape.gameObject.SetActive(false);
-            linkedMarchingCubesController.DisplayPreviewShape = false;
+            Controller.DisplayPreviewShape = false;
         }
 
         if (e.shift && e.type == EventType.ScrollWheel)
@@ -101,8 +98,6 @@ public class SimpleClickToPaintTool : BaseTool
         }
     }
 
-    public override void DrawGizmos() {}
-
     void HandleDirectUpdate(Event e)
     {
         selectedShape.gameObject.SetActive(true);
@@ -110,7 +105,7 @@ public class SimpleClickToPaintTool : BaseTool
         // Left-click event
         if (e.type == EventType.MouseDown && e.button == 0)
         {
-            linkedMarchingCubesController.ModificationManager.ModifyData(
+            Controller.ModificationManager.ModifyData(
                 selectedShape, 
                 new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve)
             );

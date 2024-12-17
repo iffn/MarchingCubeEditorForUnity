@@ -1,47 +1,42 @@
 #if UNITY_EDITOR
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using iffnsStuff.MarchingCubeEditor.Core;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
-public abstract class BaseTool
+public class BaseTool
 {
-    protected MarchingCubesController linkedMarchingCubesController;
+    protected MarchingCubeEditor Editor { get; private set; }
+    protected MarchingCubesController Controller => Editor.Controller;
 
-    public abstract string displayName { get; }
+    public virtual string DisplayName => "Unnamed Tool";
+    public virtual Texture DisplayIcon => null;
 
-    public BaseTool(MarchingCubesController linkedMarchingCubesController)
-    {
-        this.linkedMarchingCubesController = linkedMarchingCubesController;
-    }
+    public virtual void DrawUI() {}
+    public virtual void HandleSceneUpdate(Event currentEvent) {}
+    public virtual void DrawGizmos() {}
+    public virtual void OnEnable() {}
+    public virtual void OnDisable() {}
 
-    public abstract void DrawUI();
-    public abstract void HandleSceneUpdate(Event currentEvent);
-    public abstract void DrawGizmos();
-    public abstract void OnEnable();
-    public abstract void OnDisable();
+    // Search for all Classes inheriting from BaseTool. We do this here so
+    // that we only need to search once.
+    private static readonly IEnumerable<Type> Tools = AppDomain.CurrentDomain
+        .GetAssemblies()
+        .SelectMany(assembly => assembly.GetTypes())
+        .Where(type => type.IsSubclassOf(typeof(BaseTool)));
 
-    protected RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
-    {
-        Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
-
-        if (Physics.Raycast(ray, out RaycastHit hitInfo))
-            return new RayHitResult(hitInfo.point, hitInfo.normal);
-            
-        if (!detectBoundingBox)
-            return RayHitResult.None;
-
-        Vector3 areaPosition = linkedMarchingCubesController.transform.position;
-        Vector3Int areaSize = linkedMarchingCubesController.MaxGrid;
-        Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
-        
-        var result = bounds.GetIntersectRayPoints(ray);
-        if (result != null)
-            return new RayHitResult(result.Value.Item2, bounds.GetNormalToSurface(result.Value.Item2));
-        
-        // Both normal Raycast and Bounds intersection did not succeed 
-        return RayHitResult.None;
-    }
+    // Instantiates the found BaseTool Classes and sets the reference to the
+    // current editor.
+    public static IEnumerable<BaseTool> GetTools(MarchingCubeEditor editor) => Tools.Select(type => {
+        BaseTool tool = type.Instantiate(editor) as BaseTool;
+        tool.Editor = editor;
+        return tool;
+    });
 }
 
 #endif
