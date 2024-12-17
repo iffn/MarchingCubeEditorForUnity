@@ -150,6 +150,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                 invertedNormals = value;
             }
+
+            get => invertedNormals;
         }
 
         void InvertMeshTriangles()

@@ -216,13 +216,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public bool InvertAllNormals
         {
-            set
+            set 
             {
-                foreach (MarchingCubesView chunkView in chunkViews)
+                if (InvertAllNormals != value) 
                 {
-                    chunkView.InvertedNormals = value;
+                    chunkViews.ForEach(chunk => chunk.InvertedNormals = value);
                 }
             }
+            get => chunkViews[0].InvertedNormals;
         }
 
         public void SetEmptyGrid(bool updateModel)

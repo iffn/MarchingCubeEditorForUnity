@@ -122,14 +122,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.EndHorizontal();
             }
 
-            GUILayout.Label("Visualization:");
+            // Show Grid
+            Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid", Controller.VisualisationManager.ShowGridOutline);
+
             // Invert normals
-            bool newInvertedNormals = EditorGUILayout.Toggle("Inverted normals", invertNormals);
-            if (newInvertedNormals != invertNormals)
-            {
-                Controller.InvertAllNormals = newInvertedNormals;
-                invertNormals = newInvertedNormals;
-            }
+            Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
         }
 
         void DrawEditUI()
