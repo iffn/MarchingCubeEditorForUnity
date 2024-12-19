@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,6 +21,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         // MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
 
+
+        bool generalFoldout = true;
+        bool settingsFoldout = true;
+        bool toolsFoldout = true;
+
         BaseTool CurrentTool 
         {
             get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
@@ -32,7 +38,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
         }
 
-        MarchingCubesController Controller => (MarchingCubesController)target;
+        public MarchingCubesController Controller => (MarchingCubesController)target;
 
         public void LoadData()
         {
@@ -59,12 +65,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable() 
         {
-            tools = new List<BaseTool>() 
-            {
-                new SimpleSceneModifyTool(Controller),
-                new SimpleClickToModifyTool(Controller),
-                new SimpleClickToPaintTool(Controller),
-            };
+            tools = BaseTool.GetTools(this).ToList();
 
             if (!Controller.IsInitialized)
             {
@@ -86,83 +87,119 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         //Components
         void DrawSetupUI()
         {
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("X");
-            GUILayout.Label("Y");
-            GUILayout.Label("Z");
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
-            gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
-            gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
-            EditorGUILayout.EndHorizontal();
-
-            if (GUILayout.Button("Apply and set empty"))
+            generalFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(generalFoldout, "General");
+            if (generalFoldout)
             {
-                Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-            }
-
-            GUILayout.Label("Save data:");
-            ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
-               Controller.linkedSaveData,
-               typeof(ScriptableObjectSaveData),
-               true) as ScriptableObjectSaveData;
-
-
-            if (newSaveData != Controller.linkedSaveData)
-            {
-                Undo.RecordObject(Controller, "Set save data file");
-                Controller.linkedSaveData = newSaveData;
-                EditorUtility.SetDirty(Controller);
-                if (!Application.isPlaying)
-                    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(Controller.gameObject.scene);
-            }
-
-            if (Controller.linkedSaveData != null)
-            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button($"Save data")) Controller.SaveAndLoadManager.SaveGridData(Controller.linkedSaveData);
-                if (GUILayout.Button($"Load data")) LoadData();
+                GUILayout.Label("X");
+                GUILayout.Label("Y");
+                GUILayout.Label("Z");
                 EditorGUILayout.EndHorizontal();
-            }
+                EditorGUILayout.BeginHorizontal();
+                gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
+                gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
+                gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
+                EditorGUILayout.EndHorizontal();
 
-            GUILayout.Label("Visualization:");
-            // Invert normals
-            bool newInvertedNormals = EditorGUILayout.Toggle("Inverted normals", invertNormals);
-            if (newInvertedNormals != invertNormals)
-            {
-                Controller.InvertAllNormals = newInvertedNormals;
-                invertNormals = newInvertedNormals;
-            }
+                if (GUILayout.Button("Apply and set empty"))
+                {
+                    Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
+                }
 
-            GUILayout.Label("Additional settings:");
-            bool newForceCollidersOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
-            if (newForceCollidersOn != Controller.ForceColliderOn)
-            {
-                Controller.ForceColliderOn = newForceCollidersOn;
+                GUILayout.Label("Save data:");
+                ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
+                Controller.linkedSaveData,
+                typeof(ScriptableObjectSaveData),
+                true) as ScriptableObjectSaveData;
+
+
+                if (newSaveData != Controller.linkedSaveData)
+                {
+                    Undo.RecordObject(Controller, "Set save data file");
+                    Controller.linkedSaveData = newSaveData;
+                    EditorUtility.SetDirty(Controller);
+                    if (!Application.isPlaying)
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(Controller.gameObject.scene);
+                }
+
+                if (Controller.linkedSaveData != null)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button($"Save data")) Controller.SaveAndLoadManager.SaveGridData(Controller.linkedSaveData);
+                    if (GUILayout.Button($"Load data")) LoadData();
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                EditorGUILayout.EndVertical();
             }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
+
+            settingsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(settingsFoldout, "Settings");
+            if (settingsFoldout)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
+                Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);
+                Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
+
+                EditorGUILayout.EndVertical();
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         void DrawEditUI()
         {
-            // Show element buttons
-            GUILayout.Label("Edit tools:");
-
-            foreach (BaseTool tool in tools)
-                if (GUILayout.Button(tool.displayName))
-                    CurrentTool = tool;
-
-            //Draw current tool
-            if(CurrentTool != null)
+            toolsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(toolsFoldout, "Tools");
+            if (toolsFoldout)
             {
-                GUILayout.Label($"{CurrentTool.displayName}:");
-                CurrentTool.DrawUI();
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                string[] tabs = tools.Select(tool => tool.DisplayName).ToArray();
+                int index = tools.FindIndex(tab => tab == CurrentTool);
+
+                // Draw Toolbar
+                int newIndex = GUILayout.Toolbar(index, tabs);
+                if (newIndex != index)
+                    CurrentTool = tools[newIndex];
+                    
+                // Draw current tool
+                if (CurrentTool != null)
+                    CurrentTool.DrawUI();
+
+                EditorGUILayout.EndVertical();
             }
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         void UpdateSceneInteractionForController(SceneView sceneView)
         {
             CurrentTool?.HandleSceneUpdate(Event.current);
+        }
+
+        
+        public RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
+        {
+            Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hitInfo))
+                return new RayHitResult(hitInfo.point, hitInfo.normal);
+                
+            if (!detectBoundingBox)
+                return RayHitResult.None;
+
+            Vector3 areaPosition = Controller.transform.position;
+            Vector3Int areaSize = Controller.MaxGrid;
+            Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
+            
+            var result = bounds.GetIntersectRayPoints(ray);
+            if (result != null)
+                return new RayHitResult(result.Value.Item2, bounds.GetNormalToSurface(result.Value.Item2));
+            
+            // Both normal Raycast and Bounds intersection did not succeed 
+            return RayHitResult.None;
         }
     }
 }
