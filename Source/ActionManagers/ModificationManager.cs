@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
@@ -81,7 +82,7 @@ public class ModificationManager
                 for (int z = minGrid.z; z < maxGrid.z; z++)
                 {
                     // Transform grid position to world space
-                    Vector3 gridPoint = new(x, y, z);
+                    Vector3 gridPoint = new Vector3(x, y, z);
 
                     // Calculate the distance using the shape's transformation
                     float distance = shape.OptimizedDistance(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
@@ -95,3 +96,4 @@ public class ModificationManager
         });
     }
 }
+#endif

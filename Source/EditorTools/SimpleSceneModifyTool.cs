@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using UnityEditor;
@@ -56,3 +58,4 @@ public class SimpleSceneModifyTool : BaseTool
         
     }
 }
+#endif
