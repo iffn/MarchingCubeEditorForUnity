@@ -10,8 +10,8 @@ using UnityEngine;
 
 public class BaseTool
 {
-    protected MarchingCubeEditor Editor { get; private set; }
-    protected MarchingCubesController Controller => Editor.Controller;
+    protected MarchingCubeEditor LinkedMarchingCubeEditor { get; private set; }
+    protected MarchingCubesController LinkedMarchingCubeController => LinkedMarchingCubeEditor.Controller;
 
     public virtual string DisplayName => "Unnamed Tool";
     public virtual Texture DisplayIcon => null;
@@ -34,7 +34,7 @@ public class BaseTool
     public static IEnumerable<BaseTool> GetTools(MarchingCubeEditor editor) 
     {
         var tools = Tools.Select(type => Activator.CreateInstance(type) as BaseTool).ToList();
-        tools.ForEach(x => x.Editor = editor);
+        tools.ForEach(x => x.LinkedMarchingCubeEditor = editor);
 
         return tools;
     }

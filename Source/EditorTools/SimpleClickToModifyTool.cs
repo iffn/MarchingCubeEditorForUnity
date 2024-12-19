@@ -48,8 +48,8 @@ public class SimpleClickToModifyTool : BaseTool
         if(raycastActive != newRaycastActive)
         {
             selectedShape.gameObject.SetActive(false);
-            Controller.DisplayPreviewShape = false;
-            Controller.EnableAllColliders = newRaycastActive;
+            LinkedMarchingCubeController.DisplayPreviewShape = false;
+            LinkedMarchingCubeController.EnableAllColliders = newRaycastActive;
             raycastActive = newRaycastActive;
         }
 
@@ -57,7 +57,7 @@ public class SimpleClickToModifyTool : BaseTool
         if (displayPreviewShape != newDisplayPreviewShape)
         {
             selectedShape.gameObject.SetActive(false);
-            Controller.DisplayPreviewShape = false;
+            LinkedMarchingCubeController.DisplayPreviewShape = false;
             displayPreviewShape = newDisplayPreviewShape;
         }
 
@@ -74,7 +74,7 @@ public class SimpleClickToModifyTool : BaseTool
     {
         if (!raycastActive) return;
 
-        RayHitResult result = Editor.RaycastAtMousePosition(e);
+        RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
         if(result != RayHitResult.None)
         {
@@ -83,7 +83,7 @@ public class SimpleClickToModifyTool : BaseTool
             if (displayPreviewShape)
             {
                 HandlePreviewUpdate(e);
-                Controller.DisplayPreviewShape = true;
+                LinkedMarchingCubeController.DisplayPreviewShape = true;
             }
             else
             {
@@ -94,7 +94,7 @@ public class SimpleClickToModifyTool : BaseTool
         else
         {
             selectedShape.gameObject.SetActive(false);
-            Controller.DisplayPreviewShape = false;
+            LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
         if (e.shift && e.type == EventType.ScrollWheel)
@@ -122,10 +122,10 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
         {
-            if (e.control) Controller.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+            if (e.control) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
             else
             {
-                Controller.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
+                LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
                 /*
                 if (limitMaxHeight) linkedMarchingCubesController.AddShapeWithMaxHeight(selectedShape, hit.point.y, true);
                 else linkedMarchingCubesController.AddShape(selectedShape, true);
@@ -141,10 +141,10 @@ public class SimpleClickToModifyTool : BaseTool
     {
         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
         {
-            if (e.control) Controller.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+            if (e.control) LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
             else
             {
-                Controller.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
+                LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
                 /*
                 if (limitMaxHeight) linkedMarchingCubesController.PreviewAddShapeWithMaxHeight(selectedShape, hit.point.y);
                 else linkedMarchingCubesController.PreviewAddShape(selectedShape);
@@ -158,7 +158,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
         {
-            Controller.ModificationManager.ApplyPreviewChanges();
+            LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
             e.Use();
         }
     }

@@ -22,8 +22,8 @@ public class SimpleSceneModifyTool : BaseTool
         if (selectedShape)
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button($"Add {selectedShape.transform.name}")) Controller.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-            if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) Controller.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
+            if (GUILayout.Button($"Add {selectedShape.transform.name}")) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
+            if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
             EditorGUILayout.EndHorizontal();
         }
     }

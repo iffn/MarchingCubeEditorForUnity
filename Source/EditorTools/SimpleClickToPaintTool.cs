@@ -56,8 +56,8 @@ public class SimpleClickToPaintTool : BaseTool
         if(raycastActive != newRaycastActive)
         {
             selectedShape.gameObject.SetActive(false);
-            Controller.DisplayPreviewShape = false;
-            Controller.EnableAllColliders = newRaycastActive;
+            LinkedMarchingCubeController.DisplayPreviewShape = false;
+            LinkedMarchingCubeController.EnableAllColliders = newRaycastActive;
             raycastActive = newRaycastActive;
         }
 
@@ -73,7 +73,7 @@ public class SimpleClickToPaintTool : BaseTool
     {
         if (!raycastActive) return;
 
-        RayHitResult result = Editor.RaycastAtMousePosition(e);
+        RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
         if(result != RayHitResult.None)
         {
@@ -85,7 +85,7 @@ public class SimpleClickToPaintTool : BaseTool
         else
         {
             selectedShape.gameObject.SetActive(false);
-            Controller.DisplayPreviewShape = false;
+            LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
         if (e.shift && e.type == EventType.ScrollWheel)
@@ -105,7 +105,7 @@ public class SimpleClickToPaintTool : BaseTool
         // Left-click event
         if (e.type == EventType.MouseDown && e.button == 0)
         {
-            Controller.ModificationManager.ModifyData(
+            LinkedMarchingCubeController.ModificationManager.ModifyData(
                 selectedShape, 
                 new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve)
             );
