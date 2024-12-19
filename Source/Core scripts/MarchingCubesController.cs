@@ -2,6 +2,7 @@
 //#define DEBUG_PERFORMANCE
 
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
@@ -54,22 +55,62 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        bool enableAllColliders = false;
+        [HideInInspector, SerializeField] bool forceColliderOn = false;
+        public bool ForceColliderOn
+        {
+            get
+            {
+                return forceColliderOn;
+            }
+            set
+            {
+                if (value)
+                {
+                    foreach (MarchingCubesView chunkView in chunkViews)
+                    {
+                        chunkView.ColliderEnabled = true;
+                    }
+                }
+                else
+                {
+                    foreach (MarchingCubesView chunkView in chunkViews)
+                    {
+                        chunkView.ColliderEnabled = enableAllColliders;
+                    }
+                }
+
+                forceColliderOn = value;
+
+#if UNITY_EDITOR
+                EditorUtility.SetDirty(this);
+#endif
+            }
+        }
+
+        bool enableAllColliders = false; // EnableAllColliders
         public bool EnableAllColliders
         {
             get
             {
+                if (forceColliderOn) return true;
                 return enableAllColliders;
             }
             set
             {
+                bool newState = value || forceColliderOn;
+
                 foreach (MarchingCubesView chunkView in chunkViews)
                 {
-                    chunkView.ColliderEnabled = value;
+                    chunkView.ColliderEnabled = newState;
                 }
 
                 enableAllColliders = value;
             }
+        }
+
+        void InitializeColliderState()
+        {
+            EnableAllColliders = enableAllColliders; // Ensure correct fall through logic when changing stuff
         }
 
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
@@ -163,6 +204,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 previewView.Initialize(Vector3Int.zero, Vector3Int.one, false);
                 DisplayPreviewShape = false;
             }
+
+            // Initialize the correct collider state
+            InitializeColliderState();
         }
 
         public bool IsInitialized => mainModel != null;

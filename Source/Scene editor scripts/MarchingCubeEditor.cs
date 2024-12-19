@@ -141,7 +141,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-                Controller.EnableAllColliders = EditorGUILayout.Toggle("Colliders", Controller.EnableAllColliders);
+                Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
                 Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid", Controller.VisualisationManager.ShowGridOutline);
                 Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
 
