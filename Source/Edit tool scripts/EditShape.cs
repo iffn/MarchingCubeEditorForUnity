@@ -9,12 +9,14 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
     {
         private Matrix4x4 worldToLocalMatrix;
 
+        protected virtual Transform ShapeTransform => transform;
+
         /// <summary>
         /// Precompute the world-to-local transformation matrix for optimized distance calculations.
         /// </summary>
         public virtual void PrepareParameters(Transform gridTransform)
         {
-            worldToLocalMatrix = transform.worldToLocalMatrix * gridTransform.localToWorldMatrix;
+            worldToLocalMatrix = ShapeTransform.worldToLocalMatrix * gridTransform.localToWorldMatrix;
         }
 
         /// <summary>
@@ -34,12 +36,12 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// <summary>
         /// The shape's position in world space.
         /// </summary>
-        public Vector3 Position => transform.position;
+        public Vector3 Position => ShapeTransform.position;
 
         /// <summary>
         /// The shape's scale in local space.
         /// </summary>
-        public Vector3 Scale => transform.localScale;
+        public Vector3 Scale => ShapeTransform.localScale;
 
         /// <summary>
         /// Material linked to the shape for visualization.
@@ -100,7 +102,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
             foreach (Vector3 corner in corners)
             {
-                Vector3 worldCorner = transform.TransformPoint(corner);
+                Vector3 worldCorner = ShapeTransform.TransformPoint(corner);
                 worldMin = Vector3.Min(worldMin, worldCorner);
                 worldMax = Vector3.Max(worldMax, worldCorner);
             }

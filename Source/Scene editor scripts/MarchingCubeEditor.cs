@@ -21,6 +21,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         // MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
 
+
+        bool generalFoldout = true;
+        bool settingsFoldout = true;
+        bool toolsFoldout = true;
+
         BaseTool CurrentTool 
         {
             get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
@@ -82,66 +87,91 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         //Components
         void DrawSetupUI()
         {
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("X");
-            GUILayout.Label("Y");
-            GUILayout.Label("Z");
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
-            gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
-            gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
-            EditorGUILayout.EndHorizontal();
-
-            if (GUILayout.Button("Apply and set empty"))
+            generalFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(generalFoldout, "General");
+            if (generalFoldout)
             {
-                Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-            }
-
-            GUILayout.Label("Save data:");
-            ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
-               Controller.linkedSaveData,
-               typeof(ScriptableObjectSaveData),
-               true) as ScriptableObjectSaveData;
-
-
-            if (newSaveData != Controller.linkedSaveData)
-            {
-                Undo.RecordObject(Controller, "Set save data file");
-                Controller.linkedSaveData = newSaveData;
-                EditorUtility.SetDirty(Controller);
-                if (!Application.isPlaying)
-                    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(Controller.gameObject.scene);
-            }
-
-            if (Controller.linkedSaveData != null)
-            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button($"Save data")) Controller.SaveAndLoadManager.SaveGridData(Controller.linkedSaveData);
-                if (GUILayout.Button($"Load data")) LoadData();
+                GUILayout.Label("X");
+                GUILayout.Label("Y");
+                GUILayout.Label("Z");
                 EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
+                gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
+                gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
+                gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
+                EditorGUILayout.EndHorizontal();
+
+                if (GUILayout.Button("Apply and set empty"))
+                {
+                    Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
+                }
+
+                GUILayout.Label("Save data:");
+                ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
+                Controller.linkedSaveData,
+                typeof(ScriptableObjectSaveData),
+                true) as ScriptableObjectSaveData;
+
+
+                if (newSaveData != Controller.linkedSaveData)
+                {
+                    Undo.RecordObject(Controller, "Set save data file");
+                    Controller.linkedSaveData = newSaveData;
+                    EditorUtility.SetDirty(Controller);
+                    if (!Application.isPlaying)
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(Controller.gameObject.scene);
+                }
+
+                if (Controller.linkedSaveData != null)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button($"Save data")) Controller.SaveAndLoadManager.SaveGridData(Controller.linkedSaveData);
+                    if (GUILayout.Button($"Load data")) LoadData();
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                EditorGUILayout.EndVertical();
             }
+            EditorGUILayout.EndFoldoutHeaderGroup();
 
-            // Show Grid
-            Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid", Controller.VisualisationManager.ShowGridOutline);
 
-            // Invert normals
-            Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
+            settingsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(settingsFoldout, "Settings");
+            if (settingsFoldout)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                Controller.EnableAllColliders = EditorGUILayout.Toggle("Colliders", Controller.EnableAllColliders);
+                Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid", Controller.VisualisationManager.ShowGridOutline);
+                Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
+
+                EditorGUILayout.EndVertical();
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         void DrawEditUI()
         {
-            string[] tabs = tools.Select(tool => tool.DisplayName).ToArray();
-            int index = tools.FindIndex(tab => tab == CurrentTool);
+            toolsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(toolsFoldout, "Tools");
+            if (toolsFoldout)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-            // Draw Toolbar
-            int newIndex = GUILayout.Toolbar(index, tabs);
-            if (newIndex != index)
-                CurrentTool = tools[newIndex];
-                
-            // Draw current tool
-            if (CurrentTool != null)
-                CurrentTool.DrawUI();
+                string[] tabs = tools.Select(tool => tool.DisplayName).ToArray();
+                int index = tools.FindIndex(tab => tab == CurrentTool);
+
+                // Draw Toolbar
+                int newIndex = GUILayout.Toolbar(index, tabs);
+                if (newIndex != index)
+                    CurrentTool = tools[newIndex];
+                    
+                // Draw current tool
+                if (CurrentTool != null)
+                    CurrentTool.DrawUI();
+
+                EditorGUILayout.EndVertical();
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         void UpdateSceneInteractionForController(SceneView sceneView)
