@@ -15,7 +15,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         Vector3Int gridBoundsMax;
 
         private bool isDirty;           // Whether this chunk's mesh needs updating
-        bool invertedNormals = false;
+        private bool invertedNormals;
 
         public Vector3Int GridBoundsMin => gridBoundsMin;
         public Vector3Int GridBoundsMax => gridBoundsMax;
@@ -141,19 +141,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             set
             {
-                if (value != invertedNormals)
-                {
+                if (invertedNormals != value)
                     InvertMeshTriangles();
-                }
-
-                if (meshCollider.enabled) ColliderEnabled = true;
-
+                
                 invertedNormals = value;
             }
         }
 
         void InvertMeshTriangles()
-        {
+        {         
             Mesh mesh = meshFilter.sharedMesh;
 
             // Get the current triangles from the mesh
@@ -171,6 +167,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             // Recalculate normals to reflect the inverted geometry
             mesh.RecalculateNormals();
+
+            if (ColliderEnabled) 
+                UpdateCollider();
         }
 
         public bool ColliderEnabled
