@@ -134,6 +134,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 Controller.InvertAllNormals = newInvertedNormals;
                 invertNormals = newInvertedNormals;
             }
+
+            GUILayout.Label("Additional settings:");
+            bool newForceCollidersOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
+            if (newForceCollidersOn != Controller.ForceColliderOn)
+            {
+                Controller.ForceColliderOn = newForceCollidersOn;
+            }
         }
 
         void DrawEditUI()
