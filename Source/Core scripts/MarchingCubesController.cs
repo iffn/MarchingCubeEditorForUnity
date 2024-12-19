@@ -34,6 +34,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] private GameObject previewPrefab;
         [SerializeField] private VisualisationManager linkedVisualisationManager;
 
+        
+        [SerializeField, HideInInspector]
+        private bool invertNormals = false;
+
         public bool showGridOutline = false; // Toggle controlled by the editor tool
 
         public int GridResolutionX => mainModel.VoxelData.GetLength(0);
@@ -260,13 +264,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public bool InvertAllNormals
         {
-            set
+            set 
             {
-                foreach (MarchingCubesView chunkView in chunkViews)
-                {
-                    chunkView.InvertedNormals = value;
-                }
+                if (InvertAllNormals != value) 
+                    chunkViews.ForEach(chunk => chunk.InvertedNormals = value);
+
+                invertNormals = value;
             }
+            get => invertNormals;
         }
 
         public void SetEmptyGrid(bool updateModel)
