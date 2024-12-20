@@ -9,10 +9,11 @@ using System.IO;
 public class DLAHeightmapTool : EditorWindow
 {
     // Parameters for the tool
-    private int width = 128;
-    private int height = 128;
-    private int particleCount = 10000;
-    private int upscaleFactor = 4;
+    private int initialWidth = 8;
+    private int initialHeight = 8;
+    private int scalingIterations = 6;
+    private int upscaleFactor = 2;
+    private int particlesPerIteration = 50;
     private int blurKernelSize = 5;
 
     private Texture2D generatedTexture;
@@ -28,10 +29,11 @@ public class DLAHeightmapTool : EditorWindow
         GUILayout.Label("DLA Heightmap Generator", EditorStyles.boldLabel);
 
         // Input fields
-        width = EditorGUILayout.IntField("Width", width);
-        height = EditorGUILayout.IntField("Height", height);
-        particleCount = EditorGUILayout.IntField("Particle Count", particleCount);
+        initialWidth = EditorGUILayout.IntField("Initial width", initialWidth);
+        initialHeight = EditorGUILayout.IntField("Initial height", initialHeight);
+        scalingIterations = EditorGUILayout.IntField("Scaling iterations", scalingIterations);
         upscaleFactor = EditorGUILayout.IntField("Upscale Factor", upscaleFactor);
+        particlesPerIteration = EditorGUILayout.IntField("Particles per iteration", particlesPerIteration);
         blurKernelSize = EditorGUILayout.IntField("Blur Kernel Size", blurKernelSize);
 
         // Generate button
@@ -57,32 +59,14 @@ public class DLAHeightmapTool : EditorWindow
 
     void GenerateHeightmap()
     {
-        // Run the DLA simulation
-        DLASimulation dla = new DLASimulation(width, height);
-        dla.RunSimulation(particleCount, width / 2, height / 2);
-
-        // Process the heightmap
-        HeightmapProcessor processor = new HeightmapProcessor(dla.GetGrid());
-        float[,] normalizedMap = processor.NormalizeHeights();
-
-        float[,] upscaledMap = processor.UpscaleHeightmap(normalizedMap, upscaleFactor);
-
-        BlurProcessor blur = new BlurProcessor();
-        float[,] blurredMap = blur.ApplyGaussianBlur(upscaledMap, blurKernelSize);
-
-        float max = 0;
-        for(int x = 0; x < width; x++)
-        {
-            for(int y = 0; y < height; y++)
-            {
-                if(max < blurredMap[x,y]) max = blurredMap[x,y];
-            }
-        }
-
-        Debug.Log(max);
+        float[,] heightmap = DLAHeightmapGenerator.RunGenerator(
+            initialWidth, initialHeight, 
+            scalingIterations, upscaleFactor, 
+            particlesPerIteration, 
+            blurKernelSize);
 
         // Convert the heightmap to a texture
-        generatedTexture = ConvertToTexture(blurredMap);
+        generatedTexture = ConvertToTexture(heightmap);
     }
 
     Texture2D ConvertToTexture(float[,] heightmap)

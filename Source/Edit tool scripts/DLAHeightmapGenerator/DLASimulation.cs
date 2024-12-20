@@ -14,6 +14,13 @@ public class DLASimulation
         grid = new int[width, height];
     }
 
+    public DLASimulation(int[,] existingGrid)
+    {
+        width = existingGrid.GetLength(0);
+        height = existingGrid.GetLength(1);
+        grid = existingGrid;
+    }
+
     // Run the DLA simulation
     public void RunSimulation(int particleCount, int seedX, int seedY)
     {

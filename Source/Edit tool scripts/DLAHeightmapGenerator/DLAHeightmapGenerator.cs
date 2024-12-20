@@ -1,25 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class DLAHeightmapGenerator : MonoBehaviour
+public static class DLAHeightmapGenerator
 {
-    public int width = 128, height = 128;
-    public int particleCount = 10000;
-    public int upscaleFactor = 4;
-
-    void Start()
+    public static float[,] RunGenerator(int width, int height, int scalingIterations, int upscaleFactor, int particlesPerIteration, int blurKernelSize)
     {
-        DLASimulation dla = new DLASimulation(width, height);
-        dla.RunSimulation(particleCount, width / 2, height / 2);
+        int[,] intMap;
+        float[,] floatMap;
+        DLASimulation dla;
+        HeightmapProcessor processor;
+        BlurProcessor blur;
 
-        HeightmapProcessor processor = new HeightmapProcessor(dla.GetGrid());
-        float[,] normalizedMap = processor.NormalizeHeights();
-        float[,] upscaledMap = processor.UpscaleHeightmap(normalizedMap, upscaleFactor);
+        // First pass:
+        dla = new DLASimulation(width, height);
+        dla.RunSimulation(particlesPerIteration, width / 2, height / 2);
+        intMap = dla.GetGrid();
 
-        BlurProcessor blur = new BlurProcessor();
-        float[,] blurredMap = blur.ApplyGaussianBlur(upscaledMap, 5);
+        processor = new HeightmapProcessor(intMap);
+        floatMap = processor.NormalizeHeights();
 
-        // Finalize: Use blurredMap to generate Unity terrain or texture
+        (floatMap, intMap) = processor.DoubleHeightmapScale(floatMap, intMap);
+
+        blur = new BlurProcessor();
+        floatMap = blur.ApplyGaussianBlur(floatMap, blurKernelSize);
+
+        //Following iterations
+        for (int i = 0; i < scalingIterations; i++)
+        {
+            dla = new DLASimulation(intMap);
+            dla.RunSimulation(particlesPerIteration, width / 2, height / 2);
+            intMap = dla.GetGrid();
+
+            // Process the heightmap
+            processor = new HeightmapProcessor(intMap);
+            floatMap = processor.NormalizeHeights();
+
+            (floatMap, intMap) = processor.DoubleHeightmapScale(floatMap, intMap);
+
+            blur = new BlurProcessor();
+            floatMap = blur.ApplyGaussianBlur(floatMap, blurKernelSize);
+        }
+
+        return floatMap;
+        return processor.FloatGrid();
     }
 }
+
