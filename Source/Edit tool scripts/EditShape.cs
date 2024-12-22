@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.EditTools
@@ -45,6 +46,63 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// Material linked to the shape for visualization.
         /// </summary>
         [SerializeField] private Material linkedMaterial;
+
+        public void DrawUI()
+        {
+            EditorGUILayout.HelpBox("Controls:\n" +
+                    "Click to add\n" +
+                    "Ctrl Click to subtract\n" +
+                    "Shift Scroll to scale", MessageType.None);
+        }
+
+        KeyCode scaleKey = KeyCode.S;
+        bool scaleActive = false;
+
+        protected void HandleScaleByHoldingSAndScrolling(Event e)
+        {
+            if (e.keyCode == scaleKey)
+            {
+                if (e.type == EventType.KeyDown) scaleActive = true;
+                else if (e.type == EventType.KeyUp) scaleActive = false;
+            }
+
+            if (scaleActive && e.type == EventType.ScrollWheel)
+            {
+                Debug.Log($"Scaling with factor {e.delta}");
+
+                float scaleDelta = e.delta.y * -0.03f; // Scale factor; reverse direction if needed
+
+                transform.localScale *= (scaleDelta + 1);
+
+                e.Use(); // Mark event as handled
+            }
+        }
+
+        /*
+        ShortcutHandler handleScaleByHoldingSAndScrolling = new ShortcutHandler(
+                "Hold S and scroll to scale",
+                HandleScaleByHoldingSAndScrolling
+            );
+        */
+
+        public virtual void HandleSceneUpdate(Event e)
+        {
+            HandleScaleByHoldingSAndScrolling(e);
+        }
+
+        protected class ShortcutHandler
+        {
+            string shortcutDescription;
+            public delegate void HanldeShortcutsDelegate(Event e);
+
+            HanldeShortcutsDelegate handler;
+
+            public ShortcutHandler(string shortcutDescription, HanldeShortcutsDelegate handler)
+            {
+                this.shortcutDescription = shortcutDescription;
+                this.handler = handler;
+            }
+        }
 
         public Color Color
         {

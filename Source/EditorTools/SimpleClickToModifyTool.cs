@@ -63,10 +63,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (raycastActive)
         {
-            EditorGUILayout.HelpBox("Controls:\n" +
-                    "Click to add\n" +
-                    "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale", MessageType.None);
+            selectedShape.DrawUI();
         }
     }
 
@@ -97,14 +94,7 @@ public class SimpleClickToModifyTool : BaseTool
             LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
-        if (e.shift && e.type == EventType.ScrollWheel)
-        {
-            float scaleDelta = e.delta.x * -0.03f; // Scale factor; reverse direction if needed
-
-            selectedShape.transform.localScale *= (scaleDelta + 1);
-
-            e.Use(); // Mark event as handled
-        }
+        if (selectedShape) selectedShape.HandleSceneUpdate(e);
     }
 
     public override void DrawGizmos()
