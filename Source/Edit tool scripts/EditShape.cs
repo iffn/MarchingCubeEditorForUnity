@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.EditTools
 {
+    [ExecuteInEditMode]
     public abstract class EditShape : MonoBehaviour
     {
         private Matrix4x4 worldToLocalMatrix;
