@@ -15,17 +15,6 @@ public class SimpleClickToModifyTool : BaseTool
             selectedShape.gameObject.SetActive(false);
             LinkedMarchingCubeController.DisplayPreviewShape = false;
             LinkedMarchingCubeController.EnableAllColliders = value;
-            if (value)
-            {
-                EditorApplication.delayCall += () =>
-                {
-                    if (SceneView.lastActiveSceneView != null)
-                    {
-                        Debug.Log("Activating");
-                        SceneView.lastActiveSceneView.Focus(); // Set the scene as focus
-                    }
-                };
-            }
             raycastActive = value;
         }
     }
