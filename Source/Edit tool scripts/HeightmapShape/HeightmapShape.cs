@@ -1,6 +1,7 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class HeightmapShape : EditShape
@@ -79,5 +80,12 @@ public class HeightmapShape : EditShape
     {
         // Assuming the heightmap covers a unit box (scale: -0.5 to +0.5 in x and z)
         return (-0.5f * Vector3.one, new Vector3(0.5f, 1.0f, 0.5f));
+    }
+
+    protected override void SetupShortcutHandlers()
+    {
+        shortcutHandlers.Add(new HandleHorizontalScaleByHoldingSAndScrolling(transform));
+        shortcutHandlers.Add(new HandleVerticallyScaleByHoldingAAndScrolling(transform));
+        shortcutHandlers.Add(new HandleHorizontalRotateByHoldingDAndScrolling(transform));
     }
 }

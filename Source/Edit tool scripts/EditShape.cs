@@ -48,7 +48,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// </summary>
         [SerializeField] private Material linkedMaterial;
 
-        readonly List<ShortcutHandler> shortcutHandlers = new List<ShortcutHandler>();
+        readonly protected List<ShortcutHandler> shortcutHandlers = new List<ShortcutHandler>();
 
         void OnEnable()
         {
