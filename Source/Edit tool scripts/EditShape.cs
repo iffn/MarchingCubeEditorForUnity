@@ -52,7 +52,11 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
         void OnEnable()
         {
-            // ToDo: Find better way to set it up once
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             shortcutHandlers.Clear();
             SetupShortcutHandlers();
         }

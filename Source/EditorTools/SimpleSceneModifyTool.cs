@@ -14,10 +14,15 @@ public class SimpleSceneModifyTool : BaseTool
 
     public override void DrawUI()
     {
-        selectedShape = EditorGUILayout.ObjectField(
+        EditShape newSelectedShape = EditorGUILayout.ObjectField(
             selectedShape,
             typeof(EditShape),
             true) as EditShape;
+
+        if (newSelectedShape && newSelectedShape != selectedShape)
+        {
+            newSelectedShape.Initialize();
+        }
 
         if (selectedShape)
         {
