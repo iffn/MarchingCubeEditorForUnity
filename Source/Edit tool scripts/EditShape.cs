@@ -54,10 +54,10 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         {
             // ToDo: Find better way to set it up once
             shortcutHandlers.Clear();
-            SetupShortcutHanlders();
+            SetupShortcutHandlers();
         }
 
-        protected virtual void SetupShortcutHanlders()
+        protected virtual void SetupShortcutHandlers()
         {
             shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
         }
