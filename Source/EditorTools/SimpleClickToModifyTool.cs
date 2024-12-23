@@ -73,7 +73,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
-        if(result != RayHitResult.None)
+        if (result != RayHitResult.None)
         {
             selectedShape.transform.position = result.point;
 
@@ -95,6 +95,14 @@ public class SimpleClickToModifyTool : BaseTool
         }
 
         if (selectedShape) selectedShape.HandleSceneUpdate(e);
+
+        //Press escape to cancel
+        if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
+        {
+            raycastActive = false;
+            e.Use();
+            return;
+        }
     }
 
     public override void DrawGizmos()
