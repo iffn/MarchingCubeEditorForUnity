@@ -66,7 +66,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         {
             string helpText = "Controls:\n" +
                     "Click to add\n" +
-                    "Ctrl Click to subtract\n";
+                    "Ctrl Click to subtract";
 
             foreach(ShortcutHandler handler in shortcutHandlers)
             {
