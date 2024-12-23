@@ -1,7 +1,6 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
-using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +8,18 @@ public class SimpleClickToModifyTool : BaseTool
 {
     EditShape selectedShape;
     bool raycastActive;
+    bool RaycastActive
+    {
+        get => raycastActive;
+        set
+        {
+            selectedShape.gameObject.SetActive(false);
+            LinkedMarchingCubeController.DisplayPreviewShape = false;
+            LinkedMarchingCubeController.EnableAllColliders = value;
+            raycastActive = value;
+        }
+    }
+
     bool displayPreviewShape;
     Vector3 originalShapePosition;
 
@@ -47,10 +58,7 @@ public class SimpleClickToModifyTool : BaseTool
         bool newRaycastActive = EditorGUILayout.Toggle("Active", raycastActive);
         if(raycastActive != newRaycastActive)
         {
-            selectedShape.gameObject.SetActive(false);
-            LinkedMarchingCubeController.DisplayPreviewShape = false;
-            LinkedMarchingCubeController.EnableAllColliders = newRaycastActive;
-            raycastActive = newRaycastActive;
+            RaycastActive = newRaycastActive;
         }
 
         bool newDisplayPreviewShape = EditorGUILayout.Toggle("Display preview shape", displayPreviewShape);
@@ -99,7 +107,7 @@ public class SimpleClickToModifyTool : BaseTool
         //Press escape to cancel
         if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
         {
-            raycastActive = false;
+            RaycastActive = false;
             e.Use();
             return;
         }
