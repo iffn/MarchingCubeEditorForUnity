@@ -121,6 +121,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             mesh.SetTriangles(triangles, 0);
             mesh.SetColors(colors);
             mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+            //mesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
 
             // Update collider if needed.
             if (ColliderEnabled) UpdateCollider();
