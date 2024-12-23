@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 
+using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.EditTools
@@ -47,60 +47,40 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// </summary>
         [SerializeField] private Material linkedMaterial;
 
+        readonly List<ShortcutHandler> shortcutHandlers = new List<ShortcutHandler>();
+
+        private void OnEnable()
+        {
+            // ToDo: Find better way to set it up once
+            shortcutHandlers.Clear();
+            SetupShortcutHanlders();
+        }
+
+        protected virtual void SetupShortcutHanlders()
+        {
+            shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
+        }
+
         public void DrawUI()
         {
-            EditorGUILayout.HelpBox("Controls:\n" +
+            string helpText = "Controls:\n" +
                     "Click to add\n" +
                     "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale", MessageType.None);
-        }
+                    "Shift Scroll to scale";
 
-        KeyCode scaleKey = KeyCode.S;
-        bool scaleActive = false;
-
-        protected void HandleScaleByHoldingSAndScrolling(Event e)
-        {
-            if (e.keyCode == scaleKey)
+            foreach(ShortcutHandler handler in shortcutHandlers)
             {
-                if (e.type == EventType.KeyDown) scaleActive = true;
-                else if (e.type == EventType.KeyUp) scaleActive = false;
+                helpText += "\n" + handler.ShortcutText;
             }
 
-            if (scaleActive && e.type == EventType.ScrollWheel)
-            {
-                Debug.Log($"Scaling with factor {e.delta}");
-
-                float scaleDelta = e.delta.y * -0.03f; // Scale factor; reverse direction if needed
-
-                transform.localScale *= (scaleDelta + 1);
-
-                e.Use(); // Mark event as handled
-            }
+            EditorGUILayout.HelpBox(helpText, MessageType.None);
         }
-
-        /*
-        ShortcutHandler handleScaleByHoldingSAndScrolling = new ShortcutHandler(
-                "Hold S and scroll to scale",
-                HandleScaleByHoldingSAndScrolling
-            );
-        */
 
         public virtual void HandleSceneUpdate(Event e)
         {
-            HandleScaleByHoldingSAndScrolling(e);
-        }
-
-        protected class ShortcutHandler
-        {
-            string shortcutDescription;
-            public delegate void HanldeShortcutsDelegate(Event e);
-
-            HanldeShortcutsDelegate handler;
-
-            public ShortcutHandler(string shortcutDescription, HanldeShortcutsDelegate handler)
+            foreach (ShortcutHandler handler in shortcutHandlers)
             {
-                this.shortcutDescription = shortcutDescription;
-                this.handler = handler;
+                handler.HandleShortcut(e);
             }
         }
 
