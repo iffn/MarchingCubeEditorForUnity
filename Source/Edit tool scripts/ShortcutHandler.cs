@@ -31,9 +31,7 @@ public class HandleScaleByHoldingSAndScrolling : ShortcutHandler
 
         if (scaleActive && e.type == EventType.ScrollWheel)
         {
-            Debug.Log($"Scaling with factor {e.delta}");
-
-            float scaleDelta = e.delta.y * -0.03f; // Scale factor; reverse direction if needed
+            float scaleDelta = e.delta.y * 0.03f; // Scale factor; reverse direction if needed
 
             referenceTransform.localScale *= (scaleDelta + 1);
 
@@ -67,7 +65,7 @@ public class HandleHorizontalScaleByHoldingSAndScrolling : ShortcutHandler
         {
             Debug.Log($"Scaling with factor {e.delta}");
 
-            float scaleDelta = e.delta.x * -0.03f; // Scale factor; reverse direction if needed
+            float scaleDelta = e.delta.x * 0.03f; // Scale factor; reverse direction if needed
 
             float scaleFactor = scaleDelta + 1;
 

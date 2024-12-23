@@ -50,7 +50,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
         readonly List<ShortcutHandler> shortcutHandlers = new List<ShortcutHandler>();
 
-        private void OnEnable()
+        void OnEnable()
         {
             // ToDo: Find better way to set it up once
             shortcutHandlers.Clear();
@@ -66,8 +66,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         {
             string helpText = "Controls:\n" +
                     "Click to add\n" +
-                    "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale";
+                    "Ctrl Click to subtract\n";
 
             foreach(ShortcutHandler handler in shortcutHandlers)
             {
