@@ -65,6 +65,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         public void DrawUI()
         {
             string helpText = "Controls:\n" +
+                    "Note that the scene has to be active for some of these to work.\n"+
                     "Click to add\n" +
                     "Ctrl Click to subtract";
 

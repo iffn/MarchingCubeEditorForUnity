@@ -7,14 +7,6 @@ public abstract class ShortcutHandler
 {
     public abstract string ShortcutText { get; }
     public abstract void HandleShortcut(Event e);
-
-    protected void ForceSceneFocus()
-    {
-        if (SceneView.lastActiveSceneView != null)
-        {
-            SceneView.lastActiveSceneView.Focus(); // Make sure that the scene is the focus
-        }
-    }
 }
 
 public class HandleScaleByHoldingSAndScrolling : ShortcutHandler
@@ -32,8 +24,6 @@ public class HandleScaleByHoldingSAndScrolling : ShortcutHandler
 
     public override void HandleShortcut(Event e)
     {
-        ForceSceneFocus();
-
         if (e.keyCode == scaleKey)
         {
             if (e.type == EventType.KeyDown) scaleActive = true;
@@ -66,8 +56,6 @@ public class HandleHorizontalScaleByHoldingSAndScrolling : ShortcutHandler
 
     public override void HandleShortcut(Event e)
     {
-        ForceSceneFocus();
-
         if (e.keyCode == scaleKey)
         {
             if (e.type == EventType.KeyDown) scaleActive = true;
