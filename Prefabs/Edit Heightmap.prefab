@@ -152,7 +152,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   linkedMaterial: {fileID: 2100000, guid: b38f22ce452c8c94e8aa461512f97e25, type: 2}
-  heightmapTexture: {fileID: 2800000, guid: 9e8ca77a70e884b478e4a43381fbd562, type: 3}
+  heightmapTextures:
+  - {fileID: 2800000, guid: 9e8ca77a70e884b478e4a43381fbd562, type: 3}
+  - {fileID: 2800000, guid: 40d38a32d7178e444b625acde725ddb5, type: 3}
+  - {fileID: 2800000, guid: 1bcb6131392b3ad4bbe160f07f5acc2a, type: 3}
+  - {fileID: 2800000, guid: 5bd4287b97ffc6846a92e6713e93cdf0, type: 3}
+  - {fileID: 2800000, guid: ef072f6280af2bb44b63874758903082, type: 3}
+  - {fileID: 2800000, guid: 4b1becac9fa552944980872f454174c3, type: 3}
+  - {fileID: 2800000, guid: 47b611676d1f2cd44869a2a636319235, type: 3}
+  - {fileID: 2800000, guid: 2fd5a0d0c803de5478378b1b7bbee3ed, type: 3}
+  - {fileID: 2800000, guid: e303099905483554d880de205e61f581, type: 3}
+  - {fileID: 2800000, guid: 8a336a25d5fff544eb927ceadedfc02d, type: 3}
+  - {fileID: 2800000, guid: 73b07c180a5dde0419cfd2cc8ae0e683, type: 3}
+  - {fileID: 2800000, guid: 1f445c85c2bb51f4f8a1aad85519fa8a, type: 3}
+  - {fileID: 2800000, guid: 6361518882059444696bf33511d00c04, type: 3}
+  - {fileID: 2800000, guid: 8638b7c38194343458b9ee9ae6e3f2a5, type: 3}
+  - {fileID: 2800000, guid: a5503fd7bde36f84893379f49c1037d0, type: 3}
+  - {fileID: 2800000, guid: e4cc4e4b02a8dcf4f8c53d611cd01b00, type: 3}
+  - {fileID: 2800000, guid: 71888b179b21f0945b7129a2e23bc017, type: 3}
+  - {fileID: 2800000, guid: a2673ea0473bed34ea30b42456eb28b2, type: 3}
+  - {fileID: 2800000, guid: 0bbbcb528698b7e4fb8a84690fa3f074, type: 3}
+  - {fileID: 2800000, guid: 8d4a77a6b7e5d7842be6c2be7dbb6f37, type: 3}
+  - {fileID: 2800000, guid: c7b405de9e452584c82ec1700fa272c8, type: 3}
+  - {fileID: 2800000, guid: 01aba6d13a421644f8edd69ff21f178d, type: 3}
+  - {fileID: 2800000, guid: 54a2b810131806049a874e72c5960b8f, type: 3}
+  - {fileID: 2800000, guid: d51433e4ecd266749a1724b396a92bff, type: 3}
+  - {fileID: 2800000, guid: f7a0287770dc58a4b894868c96cf922a, type: 3}
+  heightmapDisplayMaterial: {fileID: 2100000, guid: 114e15bd6ab5c2e42870025f74ac1708, type: 2}
 --- !u!1 &9089664717611121996
 GameObject:
   m_ObjectHideFlags: 0

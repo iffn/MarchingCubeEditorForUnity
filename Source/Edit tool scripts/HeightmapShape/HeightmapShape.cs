@@ -10,7 +10,17 @@ public class HeightmapShape : EditShape
     private int heightmapWidth;
     private int heightmapHeight;
     float heightScaler = 1;
-    [SerializeField] private Texture2D heightmapTexture; // ToDo: Get from display material
+    [SerializeField] List<Texture2D> heightmapTextures; // ToDo: Get from display material
+    [SerializeField] Material heightmapDisplayMaterial; // ToDo: Get from display material
+    Texture2D heightmapTexture;
+    int currentHeightmapIndex = 0;
+
+    public override void Initialize()
+    {
+        base.Initialize();
+
+        SelectHeightmapClamped(currentHeightmapIndex);
+    }
 
     public override void PrepareParameters(Transform gridTransform)
     {
@@ -85,5 +95,55 @@ public class HeightmapShape : EditShape
         shortcutHandlers.Add(new HandleHorizontalScaleByHoldingSAndScrolling(transform));
         shortcutHandlers.Add(new HandleVerticallyScaleByHoldingAAndScrolling(transform));
         shortcutHandlers.Add(new HandleHorizontalRotateByHoldingDAndScrolling(transform));
+        shortcutHandlers.Add(new SwitchHeightmapByHoldingRAndScrolling(this));
+    }
+
+    public void SelectNextHeightmap(int offset)
+    {
+
+        currentHeightmapIndex += offset;
+
+        SelectHeightmapClamped(currentHeightmapIndex);
+    }
+
+    void SelectHeightmapClamped(int index)
+    {
+        currentHeightmapIndex = ((index % heightmapTextures.Count) + heightmapTextures.Count) % heightmapTextures.Count;
+
+        heightmapTexture = heightmapTextures[currentHeightmapIndex];
+
+        heightmapDisplayMaterial.SetTexture("_MainTex", heightmapTexture);
+    }
+
+    class SwitchHeightmapByHoldingRAndScrolling : ShortcutHandler
+    {
+        KeyCode switchKey = KeyCode.R;
+        bool scaleActive = false;
+        readonly HeightmapShape linkedHeightmapShape;
+
+        public SwitchHeightmapByHoldingRAndScrolling(HeightmapShape linkedHeightmapShape)
+        {
+            this.linkedHeightmapShape = linkedHeightmapShape;
+        }
+
+        public override string ShortcutText { get { return $"Hold {switchKey} and scroll to change the heightmap"; } }
+
+        public override void HandleShortcut(Event e)
+        {
+            if (e.keyCode == switchKey)
+            {
+                if (e.type == EventType.KeyDown) scaleActive = true;
+                else if (e.type == EventType.KeyUp) scaleActive = false;
+            }
+
+            if (scaleActive && e.type == EventType.ScrollWheel)
+            {
+                int offset = Mathf.RoundToInt(Mathf.Sign(e.delta.y));
+
+                linkedHeightmapShape.SelectNextHeightmap(offset);
+
+                e.Use(); // Mark event as handled
+            }
+        }
     }
 }

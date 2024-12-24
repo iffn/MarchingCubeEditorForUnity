@@ -55,7 +55,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             Initialize();
         }
 
-        public void Initialize()
+        public virtual void Initialize()
         {
             shortcutHandlers.Clear();
             SetupShortcutHandlers();
