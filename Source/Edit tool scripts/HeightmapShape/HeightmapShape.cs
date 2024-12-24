@@ -46,10 +46,6 @@ public class HeightmapShape : EditShape
                 if(min > heightmapData[x, y]) min = heightmapData[x, y];
             }
         }
-
-        Debug.Log($"Height in the middle = {heightmapData[heightmapWidth / 2, heightmapHeight / 2]}");
-        Debug.Log($"Height at [10, 10] = {heightmapData[10, 10]}");
-        Debug.Log($"Range = {min}...{max}");
     }
 
     /// <summary>
@@ -66,6 +62,8 @@ public class HeightmapShape : EditShape
 
         // Get the height at this (x, z) position
         float heightAtPoint = heightmapData[xIndex, zIndex];
+
+        if (heightAtPoint == 0) return heightScaler;
 
         // Compare the heightmap's height to the localPoint's y position
         float distance = localPoint.y - heightAtPoint;
