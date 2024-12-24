@@ -32,6 +32,12 @@ public class HeightmapShape : EditShape
             LoadHeightmapData();
     }
 
+    public override void DrawUI()
+    {
+        GUILayout.Label($"Current heightmap: {heightmapTextures[currentHeightmapIndex].name}");
+        base.DrawUI();
+    }
+
     /// <summary>
     /// Load heightmap data from the provided texture.
     /// </summary>

@@ -66,7 +66,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
         }
 
-        public void DrawUI()
+        public virtual void DrawUI()
         {
             string helpText = "Controls:\n" +
                     "Note that the scene has to be active for some of these to work.\n"+
