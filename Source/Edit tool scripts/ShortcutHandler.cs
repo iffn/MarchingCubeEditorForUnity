@@ -104,7 +104,7 @@ public class HandleVerticallyScaleByHoldingAAndScrolling : ShortcutHandler
         {
             float scaleDelta = e.delta.y * 0.03f; // Scale factor; reverse direction if needed
 
-            float scaleFactor = scaleDelta + 1;
+            float scaleFactor = -scaleDelta + 1;
 
             referenceTransform.localScale = new Vector3(
                 referenceTransform.localScale.x ,
