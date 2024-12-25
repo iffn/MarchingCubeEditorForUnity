@@ -69,6 +69,9 @@ public class HeightmapShape : EditShape
     /// </summary>
     protected override float DistanceOutsideIsPositive(Vector3 localPoint)
     {
+        if(localPoint.y  < 0)
+            return -localPoint.y; //Don't fill area below terrain
+
         if (heightmapData == null)
             return -1; // Return large value if heightmap is not loaded
 
