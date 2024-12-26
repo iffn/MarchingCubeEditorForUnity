@@ -1,7 +1,7 @@
 # Marching cube editor ToDo
 
 ## Tools
-- [ ] Heightmap addition
+- [x] Heightmap addition
 - [ ] Tunnel
 - [ ] Path
 - [ ] Smoothing
@@ -9,13 +9,13 @@
 
 ## Editor options
 - [x] Select tool from UI
-- [ ] Editor library
-- [ ] Link save file to prefab
+- [x] Link save file to prefab
+- [x] Integrate into inspector
 
 ## Result visualization
 - [ ] Triplanar shader
 
-## Tool isualization
+## Tool visualization
 - [x] Distance function shader
 - [x] Preview modification
 
