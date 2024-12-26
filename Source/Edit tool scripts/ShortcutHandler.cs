@@ -52,7 +52,7 @@ public class HandleHorizontalScaleByHoldingSAndScrolling : ShortcutHandler
         this.referenceTransform = referenceTransform;
     }
 
-    public override string ShortcutText { get { return $"Hold {scaleKey} and scroll to change the size"; } }
+    public override string ShortcutText { get { return $"Hold {scaleKey} and scroll to scale horizontally"; } }
 
     public override void HandleShortcut(Event e)
     {
@@ -64,9 +64,7 @@ public class HandleHorizontalScaleByHoldingSAndScrolling : ShortcutHandler
 
         if (scaleActive && e.type == EventType.ScrollWheel)
         {
-            Debug.Log($"Scaling with factor {e.delta}");
-
-            float scaleDelta = e.delta.x * 0.03f; // Scale factor; reverse direction if needed
+            float scaleDelta = e.delta.y * 0.03f; // Scale factor; reverse direction if needed
 
             float scaleFactor = scaleDelta + 1;
 
@@ -75,6 +73,76 @@ public class HandleHorizontalScaleByHoldingSAndScrolling : ShortcutHandler
                 referenceTransform.localScale.y,
                 referenceTransform.localScale.z * scaleFactor
                 );
+
+            e.Use(); // Mark event as handled
+        }
+    }
+}
+
+public class HandleVerticallyScaleByHoldingAAndScrolling : ShortcutHandler
+{
+    readonly Transform referenceTransform;
+    KeyCode scaleKey = KeyCode.A;
+    bool scaleActive = false;
+
+    public HandleVerticallyScaleByHoldingAAndScrolling(Transform referenceTransform)
+    {
+        this.referenceTransform = referenceTransform;
+    }
+
+    public override string ShortcutText { get { return $"Hold {scaleKey} and scroll to scale vertically"; } }
+
+    public override void HandleShortcut(Event e)
+    {
+        if (e.keyCode == scaleKey)
+        {
+            if (e.type == EventType.KeyDown) scaleActive = true;
+            else if (e.type == EventType.KeyUp) scaleActive = false;
+        }
+
+        if (scaleActive && e.type == EventType.ScrollWheel)
+        {
+            float scaleDelta = e.delta.y * 0.03f; // Scale factor; reverse direction if needed
+
+            float scaleFactor = -scaleDelta + 1;
+
+            referenceTransform.localScale = new Vector3(
+                referenceTransform.localScale.x ,
+                referenceTransform.localScale.y * scaleFactor,
+                referenceTransform.localScale.z
+                );
+
+            e.Use(); // Mark event as handled
+        }
+    }
+}
+
+public class HandleHorizontalRotateByHoldingDAndScrolling : ShortcutHandler
+{
+    readonly Transform referenceTransform;
+    KeyCode scaleKey = KeyCode.D;
+    bool scaleActive = false;
+
+    public HandleHorizontalRotateByHoldingDAndScrolling(Transform referenceTransform)
+    {
+        this.referenceTransform = referenceTransform;
+    }
+
+    public override string ShortcutText { get { return $"Hold {scaleKey} and scroll to rotate horizontally"; } }
+
+    public override void HandleShortcut(Event e)
+    {
+        if (e.keyCode == scaleKey)
+        {
+            if (e.type == EventType.KeyDown) scaleActive = true;
+            else if (e.type == EventType.KeyUp) scaleActive = false;
+        }
+
+        if (scaleActive && e.type == EventType.ScrollWheel)
+        {
+            float rotationDelta = e.delta.y * 1f;
+
+            referenceTransform.Rotate(Vector3.up, rotationDelta);
 
             e.Use(); // Mark event as handled
         }
