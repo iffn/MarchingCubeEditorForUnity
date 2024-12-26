@@ -45,6 +45,7 @@ public class SimpleClickToPaintTool : BaseTool
             RestoreShapePositionIfAble();
             selectedShape = newSelectedShape;
             SaveShapePositionIfAble();
+            newSelectedShape.Initialize();
         }
 
         if (!newSelectedShape) RestoreShapePositionIfAble();

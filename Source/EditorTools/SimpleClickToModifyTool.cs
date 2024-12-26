@@ -1,7 +1,6 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
-using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +8,17 @@ public class SimpleClickToModifyTool : BaseTool
 {
     EditShape selectedShape;
     bool raycastActive;
+    bool RaycastActive
+    {
+        set
+        {
+            selectedShape.gameObject.SetActive(false);
+            LinkedMarchingCubeController.DisplayPreviewShape = false;
+            LinkedMarchingCubeController.EnableAllColliders = value;
+            raycastActive = value;
+        }
+    }
+
     bool displayPreviewShape;
     Vector3 originalShapePosition;
 
@@ -37,6 +47,7 @@ public class SimpleClickToModifyTool : BaseTool
             RestoreShapePositionIfAble();
             selectedShape = newSelectedShape;
             SaveShapePositionIfAble();
+            newSelectedShape.Initialize();
         }
 
         if (!newSelectedShape) RestoreShapePositionIfAble();
@@ -47,10 +58,7 @@ public class SimpleClickToModifyTool : BaseTool
         bool newRaycastActive = EditorGUILayout.Toggle("Active", raycastActive);
         if(raycastActive != newRaycastActive)
         {
-            selectedShape.gameObject.SetActive(false);
-            LinkedMarchingCubeController.DisplayPreviewShape = false;
-            LinkedMarchingCubeController.EnableAllColliders = newRaycastActive;
-            raycastActive = newRaycastActive;
+            RaycastActive = newRaycastActive;
         }
 
         bool newDisplayPreviewShape = EditorGUILayout.Toggle("Display preview shape", displayPreviewShape);
@@ -63,10 +71,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (raycastActive)
         {
-            EditorGUILayout.HelpBox("Controls:\n" +
-                    "Click to add\n" +
-                    "Ctrl Click to subtract\n" +
-                    "Shift Scroll to scale", MessageType.None);
+            selectedShape.DrawUI();
         }
     }
 
@@ -76,7 +81,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
-        if(result != RayHitResult.None)
+        if (result != RayHitResult.None)
         {
             selectedShape.transform.position = result.point;
 
@@ -97,13 +102,14 @@ public class SimpleClickToModifyTool : BaseTool
             LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
-        if (e.shift && e.type == EventType.ScrollWheel)
+        if (selectedShape) selectedShape.HandleSceneUpdate(e);
+
+        //Press escape to cancel
+        if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
         {
-            float scaleDelta = e.delta.x * -0.03f; // Scale factor; reverse direction if needed
-
-            selectedShape.transform.localScale *= (scaleDelta + 1);
-
-            e.Use(); // Mark event as handled
+            RaycastActive = false;
+            e.Use();
+            return;
         }
     }
 
