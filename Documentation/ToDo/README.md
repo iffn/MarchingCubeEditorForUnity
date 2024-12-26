@@ -17,6 +17,7 @@
 ## Result visualization
 - [ ] Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
 - [ ] Triplanar shader
+- [ ] Create LOD level for Chunks
 
 ## Tool visualization
 - [x] Distance function shader
