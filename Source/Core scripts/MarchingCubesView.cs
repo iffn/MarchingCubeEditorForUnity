@@ -198,7 +198,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void PostProcessMesh()
         {
-            MergeCloseVertices(meshFilter.sharedMesh, 0.2f);
+            MergeCloseVertices(meshFilter.sharedMesh, 0.5f);
 
             if (ColliderEnabled) UpdateCollider();
         }
