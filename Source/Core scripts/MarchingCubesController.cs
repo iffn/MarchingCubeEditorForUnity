@@ -14,7 +14,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private MarchingCubesModel mainModel;
         private MarchingCubesView previewView;
         private MarchingCubesModel previewModelWithOldData;
-        private static readonly Vector3Int chunkSize = new Vector3Int(16, 16, 16);
+        private static readonly Vector3Int defaultChunkSize = new Vector3Int(16, 16, 16);
+        private Vector3Int chunkSize = defaultChunkSize;
 
         public ScriptableObjectSaveData linkedSaveData;
 
@@ -56,6 +57,20 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             get
             {
                 return linkedVisualisationManager;
+            }
+        }
+
+        bool postProcessMesh = false;
+        public bool PostProcessMesh
+        {
+            get => postProcessMesh;
+            set
+            {
+                if(postProcessMesh != value)
+                {
+                    postProcessMesh = value;
+                    GenerateViewChunks();
+                }
             }
         }
 
@@ -101,46 +116,31 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
-                bool newState = value || forceColliderOn;
-
-                foreach (MarchingCubesView chunkView in chunkViews)
-                {
-                    chunkView.ColliderEnabled = newState;
-                }
-
                 enableAllColliders = value;
+
+                UpdateColliderStates();
             }
         }
 
-        void InitializeColliderState()
+        void UpdateColliderStates()
         {
-            EnableAllColliders = enableAllColliders; // Ensure correct fall through logic when changing stuff
+            foreach (MarchingCubesView chunkView in chunkViews)
+            {
+                chunkView.ColliderEnabled = EnableAllColliders;
+            }
         }
 
-        public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
+        void GenerateViewChunks()
         {
-            // We don't want to initialize if we are inside a prefab
-            if (gameObject.scene.name == null)
-                return;
-
-            //Setup managers
-            if (ModificationManager == null)
-                ModificationManager = new ModificationManager(this);
-            if (SaveAndLoadManager == null)
-                SaveAndLoadManager = new SaveAndLoadManager(this);
-            VisualisationManager.Initialize(this);
-
-            // Create model
-            if (mainModel == null)
+            // Decide on chunk size
+            if (postProcessMesh)
             {
-                mainModel = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
+                chunkSize = new Vector3Int(mainModel.ResolutionX, mainModel.ResolutionY, mainModel.ResolutionZ);
             }
             else
             {
-                mainModel.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, !setEmpty);
+                chunkSize = defaultChunkSize;
             }
-
-            Vector3Int gridResolution = new Vector3Int(resolutionX, resolutionY, resolutionZ);
 
             // Destroy all chunks, save with foreach since Unity doesn't immediately destroy them
             List<GameObject> chunksToDestroy = new List<GameObject>();
@@ -149,6 +149,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 if (child.TryGetComponent(out MarchingCubesView view))
                 {
+                    if (view == previewView) continue;
+
                     chunksToDestroy.Add(child.gameObject);
                 }
             }
@@ -167,7 +169,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             chunkViews.Clear();
 
-            // Create chunks
+            // Create and setup chunks
+            int resolutionX = mainModel.ResolutionX;
+            int resolutionY = mainModel.ResolutionY;
+            int resolutionZ = mainModel.ResolutionZ;
+
             for (int x = 0; x < resolutionX; x += chunkSize.x)
             {
                 for (int y = 0; y < resolutionY; y += chunkSize.y)
@@ -186,11 +192,42 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            // Set grid to empty
+            UpdateAllChunks();
+
+            UpdateColliderStates();
+        }
+
+        public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
+        {
+
+            // We don't want to initialize if we are inside a prefab
+            if (gameObject.scene.name == null)
+                return;
+
+            //Setup managers
+            if (ModificationManager == null)
+                ModificationManager = new ModificationManager(this);
+            if (SaveAndLoadManager == null)
+                SaveAndLoadManager = new SaveAndLoadManager(this);
+            VisualisationManager.Initialize(this);
+
+            // Create and setup model
+            if (mainModel == null)
+            {
+                mainModel = new MarchingCubesModel(resolutionX, resolutionY, resolutionZ);
+            }
+            else
+            {
+                mainModel.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, !setEmpty);
+            }
+
             if (setEmpty)
             {
                 SetEmptyGrid(true);
             }
+
+            //Generate views
+            GenerateViewChunks();
 
             // Setup preview model
             if (previewModelWithOldData == null)
@@ -208,9 +245,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 previewView.Initialize(Vector3Int.zero, Vector3Int.one, false);
                 DisplayPreviewShape = false;
             }
-
-            // Initialize the correct collider state
-            InitializeColliderState();
         }
 
         public bool IsInitialized => mainModel != null;
