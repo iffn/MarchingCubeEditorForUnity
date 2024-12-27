@@ -293,6 +293,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 chunkView.MarkDirty();
                 chunkView.UpdateMeshIfDirty(mainModel);
+                if (PostProcessMesh) chunkView.PostProcessMesh();
             }
         }
 

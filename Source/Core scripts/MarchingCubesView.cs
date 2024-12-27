@@ -195,6 +195,67 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                      gridBoundsMax.y <= min.y || gridBoundsMin.y >= max.y ||
                      gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
         }
+
+        public void PostProcessMesh()
+        {
+            MergeCloseVertices(meshFilter.sharedMesh, 0.2f);
+
+            if (ColliderEnabled) UpdateCollider();
+        }
+
+        public static void MergeCloseVertices(Mesh mesh, float threshold)
+        {
+            Vector3[] originalVertices = mesh.vertices;
+            Color[] originalColors = mesh.colors;
+            int[] originalTriangles = mesh.triangles;
+
+            List<Vector3> newVertices = new List<Vector3>();
+            List<Color> newColors = new List<Color>();
+            Dictionary<int, int> vertexMapping = new Dictionary<int, int>();
+
+            for (int i = 0; i < originalVertices.Length; i++)
+            {
+                bool merged = false;
+
+                for (int j = 0; j < newVertices.Count; j++)
+                {
+                    if (Vector3.Distance(newVertices[j], originalVertices[i]) < threshold)
+                    {
+                        // Map this vertex to an existing one
+                        vertexMapping[i] = j;
+
+                        // Merge colors by averaging
+                        newColors[j] = (newColors[j] + originalColors[i]) * 0.5f;
+
+                        merged = true;
+                        break;
+                    }
+                }
+
+                if (!merged)
+                {
+                    // Add as a new unique vertex and preserve its color
+                    vertexMapping[i] = newVertices.Count;
+                    newVertices.Add(originalVertices[i]);
+                    newColors.Add(originalColors[i]);
+                }
+            }
+
+            // Rebuild the triangle array with new vertex indices
+            int[] newTriangles = new int[originalTriangles.Length];
+            for (int i = 0; i < originalTriangles.Length; i++)
+            {
+                newTriangles[i] = vertexMapping[originalTriangles[i]];
+            }
+
+            // Update the mesh
+            mesh.Clear();
+            mesh.vertices = newVertices.ToArray();
+            mesh.triangles = newTriangles;
+            mesh.colors = newColors.ToArray(); // Assign the new colors
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+        }
     }
 }
 
