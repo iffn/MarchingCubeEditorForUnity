@@ -120,12 +120,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
             mesh.SetColors(colors);
-            mesh.RecalculateNormals();
-            mesh.RecalculateTangents();
-            //mesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
 
-            // Update collider if needed.
-            if (ColliderEnabled) UpdateCollider();
+            FinishMesh();
         }
 
         void UpdateCollider()
@@ -167,11 +163,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Update the mesh with the inverted triangles
             mesh.triangles = triangles;
 
-            // Recalculate normals to reflect the inverted geometry
-            mesh.RecalculateNormals();
-
-            if (ColliderEnabled) 
-                UpdateCollider();
+            FinishMesh();
         }
 
         public bool ColliderEnabled
@@ -200,6 +192,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             MergeCloseVertices(meshFilter.sharedMesh, 0.5f);
 
+            FinishMesh();
+        }
+
+        void FinishMesh()
+        {
+            meshFilter.sharedMesh.RecalculateNormals();
+            meshFilter.sharedMesh.RecalculateTangents();
+            //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
             if (ColliderEnabled) UpdateCollider();
         }
 
@@ -263,10 +263,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             mesh.vertices = newVertices.ToArray();
             mesh.triangles = filteredTriangles.ToArray(); // Only valid triangles remain
             mesh.colors = newColors.ToArray();
-            mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
         }
-
     }
 }
 
