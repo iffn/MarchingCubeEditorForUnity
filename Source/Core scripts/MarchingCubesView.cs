@@ -241,21 +241,32 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            // Rebuild the triangle array with new vertex indices
-            int[] newTriangles = new int[originalTriangles.Length];
-            for (int i = 0; i < originalTriangles.Length; i++)
+            // Rebuild the triangle array and filter degenerate triangles
+            List<int> filteredTriangles = new List<int>();
+            for (int i = 0; i < originalTriangles.Length; i += 3)
             {
-                newTriangles[i] = vertexMapping[originalTriangles[i]];
+                int v1 = vertexMapping[originalTriangles[i]];
+                int v2 = vertexMapping[originalTriangles[i + 1]];
+                int v3 = vertexMapping[originalTriangles[i + 2]];
+
+                // Add the triangle only if it is non-degenerate
+                if (v1 != v2 && v2 != v3 && v3 != v1)
+                {
+                    filteredTriangles.Add(v1);
+                    filteredTriangles.Add(v2);
+                    filteredTriangles.Add(v3);
+                }
             }
 
             // Update the mesh
             mesh.Clear();
             mesh.vertices = newVertices.ToArray();
-            mesh.triangles = newTriangles;
-            mesh.colors = newColors.ToArray(); // Assign the new colors
+            mesh.triangles = filteredTriangles.ToArray(); // Only valid triangles remain
+            mesh.colors = newColors.ToArray();
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
         }
+
     }
 }
 
