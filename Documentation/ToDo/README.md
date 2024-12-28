@@ -2,6 +2,7 @@
 
 ## Tools
 - [x] Heightmap addition
+- [ ] Limit height to cursor (Reimplement)
 - [ ] Tunnel
 - [ ] Path
 - [ ] Smoothing
