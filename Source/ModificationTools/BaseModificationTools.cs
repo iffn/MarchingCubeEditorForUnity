@@ -27,18 +27,16 @@ public class BaseModificationTools
 
     public class AddShapeWithMaxHeightModifier : AddShapeModifier
     {
-        private readonly int maxHeight;
+        private readonly float maxHeight;
 
-        public AddShapeWithMaxHeightModifier(int maxHeight)
+        public AddShapeWithMaxHeightModifier(float maxHeight)
         {
             this.maxHeight = maxHeight;
         }
 
         public override VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
         {
-            // Only modify voxels below or at the maximum height
-            if (y > maxHeight)
-                return currentValue;
+            distance = Mathf.Max(distance, y - maxHeight);
 
             return base.ModifyVoxel(x, y, z, currentValue, distance);
         }
