@@ -21,6 +21,7 @@ public class SimpleSceneModifyTool : BaseTool
 
         if (newSelectedShape && newSelectedShape != selectedShape)
         {
+            selectedShape = newSelectedShape;
             newSelectedShape.Initialize();
         }
 
