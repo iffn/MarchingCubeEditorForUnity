@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using iffnsStuff.MarchingCubeEditor.Core;
+using static BaseModificationTools.ModifyShapeWithMaxHeightModifier;
 
 public class BaseModificationTools
 {
@@ -25,20 +26,40 @@ public class BaseModificationTools
         }
     }
 
-    public class AddShapeWithMaxHeightModifier : AddShapeModifier
+    public class ModifyShapeWithMaxHeightModifier : IVoxelModifier
     {
         private readonly float maxHeight;
 
-        public AddShapeWithMaxHeightModifier(float maxHeight)
+        BooleanType booleanType;
+
+        public enum BooleanType
         {
-            this.maxHeight = maxHeight;
+            AddOnly,
+            SubtractOnly,
+            AddAndSubtract
         }
 
-        public override VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
+        public ModifyShapeWithMaxHeightModifier(float maxHeight, BooleanType booleanType)
+        {
+            this.maxHeight = maxHeight;
+            this.booleanType = booleanType;
+        }
+
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
         {
             distance = Mathf.Max(distance, y - maxHeight);
 
-            return base.ModifyVoxel(x, y, z, currentValue, distance);
+            switch (booleanType)
+            {
+                case BooleanType.AddOnly:
+                    return currentValue.With(Mathf.Max(currentValue.Weight, -distance));
+                case BooleanType.SubtractOnly:
+                    return currentValue.With(Mathf.Min(currentValue.Weight, distance));
+                case BooleanType.AddAndSubtract:
+                    return currentValue.With(-distance);
+            }
+
+            return currentValue;
         }
     }
 

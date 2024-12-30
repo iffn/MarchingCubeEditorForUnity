@@ -149,7 +149,9 @@ public class SimpleClickToModifyTool : BaseTool
             else
             {
                 if (limitHeightToCursor)
-                    LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeWithMaxHeightModifier(selectedShape.transform.position.y)); // ToDo: Improve height calculation by implementing scale
+                    LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
+                        selectedShape.transform.position.y,
+                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly)); // ToDo: Improve height calculation by implementing scale
                 else 
                     LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
             }
@@ -167,7 +169,9 @@ public class SimpleClickToModifyTool : BaseTool
             else
             {
                 if (limitHeightToCursor)
-                    LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeWithMaxHeightModifier(selectedShape.transform.position.y)); // ToDo: Improve height calculation by implementing scale
+                    LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
+                        selectedShape.transform.position.y,
+                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly)); // ToDo: Improve height calculation by implementing scale
                 else
                     LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
             }
