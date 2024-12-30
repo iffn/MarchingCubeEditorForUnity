@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class SimpleClickToModifyTool : BaseTool
 {
+    // Editor variables
     EditShape selectedShape;
     bool raycastActive;
     bool RaycastActive
@@ -20,10 +21,15 @@ public class SimpleClickToModifyTool : BaseTool
     }
 
     bool displayPreviewShape;
+
+    // Internal variables
     Vector3 originalShapePosition;
+    double nextUpdateTime;
+    double timeBetweenUpdates = 1.0 / 60.0;
 
     public override string DisplayName => "Click to modify tool";
 
+    // Override functions
     public override void OnEnable()
     {
         if(selectedShape) originalShapePosition = selectedShape.transform.position;
@@ -118,9 +124,7 @@ public class SimpleClickToModifyTool : BaseTool
 
     }
 
-    double nextUpdateTime;
-    double timeBetweenUpdates = 1.0 / 60.0;
-
+    // Internal functions
     void HandleDirectUpdate(Event e)
     {
         selectedShape.gameObject.SetActive(true);
