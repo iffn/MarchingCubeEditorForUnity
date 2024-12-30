@@ -140,9 +140,40 @@ public class SimpleClickToModifyTool : BaseTool
     // Internal functions
     delegate void ModifyData(EditShape shape, BaseModificationTools.IVoxelModifier modifier);
 
-    void HandleUpdate(Event e, ModifyData modificationFunction)
+    BaseModificationTools.IVoxelModifier Modification(Event e)
     {
+        bool subtract = e.control;
 
+        BaseModificationTools.IVoxelModifier modifier = null;
+
+        if (limitHeightToCursor)
+        {
+            if (subtract)
+            {
+                modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
+                        selectedShape.transform.position.y,
+                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.SubtractOnly);
+            }
+            else
+            {
+                modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
+                        selectedShape.transform.position.y,
+                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.SubtractOnly);
+            }
+        }
+        else
+        {
+            if (subtract)
+            {
+                modifier = new BaseModificationTools.AddShapeModifier();
+            }
+            else
+            {
+                modifier = new BaseModificationTools.SubtractShapeModifier();
+            }
+        }
+
+        return modifier;
     }
 
     void HandleDirectUpdate(Event e)
@@ -150,18 +181,11 @@ public class SimpleClickToModifyTool : BaseTool
         selectedShape.gameObject.SetActive(true);
         //selectedShape.Color = e.control ? subtractionColor : additionColor;
 
+        
+
         if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
         {
-            if (e.control) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-            else
-            {
-                if (limitHeightToCursor)
-                    LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        selectedShape.transform.position.y,
-                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly)); // ToDo: Improve height calculation by implementing scale
-                else 
-                    LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-            }
+            LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, Modification(e));
 
             e.Use();
             return;
@@ -172,16 +196,7 @@ public class SimpleClickToModifyTool : BaseTool
     {
         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
         {
-            if (e.control) LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-            else
-            {
-                if (limitHeightToCursor)
-                    LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        selectedShape.transform.position.y,
-                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly)); // ToDo: Improve height calculation by implementing scale
-                else
-                    LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
-            }
+            LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, Modification(e)); 
 
             selectedShape.gameObject.SetActive(false);
 
