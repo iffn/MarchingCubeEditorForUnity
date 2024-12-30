@@ -74,6 +74,20 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        float distanceFactorBias = 2f;
+        public float DistanceFactorBias
+        {
+            get => distanceFactorBias;
+            set
+            {
+                if(distanceFactorBias != value)
+                {
+                    distanceFactorBias = value;
+                    if (postProcessMesh) GenerateViewChunks();
+                }
+            }
+        }
+
         [HideInInspector, SerializeField] bool forceColliderOn = false;
         public bool ForceColliderOn
         {
@@ -293,7 +307,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 chunkView.MarkDirty();
                 chunkView.UpdateMeshIfDirty(mainModel);
-                if (PostProcessMesh) chunkView.PostProcessMesh();
+                if (PostProcessMesh) chunkView.PostProcessMesh(DistanceFactorBias);
             }
         }
 

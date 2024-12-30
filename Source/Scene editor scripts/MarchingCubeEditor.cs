@@ -142,6 +142,12 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
                 Controller.PostProcessMesh = EditorGUILayout.Toggle("Post process mesh (slow)", Controller.PostProcessMesh);
+
+                if(Controller.PostProcessMesh)
+                {
+                    Controller.DistanceFactorBias = EditorGUILayout.FloatField(Controller.DistanceFactorBias);
+                }
+
                 Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);
                 Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
 
