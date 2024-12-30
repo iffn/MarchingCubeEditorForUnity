@@ -22,6 +22,9 @@ public class SimpleClickToModifyTool : BaseTool
 
     bool displayPreviewShape;
 
+    bool limitHeightToCursor;
+
+
     // Internal variables
     Vector3 originalShapePosition;
     double nextUpdateTime;
@@ -77,6 +80,15 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (raycastActive)
         {
+            string helpText = "Controls:\n" +
+                    "Note that the scene has to be active for some of these to work.\n" +
+                    "Click to add\n" +
+                    "Ctrl Click to subtract\n";
+
+            helpText += selectedShape.HelpText;
+
+            EditorGUILayout.HelpBox(helpText, MessageType.None);
+
             selectedShape.DrawUI();
         }
     }

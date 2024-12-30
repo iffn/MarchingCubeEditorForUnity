@@ -66,19 +66,24 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
         }
 
+        public virtual string HelpText
+        {
+            get
+            {
+                string helpText = "";
+
+                foreach (ShortcutHandler handler in shortcutHandlers)
+                {
+                    helpText += "\n" + handler.ShortcutText;
+                }
+
+                return helpText;
+            }
+        }
+
         public virtual void DrawUI()
         {
-            string helpText = "Controls:\n" +
-                    "Note that the scene has to be active for some of these to work.\n"+
-                    "Click to add\n" +
-                    "Ctrl Click to subtract";
-
-            foreach(ShortcutHandler handler in shortcutHandlers)
-            {
-                helpText += "\n" + handler.ShortcutText;
-            }
-
-            EditorGUILayout.HelpBox(helpText, MessageType.None);
+            
         }
 
         public virtual void HandleSceneUpdate(Event e)
