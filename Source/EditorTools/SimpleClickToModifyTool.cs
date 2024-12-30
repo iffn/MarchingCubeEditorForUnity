@@ -138,6 +138,13 @@ public class SimpleClickToModifyTool : BaseTool
     }
 
     // Internal functions
+    delegate void ModifyData(EditShape shape, BaseModificationTools.IVoxelModifier modifier);
+
+    void HandleUpdate(Event e, ModifyData modificationFunction)
+    {
+
+    }
+
     void HandleDirectUpdate(Event e)
     {
         selectedShape.gameObject.SetActive(true);
