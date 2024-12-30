@@ -24,7 +24,6 @@ public class SimpleClickToModifyTool : BaseTool
 
     bool limitHeightToCursor;
 
-
     // Internal variables
     Vector3 originalShapePosition;
     double nextUpdateTime;
@@ -77,6 +76,8 @@ public class SimpleClickToModifyTool : BaseTool
             LinkedMarchingCubeController.DisplayPreviewShape = false;
             displayPreviewShape = newDisplayPreviewShape;
         }
+
+        limitHeightToCursor = EditorGUILayout.Toggle("Limit height to cursor", limitHeightToCursor);
 
         if (raycastActive)
         {
@@ -147,11 +148,10 @@ public class SimpleClickToModifyTool : BaseTool
             if (e.control) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
             else
             {
-                LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-                /*
-                if (limitMaxHeight) linkedMarchingCubesController.AddShapeWithMaxHeight(selectedShape, hit.point.y, true);
-                else linkedMarchingCubesController.AddShape(selectedShape, true);
-                */
+                if (limitHeightToCursor)
+                    LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeWithMaxHeightModifier(selectedShape.transform.position.y)); // ToDo: Improve height calculation by implementing scale
+                else 
+                    LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
             }
 
             e.Use();
@@ -166,11 +166,10 @@ public class SimpleClickToModifyTool : BaseTool
             if (e.control) LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
             else
             {
-                LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
-                /*
-                if (limitMaxHeight) linkedMarchingCubesController.PreviewAddShapeWithMaxHeight(selectedShape, hit.point.y);
-                else linkedMarchingCubesController.PreviewAddShape(selectedShape);
-                */
+                if (limitHeightToCursor)
+                    LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeWithMaxHeightModifier(selectedShape.transform.position.y)); // ToDo: Improve height calculation by implementing scale
+                else
+                    LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.AddShapeModifier());
             }
 
             selectedShape.gameObject.SetActive(false);
