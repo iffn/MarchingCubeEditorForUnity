@@ -22,7 +22,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// <summary>
         /// Calculate the distance to the shape surface in world space.
         /// </summary>
-        public float OptimizedDistance(Vector3 worldPoint)
+        public float OptimizedDistanceOutsideIsPositive(Vector3 worldPoint)
         {
             Vector3 localPoint = worldToLocalMatrix.MultiplyPoint3x4(worldPoint);
             return DistanceOutsideIsPositive(localPoint);

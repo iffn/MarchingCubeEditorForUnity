@@ -85,11 +85,11 @@ public class ModificationManager
                     Vector3 gridPoint = new Vector3(x, y, z);
 
                     // Calculate the distance using the shape's transformation
-                    float distance = shape.OptimizedDistance(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
+                    float distanceOutsideIsPositive = shape.OptimizedDistanceOutsideIsPositive(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
 
                     // Modify the voxel value
                     VoxelData currentValue = getDataPoint(x, y, z);
-                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
+                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, currentValue, distanceOutsideIsPositive);
                     setDataPoint(x, y, z, newValue);
                 }
             }

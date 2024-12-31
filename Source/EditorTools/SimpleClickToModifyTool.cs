@@ -144,7 +144,7 @@ public class SimpleClickToModifyTool : BaseTool
     {
         bool subtract = e.control;
 
-        BaseModificationTools.IVoxelModifier modifier = null;
+        BaseModificationTools.IVoxelModifier modifier;
 
         if (limitHeightToCursor)
         {

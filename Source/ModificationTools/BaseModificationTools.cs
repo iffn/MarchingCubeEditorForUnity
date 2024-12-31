@@ -1,28 +1,33 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using iffnsStuff.MarchingCubeEditor.Core;
-using static BaseModificationTools.ModifyShapeWithMaxHeightModifier;
 
 public class BaseModificationTools
 {
     public interface IVoxelModifier
     {
-        VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance);
+        VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive);
     }
 
     public class AddShapeModifier : IVoxelModifier
     {
-        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
         {
-            return currentValue.With(Mathf.Max(currentValue.Weight, -distance));
+            //return currentValue.WithWeightInsideIsPositive(Mathf.Max(currentValue.WeightInsideIsPositive, -distanceOutsideIsPositive));
+
+            float newDistanceOutsideIsPositive = SDFMath.CombinationFunctionsOutsideIsPositive.Add(currentValue.DistanceOutsideIsPositive, distanceOutsideIsPositive);
+
+            return currentValue.WithDistanceOutsideIsPositive(newDistanceOutsideIsPositive);
         }
     }
 
     public class SubtractShapeModifier : IVoxelModifier
     {
-        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
         {
-            return currentValue.With(Mathf.Min(currentValue.Weight, distance));
+            float newDistanceOutsideIsPositive = SDFMath.CombinationFunctionsOutsideIsPositive.Add(currentValue.DistanceOutsideIsPositive, distanceOutsideIsPositive);
+
+            return currentValue.WithDistanceOutsideIsPositive(newDistanceOutsideIsPositive);
         }
     }
 
@@ -45,21 +50,50 @@ public class BaseModificationTools
             this.booleanType = booleanType;
         }
 
-        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
         {
-            distance = Mathf.Max(distance, y - maxHeight);
+            Vector3 samplePoint = new Vector3(x, y, z); //ToDo: Implement position, rotation and scale
+
+            float currentDistance = currentValue.WeightInsideIsPositive;
+
+            float newDistance;
 
             switch (booleanType)
             {
                 case BooleanType.AddOnly:
-                    return currentValue.With(Mathf.Max(currentValue.Weight, -distance));
+                    newDistance = AddOnly(distanceOutsideIsPositive);
+                    break;
                 case BooleanType.SubtractOnly:
-                    return currentValue.With(Mathf.Min(currentValue.Weight, distance));
+                    newDistance = SubtractOnly(distanceOutsideIsPositive);
+                    break;
                 case BooleanType.AddAndSubtract:
-                    return currentValue.With(-distance);
+                    newDistance = AddOnly(distanceOutsideIsPositive);
+                    newDistance = SubtractOnly(newDistance);
+                    break;
+                default:
+                    newDistance = currentDistance;
+                    break;
             }
 
-            return currentValue;
+            float AddOnly(float distanceToShape)
+            {
+                float floorDistance = SDFMath.ShapesDistanceOutsideIsPositive.PlaneFloor(samplePoint, maxHeight);
+
+                distanceToShape = SDFMath.CombinationFunctionsOutsideIsPositive.Intersect(distanceToShape, floorDistance);
+
+                return SDFMath.CombinationFunctionsOutsideIsPositive.Add(currentValue.DistanceOutsideIsPositive, distanceToShape);
+            }
+
+            float SubtractOnly(float distanceToShape)
+            {
+                float floorDistance = SDFMath.ShapesDistanceOutsideIsPositive.PlaneCeiling(samplePoint, maxHeight);
+
+                distanceToShape = SDFMath.CombinationFunctionsOutsideIsPositive.Intersect(distanceToShape, floorDistance);
+
+                return SDFMath.CombinationFunctionsOutsideIsPositive.Subtract(currentValue.DistanceOutsideIsPositive, distanceToShape);
+            }
+
+            return currentValue.WithDistanceOutsideIsPositive(newDistance);
         }
     }
 
@@ -80,7 +114,7 @@ public class BaseModificationTools
         {
             Color32 newColor = Color.Lerp(color, currentValue.Color, curve.Evaluate(distance));
 
-            return currentValue.With(newColor);
+            return currentValue.WithColor(newColor);
         }
     }
 }
