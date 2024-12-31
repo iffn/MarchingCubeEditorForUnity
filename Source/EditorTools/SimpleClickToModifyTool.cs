@@ -158,18 +158,18 @@ public class SimpleClickToModifyTool : BaseTool
             {
                 modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
                         selectedShape.transform.position.y,
-                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.SubtractOnly);
+                        BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly);
             }
         }
         else
         {
             if (subtract)
             {
-                modifier = new BaseModificationTools.AddShapeModifier();
+                modifier = new BaseModificationTools.SubtractShapeModifier();
             }
             else
             {
-                modifier = new BaseModificationTools.SubtractShapeModifier();
+                modifier = new BaseModificationTools.AddShapeModifier();
             }
         }
 
@@ -196,7 +196,7 @@ public class SimpleClickToModifyTool : BaseTool
     {
         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
         {
-            LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, Modification(e)); 
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, Modification(e)); 
 
             selectedShape.gameObject.SetActive(false);
 
