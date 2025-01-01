@@ -15,6 +15,7 @@ public class SimplifyMeshTest : MonoBehaviour
         mesh.vertices = baseMeshFilter.mesh.vertices;
         mesh.triangles = baseMeshFilter.mesh.triangles;
 
+        Debug.Log($"Running for: {transform.name}");
         MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, threshold);
 
         outputMeshFilter.sharedMesh = mesh;
