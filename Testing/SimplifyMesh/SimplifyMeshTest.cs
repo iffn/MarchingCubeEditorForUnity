@@ -10,14 +10,12 @@ public class SimplifyMeshTest : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Test");
-
         Mesh mesh = new Mesh();
 
         mesh.vertices = baseMeshFilter.mesh.vertices;
         mesh.triangles = baseMeshFilter.mesh.triangles;
 
-        MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, threshold); 
+        MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, threshold);
 
         outputMeshFilter.sharedMesh = mesh;
     }

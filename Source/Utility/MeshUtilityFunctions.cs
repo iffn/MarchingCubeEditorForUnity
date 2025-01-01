@@ -53,14 +53,20 @@ public static class MeshUtilityFunctions
 
         void FuseEdge(int a, int b, int face)
         {
+            // Compute the midpoint of the edge (a, b)
             var mid = (GetVertex(a) + GetVertex(b)) * 0.5f;
+
+            // Update both vertices to the midpoint
             SetVertex(a, mid);
             SetVertex(b, mid);
+
+            // Delete the current triangle
             DeleteTriangle(face);
 
-            foreach (var adjFace in adjacency[face])
+            // Delete all triangles adjacent to the edge (a, b) for the given face
+            foreach (int adjacentFace in AdjacentFaces(face, a, b, indices, adjacency))
             {
-                DeleteTriangle(adjFace);
+                DeleteTriangle(adjacentFace);
             }
         }
 
@@ -74,9 +80,9 @@ public static class MeshUtilityFunctions
             AddTriangle(c, m, a);
             AddTriangle(c, b, m);
 
-            foreach (var adjFace in adjacency[face])
+            foreach (int adjacentFace in adjacency[face])
             {
-                int d = FaceCorner(adjFace, a, b, indices);
+                int d = FaceCorner(adjacentFace, a, b, indices);
                 AddTriangle(d, m, a);
                 AddTriangle(d, b, m);
             }
@@ -226,6 +232,28 @@ public static class MeshUtilityFunctions
         mesh.Clear();
         mesh.vertices = newVertices.ToArray(); // ToDo: Add other info like UV or VertexColor
         mesh.triangles = newIndices;
+    }
+
+    static IEnumerable<int> AdjacentFaces(int face, int a, int b, int[] faces, List<int>[] adjacency = null)
+    {
+        if (adjacency == null)
+        {
+            adjacency = FaceAdjacencyList(faces);
+        }
+
+        foreach (int adjacent in adjacency[face])
+        {
+            int i0 = faces[adjacent * 3];
+            int i1 = faces[adjacent * 3 + 1];
+            int i2 = faces[adjacent * 3 + 2];
+
+            if ((i0 == a && (i1 == b || i2 == b)) ||
+                (i1 == a && (i0 == b || i2 == b)) ||
+                (i2 == a && (i0 == b || i1 == b)))
+            {
+                yield return adjacent;
+            }
+        }
     }
 
     public static List<int>[] FaceAdjacencyList(int[] faces)
