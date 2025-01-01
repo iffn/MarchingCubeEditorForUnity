@@ -18,6 +18,10 @@ public class SimplifyMeshTest : MonoBehaviour
         Debug.Log($"Running for: {transform.name}");
         MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, threshold);
 
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+
         outputMeshFilter.sharedMesh = mesh;
     }
 }
