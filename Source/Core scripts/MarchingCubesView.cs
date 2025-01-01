@@ -190,12 +190,18 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void PostProcessMesh(float distanceFactorBias)
         {
+            MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, distanceFactorBias);
+
+            FinishMesh();
+
+            /*
             meshFilter.sharedMesh.RecalculateNormals();
             SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, distanceFactorBias);
 
             meshFilter.sharedMesh.RecalculateTangents();
             //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
             if (ColliderEnabled) UpdateCollider();
+            */
         }
 
         void FinishMesh()
