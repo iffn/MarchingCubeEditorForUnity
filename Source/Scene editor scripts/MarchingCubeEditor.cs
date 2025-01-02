@@ -163,15 +163,43 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-                string[] tabs = tools.Select(tool => tool.DisplayName).ToArray();
-                int index = tools.FindIndex(tab => tab == CurrentTool);
+                int columns = 2; // Number of buttons per row
 
-                // Draw Toolbar
-                int newIndex = GUILayout.Toolbar(index, tabs);
-                if (newIndex != index)
-                    CurrentTool = tools[newIndex];
-                    
-                // Draw current tool
+                Color highlightColor = new Color(0.7f, 0.7f, 1f); //ToDo: Improve highlight color
+
+                for (int i = 0; i < tools.Count; i += columns)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    for (int j = 0; j < columns; j++)
+                    {
+                        int index = i + j;
+                        if (index < tools.Count) // Ensure index is within bounds
+                        {
+                            // Store original colors
+                            Color originalBackground = GUI.backgroundColor;
+                            Color originalContentColor = GUI.contentColor;
+
+                            if (tools[index] == CurrentTool)
+                            {
+                                // Set custom colors for the selected tool
+                                GUI.backgroundColor = highlightColor;
+                                GUI.contentColor = Color.white; // Text color
+                            }
+
+                            if (GUILayout.Button(tools[index].DisplayName))
+                            {
+                                CurrentTool = tools[index];
+                            }
+
+                            // Restore original colors
+                            GUI.backgroundColor = originalBackground;
+                            GUI.contentColor = originalContentColor;
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                // Draw current tool UI
                 if (CurrentTool != null)
                     CurrentTool.DrawUI();
 
