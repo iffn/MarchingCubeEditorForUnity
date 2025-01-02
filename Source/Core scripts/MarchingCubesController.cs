@@ -10,7 +10,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     [SelectionBase]
     public class MarchingCubesController : MonoBehaviour
     {
-        private readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
         private MarchingCubesModel mainModel;
         private MarchingCubesView previewView;
         private MarchingCubesModel previewModelWithOldData;
@@ -18,6 +17,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private Vector3Int chunkSize = defaultChunkSize;
 
         public ScriptableObjectSaveData linkedSaveData;
+
+        private readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
+        public List<MarchingCubesView> ChunkViews => chunkViews;
 
         public bool DisplayPreviewShape
         {

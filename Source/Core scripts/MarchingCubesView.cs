@@ -20,6 +20,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public Vector3Int GridBoundsMin => gridBoundsMin;
         public Vector3Int GridBoundsMax => gridBoundsMax;
 
+        public Mesh SharedMesh => meshFilter.sharedMesh;
+
         public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)
         {
             this.gridBoundsMin = gridBoundsMin;
