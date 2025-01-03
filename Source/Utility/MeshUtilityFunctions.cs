@@ -9,8 +9,7 @@ public static class MeshUtilityFunctions
     // https://github.com/Shirakumo/manifolds/blob/main/normalize.lisp
     // https://github.com/Shirakumo/manifolds/blob/main/manifolds.lisp
 
-    public static void RemoveDegenerateTriangles(
-        Mesh mesh, float threshold = 0.01f)
+    public static void RemoveDegenerateTriangles(Mesh mesh, float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
     {
         Vector3[] vertices = mesh.vertices;
         int[] indices = mesh.triangles;
@@ -19,14 +18,45 @@ public static class MeshUtilityFunctions
         List<int> newIndices = new List<int>(indices);
 
         List<int>[] adjacency = FaceAdjacencyList(indices);
+        Dictionary<int, List<int>> vertexFaces = VertexFaces(indices);
 
-        bool Consider(int corner, int a, int b, int face)
+        bool ConsiderArea(int a, int b, int c, int face)
+        {
+            Vector3 ap = vertices[a];
+            Vector3 bp = vertices[b];
+            Vector3 cp = vertices[c];
+
+            float area = TriangleArea(ap, bp, cp);
+            if (area < areaThreshold)
+            {
+                float a_d = Vector3.Distance(ap, bp);
+                float b_d = Vector3.Distance(bp, cp);
+                float c_d = Vector3.Distance(cp, ap);
+
+                if (a_d < b_d && a_d < c_d)
+                {
+                    FuseEdge(a, b, face);
+                }
+                else if (b_d < a_d && b_d < c_d)
+                {
+                    FuseEdge(b, c, face);
+                }
+                else
+                {
+                    FuseEdge(c, a, face);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        bool ConsiderAngle(int corner, int a, int b, int face)
         {
             Vector3 cp = vertices[corner];
             Vector3 ap = vertices[a];
             Vector3 bp = vertices[b];
 
-            if (Vector3.Angle(ap - cp, bp - cp) < threshold)
+            if (Vector3.Angle(ap - cp, bp - cp) < angleThreshold)
             {
                 float a_d = Vector3.Distance(cp, ap);
                 float b_d = Vector3.Distance(cp, bp);
@@ -44,10 +74,8 @@ public static class MeshUtilityFunctions
                 {
                     SplitEdge(corner, a, b, face);
                 }
-
                 return true;
             }
-
             return false;
         }
 
@@ -56,67 +84,194 @@ public static class MeshUtilityFunctions
             // Compute the midpoint of the edge (a, b)
             var mid = (GetVertex(a) + GetVertex(b)) * 0.5f;
 
-            // Update both vertices to the midpoint
+            // Set vertex a to the midpoint and zero out vertex b
             SetVertex(a, mid);
-            SetVertex(b, mid);
+            SetVertex(b, Vector3.zero);
 
-            // Delete the current triangle
+            // Update all triangles that reference vertex b to reference vertex a
+            foreach (int adjacentFace in vertexFaces[b])
+            {
+                UpdateTriangle(adjacentFace, b, a);
+            }
+
+            // Delete the current triangle and all triangles adjacent to the edge (a, b)
+            foreach (int adjFace in AdjacentFaces(face, a, b, indices, adjacency))
+            {
+                DeleteTriangle(adjFace);
+            }
+            DeleteTriangle(face);
+        }
+
+        void SplitEdge(int a, int b, int c, int face) // Based on split-edge
+        {
+            /*
+            Split AB edge to M, create new triangles AMD, BMD
+            where D is the opposing corner of any triangle over AB,
+            mark the original triangles for deletion, and update any
+            triangles that used to refer to C to M.
+            
+            This is messy because we update the adjacency map and vertex
+            face map in-place to avoid recomputing them on each iteration
+            */
+
+            // Compute the midpoint of the edge (a, b)
+            // (let ((mid (nv* (nv+ (v vertices a) (v vertices b)) 0.5)))
+            Vector3 mid = (GetVertex(a) + GetVertex(b)) * 0.5f;
+
+            // Add the midpoint as a new vertex
+            // (vector-push-extend (vx mid) vertices)
+            // (vector-push-extend (vy mid) vertices)
+            // (vector-push-extend (vz mid) vertices)
+            int m = newVertices.Count;
+            AddVertex(mid);
+
+            // Initialize vertex-face mapping for the new vertex
+            // (vector-push-extend (make-array 0 :adjustable T :fill-pointer T) vfaces)
+            vertexFaces[m] = new List<int>();
+
+            // Update all triangles that reference vertex c to reference m instead
+            // (loop for face across cornering do (update-triangle face c m))
+            foreach (int cornerFace in vertexFaces[c].ToArray())
+            {
+                UpdateTriangle(cornerFace, c, m);
+            }
+
+            /*
+            (let* ((adjacents (adjacent-faces face a b indices adjacency))
+                    (cornering (vfaces c)))
+                (loop for face across cornering
+                        do (update-triangle face c m))
+                (loop for face in adjacents
+                        for d = (face-corner face a b indices)
+                        for al = (make-triangle d m a (adjacent-faces face d a indices adjacency))
+                        for ar = (make-triangle d b m (adjacent-faces face d b indices adjacency))
+                        do (push al (aref adjacency ar))
+                        (push ar (aref adjacency al))
+                        (loop for face across cornering
+                                do (cond ((face-edge-p indices face a m)
+                                        (push al (aref adjacency face)))
+                                        ((face-edge-p indices face b m)
+                                        (push ar (aref adjacency face))))))
+            */
+
+            IEnumerable<int> adjacents = AdjacentFaces(face, a, b, indices, adjacency); // (adjacent-faces face a b ...)
+            int[] cornering = vertexFaces[c].ToArray(); // (vfaces c)
+
+            // First loop: update triangles in cornering to replace c with m
+            foreach (int cornerFace in cornering)
+            {
+                UpdateTriangle(cornerFace, c, m); // (update-triangle face c m)
+            }
+
+            // Second loop: process adjacents and create new triangles
+            foreach (int adjFace in adjacents)
+            {
+                int d = FaceCorner(adjFace, a, b, indices); // (face-corner face a b ...)
+                int al = AddTriangle(d, m, a); // (make-triangle d m a ...)
+                int ar = AddTriangle(d, b, m); // (make-triangle d b m ...)
+
+                UpdateAdjacency(al, ar); // (push al (aref adjacency ar))
+                UpdateAdjacency(ar, al); // (push ar (aref adjacency al))
+
+                // Inner loop: link cornering triangles with new triangles
+                foreach (int cornerFace in cornering)
+                {
+                    if (EdgeExists(cornerFace, a, m)) // (face-edge-p indices face a m)
+                    {
+                        UpdateAdjacency(cornerFace, al); // (push al (aref adjacency face))
+                    }
+                    else if (EdgeExists(cornerFace, b, m)) // (face-edge-p indices face b m)
+                    {
+                        UpdateAdjacency(cornerFace, ar); // (push ar (aref adjacency face))
+                    }
+                }
+            }
+
+
+            // Delete the original face
+            // (delete-triangle face)
             DeleteTriangle(face);
 
-            // Delete all triangles adjacent to the edge (a, b) for the given face
-            foreach (int adjacentFace in AdjacentFaces(face, a, b, indices, adjacency))
+            // Delete all adjacent faces across the edge (a, b)
+            // (mapc #'delete-triangle adjacents)
+            foreach (int adjFace in AdjacentFaces(face, a, b, indices, adjacency))
             {
-                DeleteTriangle(adjacentFace);
+                DeleteTriangle(adjFace);
+            }
+
+            // Local helper functions
+            void UpdateAdjacency(int face1, int face2)
+            {
+                if (!adjacency[face1].Contains(face2))
+                {
+                    adjacency[face1].Add(face2);
+                }
+                if (!adjacency[face2].Contains(face1))
+                {
+                    adjacency[face2].Add(face1);
+                }
+            }
+
+            bool EdgeExists(int face, int v1, int v2)
+            {
+                int i0 = indices[face * 3];
+                int i1 = indices[face * 3 + 1];
+                int i2 = indices[face * 3 + 2];
+                return (i0 == v1 && i1 == v2) || (i1 == v1 && i2 == v2) || (i2 == v1 && i0 == v2) ||
+                       (i0 == v2 && i1 == v1) || (i1 == v2 && i2 == v1) || (i2 == v2 && i0 == v1);
             }
         }
 
-        void SplitEdge(int a, int b, int c, int face)
+        void UpdateTriangle(int face, int oldVertex, int newVertex)
         {
-            var mid = (GetVertex(a) + GetVertex(b)) * 0.5f;
-            int m = newVertices.Count / 3;
-            AddVertex(mid);
-
-            // Create new triangles
-            AddTriangle(c, m, a);
-            AddTriangle(c, b, m);
-
-            foreach (int adjacentFace in adjacency[face])
+            int i = face * 3;
+            for (int j = 0; j < 3; j++)
             {
-                int d = FaceCorner(adjacentFace, a, b, indices);
-                AddTriangle(d, m, a);
-                AddTriangle(d, b, m);
+                if (newIndices[i + j] == oldVertex)
+                {
+                    newIndices[i + j] = newVertex;
+                }
             }
-
-            DeleteTriangle(face);
         }
 
         Vector3 GetVertex(int index) => newVertices[index];
 
         void SetVertex(int index, Vector3 value)
         {
-            newVertices[index] = value; // ToDo: Add other info like UV or VertexColor
+            newVertices[index] = value;
         }
 
         void AddVertex(Vector3 vertex)
         {
-            newVertices.Add(vertex); // ToDo: Add other info like UV or VertexColor
+            newVertices.Add(vertex);
         }
 
-        void AddTriangle(int a, int b, int c)
+        int AddTriangle(int a, int b, int c)
         {
+            int newFaceIndex = newIndices.Count / 3;
             newIndices.Add(a);
             newIndices.Add(b);
             newIndices.Add(c);
-        }
 
-        int deleted = 0;
+            // Ensure adjacency array is large enough
+            if (newFaceIndex >= adjacency.Length)
+            {
+                Array.Resize(ref adjacency, newFaceIndex + 1);
+                adjacency[newFaceIndex] = new List<int>();
+            }
+
+            return newFaceIndex;
+        }
 
         void DeleteTriangle(int face)
         {
             int i = face * 3;
             newIndices[i] = newIndices[i + 1] = newIndices[i + 2] = 0;
+        }
 
-            deleted++;
+        float TriangleArea(Vector3 a, Vector3 b, Vector3 c)
+        {
+            return Vector3.Cross(b - a, c - a).magnitude * 0.5f;
         }
 
         while (true)
@@ -131,12 +286,16 @@ public static class MeshUtilityFunctions
                 int p3 = indices[i + 2];
 
                 if (p1 != p2 && p1 != p3 && p2 != p3 &&
-                    (Consider(p1, p2, p3, face) || Consider(p2, p1, p3, face) || Consider(p3, p1, p2, face)))
+                    (ConsiderArea(p1, p2, p3, face) ||
+                     ConsiderAngle(p1, p2, p3, face) ||
+                     ConsiderAngle(p2, p1, p3, face) ||
+                     ConsiderAngle(p3, p1, p2, face)))
                 {
                     changed = true;
                     vertices = newVertices.ToArray();
                     indices = newIndices.ToArray();
                     adjacency = FaceAdjacencyList(indices);
+                    vertexFaces = VertexFaces(indices);
                     break;
                 }
             }
@@ -144,14 +303,39 @@ public static class MeshUtilityFunctions
             if (!changed) break;
         }
 
-        Debug.Log($"Deleted = {deleted}");
-
         mesh.Clear();
-        mesh.vertices = newVertices.ToArray(); // ToDo: Add other info like UV or VertexColor
+        mesh.vertices = newVertices.ToArray();
         mesh.triangles = newIndices.ToArray();
 
         RemoveUnusedVertices(mesh);
     }
+
+    static Dictionary<int, List<int>> VertexFaces(int[] faces)
+    {
+        // Create a dictionary to store the list of face indices for each vertex
+        Dictionary<int, List<int>> vertexFaces = new Dictionary<int, List<int>>();
+
+        // Initialize the dictionary
+        foreach (int vertex in faces)
+        {
+            if (!vertexFaces.ContainsKey(vertex))
+            {
+                vertexFaces[vertex] = new List<int>();
+            }
+        }
+
+        // Populate the dictionary
+        for (int i = 0; i < faces.Length; i += 3)
+        {
+            int faceIndex = i / 3;
+            vertexFaces[faces[i]].Add(faceIndex);
+            vertexFaces[faces[i + 1]].Add(faceIndex);
+            vertexFaces[faces[i + 2]].Add(faceIndex);
+        }
+
+        return vertexFaces;
+    }
+
 
     public static void RemoveUnusedVertices(Mesh mesh)
     {
@@ -258,8 +442,6 @@ public static class MeshUtilityFunctions
 
     public static List<int>[] FaceAdjacencyList(int[] faces)
     {
-        // Based on: https://github.com/Shirakumo/manifolds/blob/main/manifolds.lisp
-
         // Initialize hash table and adjacency list
         var table = new Dictionary<long, List<int>>();
         int faceCount = faces.Length / 3;
