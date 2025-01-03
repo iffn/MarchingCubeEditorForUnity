@@ -351,7 +351,7 @@ public static class MeshUtilityFunctions
     }
 
 
-    public static void RemoveUnusedVertices(Mesh mesh)
+    public static void RemoveUnusedVertices(Mesh mesh) // remove-duplicate-vertices
     {
         Vector3[] vertices = mesh.vertices;
         Color[] colors = mesh.colors;
@@ -438,12 +438,13 @@ public static class MeshUtilityFunctions
 
         // Step 4: Rewrite data
         mesh.Clear();
-        mesh.vertices = newVertices.ToArray(); // ToDo: Add other info like UV or VertexColor
+        mesh.vertices = newVertices.ToArray();
         mesh.triangles = newIndices;
         if(considerColors) mesh.colors = newColors.ToArray();
+        // ToDo: Add other info like UV
     }
 
-    static IEnumerable<int> AdjacentFaces(int face, int a, int b, int[] faces, List<int>[] adjacency = null)
+    static IEnumerable<int> AdjacentFaces(int face, int a, int b, int[] faces, List<int>[] adjacency = null) // Based on adjacent-faces
     {
         if (adjacency == null)
         {
@@ -465,10 +466,10 @@ public static class MeshUtilityFunctions
         }
     }
 
-    public static List<int>[] FaceAdjacencyList(int[] faces)
+    public static List<int>[] FaceAdjacencyList(int[] faces) // Based on face-adjacency-list
     {
         // Initialize hash table and adjacency list
-        var table = new Dictionary<long, List<int>>();
+        Dictionary<long, List<int>> table = new Dictionary<long, List<int>>();
         int faceCount = faces.Length / 3;
         List<int>[] adjacency = new List<int>[faceCount];
         for (int i = 0; i < adjacency.Length; i++)
@@ -510,7 +511,7 @@ public static class MeshUtilityFunctions
         }
 
         // Populate adjacency list
-        foreach (var adjacents in table.Values)
+        foreach (List<int> adjacents in table.Values)
         {
             foreach (int currentFace in adjacents)
             {
@@ -527,7 +528,7 @@ public static class MeshUtilityFunctions
         return adjacency;
     }
 
-    public static int FaceCorner(int face, int a, int b, int[] faces)
+    public static int FaceCorner(int face, int a, int b, int[] faces) // Based on face-corner
     {
         int i0 = faces[face * 3];
         int i1 = faces[face * 3 + 1];
