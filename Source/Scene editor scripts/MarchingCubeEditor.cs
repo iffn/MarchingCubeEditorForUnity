@@ -13,7 +13,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionX = 20;
         int gridResolutionY = 20;
         int gridResolutionZ = 20;
-        bool invertNormals;
 
         List<BaseTool> tools;
 
@@ -142,6 +141,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
+                Controller.PostProcessMesh = EditorGUILayout.Toggle("Post process mesh (slow)", Controller.PostProcessMesh);
+
+                if(Controller.PostProcessMesh)
+                {
+                    Controller.AngleThresholdDeg = EditorGUILayout.FloatField("Angle threshold [°]", Controller.AngleThresholdDeg);
+                    Controller.AreaThreshold = EditorGUILayout.FloatField("Area threshold", Controller.AreaThreshold);
+                }
+
                 Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);
                 Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
 
