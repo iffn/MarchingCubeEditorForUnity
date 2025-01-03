@@ -145,7 +145,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 if(Controller.PostProcessMesh)
                 {
-                    Controller.DistanceFactorBias = EditorGUILayout.FloatField(Controller.DistanceFactorBias);
+                    Controller.AngleThresholdDeg = EditorGUILayout.FloatField("Angle threshold [°]", Controller.AngleThresholdDeg);
+                    Controller.AreaThreshold = EditorGUILayout.FloatField("Area threshold", Controller.AreaThreshold);
                 }
 
                 Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);

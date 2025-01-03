@@ -188,9 +188,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                      gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
         }
 
-        public void PostProcessMesh(float distanceFactorBias)
+        public void PostProcessMesh(float angleThresholdDeg, float areaThresholdDeg)
         {
-            MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, distanceFactorBias);
+            MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, angleThresholdDeg, areaThresholdDeg);
 
             FinishMesh();
 

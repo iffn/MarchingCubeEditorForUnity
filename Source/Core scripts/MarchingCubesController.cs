@@ -74,15 +74,29 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        float distanceFactorBias = 2f;
-        public float DistanceFactorBias
+        float angleThresholdDeg = 2f;
+        public float AngleThresholdDeg
         {
-            get => distanceFactorBias;
+            get => angleThresholdDeg;
             set
             {
-                if(distanceFactorBias != value)
+                if(angleThresholdDeg != value)
                 {
-                    distanceFactorBias = value;
+                    angleThresholdDeg = value;
+                    if (postProcessMesh) GenerateViewChunks();
+                }
+            }
+        }
+
+        float areaThreshold = 0.001f;
+        public float AreaThreshold
+        {
+            get => areaThreshold;
+            set
+            {
+                if (areaThreshold != value)
+                {
+                    areaThreshold = value;
                     if (postProcessMesh) GenerateViewChunks();
                 }
             }
@@ -307,7 +321,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 chunkView.MarkDirty();
                 chunkView.UpdateMeshIfDirty(mainModel);
-                if (PostProcessMesh) chunkView.PostProcessMesh(DistanceFactorBias);
+                if (PostProcessMesh) chunkView.PostProcessMesh(AngleThresholdDeg, AreaThreshold);
             }
         }
 
