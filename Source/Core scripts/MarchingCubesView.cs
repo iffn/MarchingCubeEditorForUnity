@@ -190,14 +190,20 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                      gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
         }
 
-        public void PostProcessMesh(float distanceFactorBias)
+        public void PostProcessMesh(float angleThresholdDeg, float areaThresholdDeg)
         {
+            MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, angleThresholdDeg, areaThresholdDeg);
+
+            FinishMesh();
+
+            /*
             meshFilter.sharedMesh.RecalculateNormals();
             SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, distanceFactorBias);
 
             meshFilter.sharedMesh.RecalculateTangents();
             //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
             if (ColliderEnabled) UpdateCollider();
+            */
         }
 
         void FinishMesh()
