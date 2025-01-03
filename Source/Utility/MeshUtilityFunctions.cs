@@ -12,9 +12,17 @@ public static class MeshUtilityFunctions
     public static void RemoveDegenerateTriangles(Mesh mesh, float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
     {
         Vector3[] vertices = mesh.vertices;
+        Color[] colors = mesh.colors;
+
+        bool considerColors = colors.Length == vertices.Length;
+
+        if(!considerColors)
+            colors = new Color[vertices.Length]; // Create temporary array but don't use the data in the end
+
         int[] indices = mesh.triangles;
 
-        List<Vector3> newVertices = new List<Vector3>(vertices);
+        List<Vector3> newPositions = new List<Vector3>(vertices);
+        List<Color> newColors = new List<Color>(colors);
         List<int> newIndices = new List<int>(indices);
 
         List<int>[] adjacency = FaceAdjacencyList(indices);
@@ -82,11 +90,12 @@ public static class MeshUtilityFunctions
         void FuseEdge(int a, int b, int face)
         {
             // Compute the midpoint of the edge (a, b)
-            var mid = (GetVertex(a) + GetVertex(b)) * 0.5f;
+            Vector3 middlePosition = (GetVertex(a) + GetVertex(b)) * 0.5f;
+            Color middleColor = (GetColor(a) + GetColor(b)) * 0.5f; // ToConsider: Assumption regarding picking the average color
 
             // Set vertex a to the midpoint and zero out vertex b
-            SetVertex(a, mid);
-            SetVertex(b, Vector3.zero);
+            SetVertex(a, middlePosition, middleColor);
+            SetVertex(b, Vector3.zero, Color.black);
 
             // Update all triangles that reference vertex b to reference vertex a
             foreach (int adjacentFace in vertexFaces[b])
@@ -116,14 +125,15 @@ public static class MeshUtilityFunctions
 
             // Compute the midpoint of the edge (a, b)
             // (let ((mid (nv* (nv+ (v vertices a) (v vertices b)) 0.5)))
-            Vector3 mid = (GetVertex(a) + GetVertex(b)) * 0.5f;
+            Vector3 middlePosition = (GetVertex(a) + GetVertex(b)) * 0.5f;
+            Color middleColor = (GetColor(a) + GetColor(b)) * 0.5f; // ToConsider: Assumption regarding picking the average color
 
             // Add the midpoint as a new vertex
             // (vector-push-extend (vx mid) vertices)
             // (vector-push-extend (vy mid) vertices)
             // (vector-push-extend (vz mid) vertices)
-            int m = newVertices.Count;
-            AddVertex(mid);
+            int m = newPositions.Count;
+            AddVertex(middlePosition, middleColor);
 
             // Initialize vertex-face mapping for the new vertex
             // (vector-push-extend (make-array 0 :adjustable T :fill-pointer T) vfaces)
@@ -234,16 +244,19 @@ public static class MeshUtilityFunctions
             }
         }
 
-        Vector3 GetVertex(int index) => newVertices[index];
+        Vector3 GetVertex(int index) => newPositions[index];
+        Color GetColor(int index) => newColors[index];
 
-        void SetVertex(int index, Vector3 value)
+        void SetVertex(int index, Vector3 position, Color color)
         {
-            newVertices[index] = value;
+            newPositions[index] = position;
+            newColors[index] = color;
         }
 
-        void AddVertex(Vector3 vertex)
+        void AddVertex(Vector3 position, Color color)
         {
-            newVertices.Add(vertex);
+            newPositions.Add(position);
+            newColors.Add(color);
         }
 
         int AddTriangle(int a, int b, int c)
@@ -292,7 +305,7 @@ public static class MeshUtilityFunctions
                      ConsiderAngle(p3, p1, p2, face)))
                 {
                     changed = true;
-                    vertices = newVertices.ToArray();
+                    vertices = newPositions.ToArray();
                     indices = newIndices.ToArray();
                     adjacency = FaceAdjacencyList(indices);
                     vertexFaces = VertexFaces(indices);
@@ -304,8 +317,9 @@ public static class MeshUtilityFunctions
         }
 
         mesh.Clear();
-        mesh.vertices = newVertices.ToArray();
+        mesh.vertices = newPositions.ToArray();
         mesh.triangles = newIndices.ToArray();
+        if(considerColors) mesh.colors = newColors.ToArray();
 
         RemoveUnusedVertices(mesh);
     }
@@ -340,15 +354,25 @@ public static class MeshUtilityFunctions
     public static void RemoveUnusedVertices(Mesh mesh)
     {
         Vector3[] vertices = mesh.vertices;
+        Color[] colors = mesh.colors;
         int[] indices = mesh.triangles;
+
+        bool considerColors = colors.Length == vertices.Length;
+
+        if (!considerColors)
+            colors = new Color[vertices.Length]; // Create temporary array but don't use the data in the end
 
         int vertexCount = vertices.Length;
 
         // Define helper functions
-        List<Vector3> newVertices = new();
+        List<Vector3> newVertices = new List<Vector3>();
+        List<Color> newColors = new List<Color>();
+
         void AddOldVertexInfoToNewLists(int oldIndex)
         {
-            newVertices.Add(vertices[oldIndex]); // ToDo: Add other info like UV or VertexColor
+            newVertices.Add(vertices[oldIndex]);
+            newColors.Add(colors[oldIndex]);
+            // ToDo: Add other info like UV
         }
 
         // Step 1: Mark used vertices
@@ -416,6 +440,7 @@ public static class MeshUtilityFunctions
         mesh.Clear();
         mesh.vertices = newVertices.ToArray(); // ToDo: Add other info like UV or VertexColor
         mesh.triangles = newIndices;
+        if(considerColors) mesh.colors = newColors.ToArray();
     }
 
     static IEnumerable<int> AdjacentFaces(int face, int a, int b, int[] faces, List<int>[] adjacency = null)
