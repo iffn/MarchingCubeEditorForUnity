@@ -21,14 +21,12 @@ public static class MeshUtilityFunctions
         if (!considerColors)
             colors = new Color[mesh.vertices.Length]; // Create temporary array but don't use the data in the end
 
-        int[] indices = mesh.triangles;
-
         List<Vector3> newPositions = new List<Vector3>(mesh.vertices);
         List<Color> newColors = new List<Color>(colors);
-        List<int> newIndices = new List<int>(indices);
+        List<int> newIndices = new List<int>(mesh.triangles);
 
-        List<int>[] adjacency = FaceAdjacencyList(indices);
-        Dictionary<int, List<int>> vertexFaces = VertexFaces(indices);
+        List<int>[] adjacency = FaceAdjacencyList(newIndices);
+        Dictionary<int, List<int>> vertexFaces = VertexFaces(newIndices);
 
         bool ConsiderArea(int a, int b, int c, int face)
         {
@@ -106,7 +104,7 @@ public static class MeshUtilityFunctions
             }
 
             // Delete the current triangle and all triangles adjacent to the edge (a, b)
-            foreach (int adjFace in AdjacentFaces(face, a, b, indices, adjacency))
+            foreach (int adjFace in AdjacentFaces(face, a, b, newIndices, adjacency))
             {
                 DeleteTriangle(adjFace);
             }
@@ -166,7 +164,7 @@ public static class MeshUtilityFunctions
                                         (push ar (aref adjacency face))))))
             */
 
-            IEnumerable<int> adjacents = AdjacentFaces(face, a, b, indices, adjacency); // (adjacent-faces face a b ...)
+            IEnumerable<int> adjacents = AdjacentFaces(face, a, b, newIndices, adjacency); // (adjacent-faces face a b ...)
             int[] cornering = vertexFaces[c].ToArray(); // (vfaces c)
 
             // First loop: update triangles in cornering to replace c with m
@@ -178,7 +176,7 @@ public static class MeshUtilityFunctions
             // Second loop: process adjacents and create new triangles
             foreach (int adjFace in adjacents)
             {
-                int d = FaceCorner(adjFace, a, b, indices); // (face-corner face a b ...)
+                int d = FaceCorner(adjFace, a, b, newIndices); // (face-corner face a b ...)
                 int al = AddTriangle(d, m, a); // (make-triangle d m a ...)
                 int ar = AddTriangle(d, b, m); // (make-triangle d b m ...)
 
@@ -206,7 +204,7 @@ public static class MeshUtilityFunctions
 
             // Delete all adjacent faces across the edge (a, b)
             // (mapc #'delete-triangle adjacents)
-            foreach (int adjFace in AdjacentFaces(face, a, b, indices, adjacency))
+            foreach (int adjFace in AdjacentFaces(face, a, b, newIndices, adjacency))
             {
                 DeleteTriangle(adjFace);
             }
@@ -226,9 +224,9 @@ public static class MeshUtilityFunctions
 
             bool EdgeExists(int face, int v1, int v2)
             {
-                int i0 = indices[face * 3];
-                int i1 = indices[face * 3 + 1];
-                int i2 = indices[face * 3 + 2];
+                int i0 = newIndices[face * 3];
+                int i1 = newIndices[face * 3 + 1];
+                int i2 = newIndices[face * 3 + 2];
                 return (i0 == v1 && i1 == v2) || (i1 == v1 && i2 == v2) || (i2 == v1 && i0 == v2) ||
                        (i0 == v2 && i1 == v1) || (i1 == v2 && i2 == v1) || (i2 == v2 && i0 == v1);
             }
@@ -294,12 +292,12 @@ public static class MeshUtilityFunctions
         {
             bool changed = false;
 
-            for (int i = 0; i < indices.Length; i += 3)
+            for (int i = 0; i < newIndices.Count; i += 3)
             {
                 int face = i / 3;
-                int p1 = indices[i];
-                int p2 = indices[i + 1];
-                int p3 = indices[i + 2];
+                int p1 = newIndices[i];
+                int p2 = newIndices[i + 1];
+                int p3 = newIndices[i + 2];
 
                 if (p1 != p2 && p1 != p3 && p2 != p3 &&
                     (ConsiderArea(p1, p2, p3, face) ||
@@ -308,8 +306,7 @@ public static class MeshUtilityFunctions
                      ConsiderAngle(p3, p1, p2, face)))
                 {
                     changed = true;
-                    indices = newIndices.ToArray();      //ToDo: Check to get rid off
-                    vertexFaces = VertexFaces(indices);  //ToDo: Check to get rid off
+                    vertexFaces = VertexFaces(newIndices);  //ToDo: Check to get rid off
                     break;                               //ToDo: Check to get rid off
                 }
             }
@@ -327,7 +324,7 @@ public static class MeshUtilityFunctions
         Debug.Log($"Total time needed: {stopwatch.Elapsed.TotalSeconds}");
     }
 
-    static Dictionary<int, List<int>> VertexFaces(int[] faces)
+    static Dictionary<int, List<int>> VertexFaces(List<int> faces)
     {
         // Create a dictionary to store the list of face indices for each vertex
         Dictionary<int, List<int>> vertexFaces = new Dictionary<int, List<int>>();
@@ -342,7 +339,7 @@ public static class MeshUtilityFunctions
         }
 
         // Populate the dictionary
-        for (int i = 0; i < faces.Length; i += 3)
+        for (int i = 0; i < faces.Count; i += 3)
         {
             int faceIndex = i / 3;
             vertexFaces[faces[i]].Add(faceIndex);
@@ -447,15 +444,19 @@ public static class MeshUtilityFunctions
         // ToDo: Add other info like UV
     }
 
-    static IEnumerable<int> AdjacentFaces(int face, int a, int b, int[] faces, List<int>[] adjacency = null) // Based on adjacent-faces
+    static IEnumerable<int> AdjacentFaces(int face, int a, int b, List<int> faces, List<int>[] adjacency = null) // Based on adjacent-faces
     {
         if (adjacency == null)
         {
             adjacency = FaceAdjacencyList(faces);
         }
 
-        foreach (int adjacent in adjacency[face])
+        List<int> currentAdjacents = new List<int>(adjacency[face]); // Create a copy of the list
+
+        for (int i = 0; i < currentAdjacents.Count; i++)
         {
+            int adjacent = currentAdjacents[i];
+
             int i0 = faces[adjacent * 3];
             int i1 = faces[adjacent * 3 + 1];
             int i2 = faces[adjacent * 3 + 2];
@@ -469,11 +470,11 @@ public static class MeshUtilityFunctions
         }
     }
 
-    public static List<int>[] FaceAdjacencyList(int[] faces) // Based on face-adjacency-list
+    public static List<int>[] FaceAdjacencyList(List<int> faces) // Based on face-adjacency-list
     {
         // Initialize hash table and adjacency list
         Dictionary<long, List<int>> table = new Dictionary<long, List<int>>();
-        int faceCount = faces.Length / 3;
+        int faceCount = faces.Count / 3;
         List<int>[] adjacency = new List<int>[faceCount];
         for (int i = 0; i < adjacency.Length; i++)
         {
@@ -500,7 +501,7 @@ public static class MeshUtilityFunctions
 
         // Process each face
         int face = 0;
-        for (int i = 0; i < faces.Length; i += 3)
+        for (int i = 0; i < faces.Count; i += 3)
         {
             int a = faces[i];
             int b = faces[i + 1];
@@ -516,10 +517,14 @@ public static class MeshUtilityFunctions
         // Populate adjacency list
         foreach (List<int> adjacents in table.Values)
         {
-            foreach (int currentFace in adjacents)
+            for (int i = 0; i < adjacents.Count; i++) // Outer loop for currentFace
             {
-                foreach (int otherFace in adjacents)
+                int currentFace = adjacents[i];
+
+                for (int j = 0; j < adjacents.Count; j++) // Inner loop for otherFace
                 {
+                    int otherFace = adjacents[j];
+
                     if (otherFace != currentFace && !adjacency[currentFace].Contains(otherFace))
                     {
                         adjacency[currentFace].Add(otherFace);
@@ -528,10 +533,11 @@ public static class MeshUtilityFunctions
             }
         }
 
+
         return adjacency;
     }
 
-    public static int FaceCorner(int face, int a, int b, int[] faces) // Based on face-corner
+    public static int FaceCorner(int face, int a, int b, List<int> faces) // Based on face-corner
     {
         int i0 = faces[face * 3];
         int i1 = faces[face * 3 + 1];
