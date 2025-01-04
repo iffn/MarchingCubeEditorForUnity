@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -222,8 +222,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 724795176}
   outputMeshFilter: {fileID: 25485289}
-  angleThresholdDeg: 1
-  areaThreshold: 0.001
+  threshold: 5
 --- !u!1 &91107646
 GameObject:
   m_ObjectHideFlags: 0
@@ -323,8 +322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 355422639}
   outputMeshFilter: {fileID: 91107648}
-  angleThresholdDeg: 1
-  areaThreshold: 0.001
+  threshold: 3
 --- !u!1 &129970556
 GameObject:
   m_ObjectHideFlags: 0
@@ -474,8 +472,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 1446033917}
   outputMeshFilter: {fileID: 132859705}
-  angleThresholdDeg: 3
-  areaThreshold: 0.001
+  threshold: 5
 --- !u!23 &132859707
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -756,8 +753,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 1058790593}
   outputMeshFilter: {fileID: 627440480}
-  angleThresholdDeg: 1
-  areaThreshold: 0.001
+  threshold: 1
 --- !u!23 &627440482
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -862,8 +858,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 674689346}
   outputMeshFilter: {fileID: 685424090}
-  angleThresholdDeg: 3
-  areaThreshold: 0.001
+  threshold: 5
 --- !u!23 &685424092
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1134,8 +1129,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 1968542990}
   outputMeshFilter: {fileID: 1121094979}
-  angleThresholdDeg: 1
-  areaThreshold: 0.001
+  threshold: 1
 --- !u!23 &1121094981
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1515,8 +1509,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 1448179819}
   outputMeshFilter: {fileID: 1978454388}
-  angleThresholdDeg: 1
-  areaThreshold: 0.001
+  threshold: 5
 --- !u!4 &2065330859 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 203a5b4efee1d1d428d48182a36101b4, type: 3}
