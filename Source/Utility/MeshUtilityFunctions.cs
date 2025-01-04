@@ -11,6 +11,9 @@ public static class MeshUtilityFunctions
 
     public static void RemoveDegenerateTriangles(Mesh mesh, float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
     {
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+
         Vector3[] vertices = mesh.vertices;
         Color[] colors = mesh.colors;
 
@@ -322,6 +325,8 @@ public static class MeshUtilityFunctions
         if(considerColors) mesh.colors = newColors.ToArray();
 
         RemoveUnusedVertices(mesh);
+
+        Debug.Log($"Total time needed: {stopwatch.Elapsed.TotalSeconds}");
     }
 
     static Dictionary<int, List<int>> VertexFaces(int[] faces)
