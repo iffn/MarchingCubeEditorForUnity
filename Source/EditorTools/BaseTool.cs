@@ -38,6 +38,11 @@ public class BaseTool
 
         return tools;
     }
+
+    public static bool LeftClickDownEvent(Event e)
+    {
+        return e.type == EventType.MouseDown && e.button == 0;
+    }
 }
 
 #endif

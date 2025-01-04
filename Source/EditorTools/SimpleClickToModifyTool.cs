@@ -183,7 +183,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         
 
-        if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
+        if (LeftClickDownEvent(e))
         {
             LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, Modification(e));
 
@@ -203,7 +203,7 @@ public class SimpleClickToModifyTool : BaseTool
             nextUpdateTime = EditorApplication.timeSinceStartup + timeBetweenUpdates;
         }
 
-        if (e.type == EventType.MouseDown && e.button == 0) // Left-click event
+        if (LeftClickDownEvent(e))
         {
             LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
             e.Use();

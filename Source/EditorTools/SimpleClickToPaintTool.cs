@@ -104,7 +104,7 @@ public class SimpleClickToPaintTool : BaseTool
         selectedShape.gameObject.SetActive(true);
 
         // Left-click event
-        if (e.type == EventType.MouseDown && e.button == 0)
+        if (LeftClickDownEvent(e))
         {
             LinkedMarchingCubeController.ModificationManager.ModifyData(
                 selectedShape, 
