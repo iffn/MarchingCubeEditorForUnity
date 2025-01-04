@@ -14,17 +14,16 @@ public static class MeshUtilityFunctions
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
-        Vector3[] vertices = mesh.vertices;
         Color[] colors = mesh.colors;
 
-        bool considerColors = colors.Length == vertices.Length;
+        bool considerColors = colors.Length == mesh.vertices.Length;
 
-        if(!considerColors)
-            colors = new Color[vertices.Length]; // Create temporary array but don't use the data in the end
+        if (!considerColors)
+            colors = new Color[mesh.vertices.Length]; // Create temporary array but don't use the data in the end
 
         int[] indices = mesh.triangles;
 
-        List<Vector3> newPositions = new List<Vector3>(vertices);
+        List<Vector3> newPositions = new List<Vector3>(mesh.vertices);
         List<Color> newColors = new List<Color>(colors);
         List<int> newIndices = new List<int>(indices);
 
@@ -33,9 +32,9 @@ public static class MeshUtilityFunctions
 
         bool ConsiderArea(int a, int b, int c, int face)
         {
-            Vector3 ap = vertices[a];
-            Vector3 bp = vertices[b];
-            Vector3 cp = vertices[c];
+            Vector3 ap = newPositions[a];
+            Vector3 bp = newPositions[b];
+            Vector3 cp = newPositions[c];
 
             float area = TriangleArea(ap, bp, cp);
             if (area < areaThreshold)
@@ -63,9 +62,9 @@ public static class MeshUtilityFunctions
 
         bool ConsiderAngle(int corner, int a, int b, int face)
         {
-            Vector3 cp = vertices[corner];
-            Vector3 ap = vertices[a];
-            Vector3 bp = vertices[b];
+            Vector3 cp = newPositions[corner];
+            Vector3 ap = newPositions[a];
+            Vector3 bp = newPositions[b];
 
             if (Vector3.Angle(ap - cp, bp - cp) < angleThreshold)
             {
@@ -290,6 +289,7 @@ public static class MeshUtilityFunctions
             return Vector3.Cross(b - a, c - a).magnitude * 0.5f;
         }
 
+        // Actual function:
         while (true)
         {
             bool changed = false;
@@ -308,10 +308,9 @@ public static class MeshUtilityFunctions
                      ConsiderAngle(p3, p1, p2, face)))
                 {
                     changed = true;
-                    vertices = newPositions.ToArray();
-                    indices = newIndices.ToArray();
-                    vertexFaces = VertexFaces(indices);
-                    break;
+                    indices = newIndices.ToArray();      //ToDo: Check to get rid off
+                    vertexFaces = VertexFaces(indices);  //ToDo: Check to get rid off
+                    break;                               //ToDo: Check to get rid off
                 }
             }
 
@@ -321,7 +320,7 @@ public static class MeshUtilityFunctions
         mesh.Clear();
         mesh.vertices = newPositions.ToArray();
         mesh.triangles = newIndices.ToArray();
-        if(considerColors) mesh.colors = newColors.ToArray();
+        if (considerColors) mesh.colors = newColors.ToArray();
 
         RemoveUnusedVertices(mesh);
 
@@ -444,7 +443,7 @@ public static class MeshUtilityFunctions
         mesh.Clear();
         mesh.vertices = newVertices.ToArray();
         mesh.triangles = newIndices;
-        if(considerColors) mesh.colors = newColors.ToArray();
+        if (considerColors) mesh.colors = newColors.ToArray();
         // ToDo: Add other info like UV
     }
 
