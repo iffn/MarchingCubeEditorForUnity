@@ -1,3 +1,5 @@
+//# define DebugPerformance
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,9 +13,10 @@ public static class MeshUtilityFunctions
 
     public static void RemoveDegenerateTriangles(Mesh mesh, float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
     {
+#if DebugPerformance
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
-
+#endif  
         Color[] colors = mesh.colors;
 
         bool considerColors = colors.Length == mesh.vertices.Length;
@@ -312,7 +315,9 @@ public static class MeshUtilityFunctions
 
         RemoveUnusedVertices(mesh);
 
+#if DebugPerformance
         Debug.Log($"Total time needed: {stopwatch.Elapsed.TotalSeconds}");
+#endif
     }
 
     static Dictionary<int, List<int>> VertexFaces(List<int> faces)
