@@ -45,6 +45,26 @@ public static class SDFMath
         {
             return -PlaneFloor(samplePoint, ceilingHeight);
         }
+
+        public static float DistanceToRoundedTube(Vector3 point, Vector3 lineStart, Vector3 lineEnd, float radius)
+        {
+            return DistanceToLineSegment(point, lineStart, lineEnd) - radius;
+        }
+
+        public static float DistanceToLineSegment(Vector3 point, Vector3 lineStart, Vector3 lineEnd)
+        {
+            Vector3 ab = lineEnd - lineStart;
+            Vector3 ap = point - lineStart;
+
+            float abLengthSquared = ab.sqrMagnitude; // Squared length of AB
+            if (abLengthSquared == 0) return ap.magnitude; // A and B are the same point
+
+            float t = Vector3.Dot(ap, ab) / abLengthSquared; // Projection factor
+            t = Mathf.Clamp01(t); // Clamp to [0, 1] to stay on the segment
+
+            Vector3 closestPoint = lineStart + t * ab; // Closest point on the segment
+            return (point - closestPoint).magnitude; // Distance to the segment
+        }
     }
 
     public static class CombinationFunctionsOutsideIsPositive

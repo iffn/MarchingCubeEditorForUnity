@@ -33,6 +33,8 @@ public class ModificationManager
         linkedController.UpdateAffectedChunks(minGrid, maxGrid);
     }
 
+
+
     public void ShowPreviewData(EditShape shape, IVoxelModifier modifier)
     {
         (Vector3Int minGrid, Vector3Int maxGrid) = CalculateGridBoundsClamped(shape);

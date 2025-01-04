@@ -19,12 +19,17 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             worldToLocalMatrix = transform.worldToLocalMatrix * gridTransform.localToWorldMatrix;
         }
 
+        public Vector3 ConcertWorldToOptimizedLocalPoint(Vector3 worldPoint)
+        {
+            return worldToLocalMatrix.MultiplyPoint3x4(worldPoint);
+        }
+
         /// <summary>
         /// Calculate the distance to the shape surface in world space.
         /// </summary>
         public float OptimizedDistanceOutsideIsPositive(Vector3 worldPoint)
         {
-            Vector3 localPoint = worldToLocalMatrix.MultiplyPoint3x4(worldPoint);
+            Vector3 localPoint = ConcertWorldToOptimizedLocalPoint(worldPoint);
             return DistanceOutsideIsPositive(localPoint);
         }
 
