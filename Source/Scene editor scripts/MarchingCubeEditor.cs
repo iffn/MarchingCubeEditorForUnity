@@ -202,7 +202,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 // Draw current tool UI
                 if (CurrentTool != null)
+                {
+                    GUILayout.Label($"{CurrentTool.DisplayName}:");
                     CurrentTool.DrawUI();
+                }
+                    
 
                 EditorGUILayout.EndVertical();
             }
