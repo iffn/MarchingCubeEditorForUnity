@@ -222,7 +222,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 724795176}
   outputMeshFilter: {fileID: 25485289}
-  angleThresholdDeg: 1
+  angleThresholdDeg: 3
   areaThreshold: 0.001
 --- !u!1 &91107646
 GameObject:
@@ -474,7 +474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 1446033917}
   outputMeshFilter: {fileID: 132859705}
-  angleThresholdDeg: 1
+  angleThresholdDeg: 3
   areaThreshold: 0.001
 --- !u!23 &132859707
 MeshRenderer:
@@ -919,7 +919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 674689346}
   outputMeshFilter: {fileID: 685424090}
-  angleThresholdDeg: 1
+  angleThresholdDeg: 3
   areaThreshold: 0.001
 --- !u!23 &685424092
 MeshRenderer:
@@ -1683,7 +1683,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMeshFilter: {fileID: 1448179819}
   outputMeshFilter: {fileID: 1978454388}
-  angleThresholdDeg: 1
+  angleThresholdDeg: 3
   areaThreshold: 0.001
 --- !u!4 &2065330859 stripped
 Transform:
