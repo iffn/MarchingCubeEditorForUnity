@@ -15,7 +15,7 @@ public class BridgeAndTunnelTool : BaseTool
 
     public override string DisplayName => "Bridge and tunnel tool";
 
-    BridgeOrTunnelLogic bridgeOrTunnelLogic;
+    BridgeOrTunnelShape bridgeOrTunnelShape;
 
     public override void HandleSceneUpdate(Event e)
     {
@@ -50,7 +50,7 @@ public class BridgeAndTunnelTool : BaseTool
             startPointSet = true;
             e.Use();
         }
-        else if (!endPointSet)
+        else if (endPointSet)
         {
             CreateBridge(startPoint, endPoint);
 
@@ -63,10 +63,10 @@ public class BridgeAndTunnelTool : BaseTool
     {
         base.DrawUI();
 
-        bridgeOrTunnelLogic = EditorGUILayout.ObjectField(
-            bridgeOrTunnelLogic,
-            typeof(BridgeOrTunnelLogic),
-            true) as BridgeOrTunnelLogic;
+        bridgeOrTunnelShape = EditorGUILayout.ObjectField(
+            bridgeOrTunnelShape,
+            typeof(BridgeOrTunnelShape),
+            true) as BridgeOrTunnelShape;
 
         GUILayout.Label($"Start point : {startPoint}");
         GUILayout.Label($"End point : {endPoint}");
@@ -82,11 +82,15 @@ public class BridgeAndTunnelTool : BaseTool
 
     void CreateBridge(Vector3 startPoint, Vector3 endPoint)
     {
-        if (bridgeOrTunnelLogic == null) return;
 
-        bridgeOrTunnelLogic.StartPoint = startPoint;
-        bridgeOrTunnelLogic.StartPoint = endPoint;
+        if (bridgeOrTunnelShape == null) return;
 
-        LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelLogic, new BaseModificationTools.AddShapeModifier());
+        bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
+
+        bridgeOrTunnelShape.StartPoint = startPoint;
+        bridgeOrTunnelShape.EndPoint = endPoint;
+
+        LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelShape, new BaseModificationTools.AddShapeModifier());
+        Debug.Log("CreateBridge");
     }
 }

@@ -1,9 +1,10 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
-public class BridgeOrTunnelLogic : EditShape
+public class BridgeOrTunnelShape : EditShape
 {
     [SerializeField] Transform startPoint;
     [SerializeField] Transform endPoint;
@@ -39,18 +40,17 @@ public class BridgeOrTunnelLogic : EditShape
         endPointOptimized = ConcertWorldToOptimizedLocalPoint(EndPoint);
     }
 
-
     public override (Vector3 minOffset, Vector3 maxOffset) GetLocalBoundingBox()
     {
-        float xMin = Mathf.Min(startPointOptimized.x, endPointOptimized.x) - radius * 2;
-        float yMin = Mathf.Min(startPointOptimized.y, endPointOptimized.y) - radius * 2;
-        float zMin = Mathf.Min(startPointOptimized.z, endPointOptimized.z) - radius * 2;
+        float xMin = Mathf.Min(startPointOptimized.x, endPointOptimized.x) - radius;
+        float yMin = Mathf.Min(startPointOptimized.y, endPointOptimized.y) - radius;
+        float zMin = Mathf.Min(startPointOptimized.z, endPointOptimized.z) - radius;
 
-        float xMax = Mathf.Max(startPointOptimized.x, endPointOptimized.x) + radius * 2;
-        float yMax = Mathf.Max(startPointOptimized.y, endPointOptimized.y) + radius * 2;
-        float zMax = Mathf.Max(startPointOptimized.z, endPointOptimized.z) + radius * 2;
+        float xMax = Mathf.Max(startPointOptimized.x, endPointOptimized.x) + radius;
+        float yMax = Mathf.Max(startPointOptimized.y, endPointOptimized.y) + radius;
+        float zMax = Mathf.Max(startPointOptimized.z, endPointOptimized.z) + radius;
 
-        return (new Vector3(xMin, yMin, zMin), new Vector3(xMax, yMin, zMax));
+        return (new Vector3(xMin, yMin, zMin), new Vector3(xMax, yMax, zMax));
     }
 
     protected override float DistanceOutsideIsPositive(Vector3 localPoint)
