@@ -34,6 +34,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     tool.OnDisable();
                 selectedTool[target] = value;
                 value.OnEnable();
+
+                Controller.VisualisationManager.drawGizmosTool = value;
             }
         }
 
