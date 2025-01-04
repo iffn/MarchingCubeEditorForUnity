@@ -310,7 +310,6 @@ public static class MeshUtilityFunctions
                     changed = true;
                     vertices = newPositions.ToArray();
                     indices = newIndices.ToArray();
-                    adjacency = FaceAdjacencyList(indices);
                     vertexFaces = VertexFaces(indices);
                     break;
                 }
