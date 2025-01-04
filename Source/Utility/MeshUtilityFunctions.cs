@@ -288,30 +288,21 @@ public static class MeshUtilityFunctions
         }
 
         // Actual function:
-        while (true)
+        for (int i = 0; i < newIndices.Count; i += 3)
         {
-            bool changed = false;
+            int face = i / 3;
+            int p1 = newIndices[i];
+            int p2 = newIndices[i + 1];
+            int p3 = newIndices[i + 2];
 
-            for (int i = 0; i < newIndices.Count; i += 3)
+            if (p1 != p2 && p1 != p3 && p2 != p3 &&
+                (ConsiderArea(p1, p2, p3, face) ||
+                 ConsiderAngle(p1, p2, p3, face) ||
+                 ConsiderAngle(p2, p1, p3, face) ||
+                 ConsiderAngle(p3, p1, p2, face)))
             {
-                int face = i / 3;
-                int p1 = newIndices[i];
-                int p2 = newIndices[i + 1];
-                int p3 = newIndices[i + 2];
-
-                if (p1 != p2 && p1 != p3 && p2 != p3 &&
-                    (ConsiderArea(p1, p2, p3, face) ||
-                     ConsiderAngle(p1, p2, p3, face) ||
-                     ConsiderAngle(p2, p1, p3, face) ||
-                     ConsiderAngle(p3, p1, p2, face)))
-                {
-                    changed = true;
-                    vertexFaces = VertexFaces(newIndices);  //ToDo: Check to get rid off
-                    break;                               //ToDo: Check to get rid off
-                }
+                vertexFaces = VertexFaces(newIndices); //ToDo: Check to get rid off
             }
-
-            if (!changed) break;
         }
 
         mesh.Clear();
