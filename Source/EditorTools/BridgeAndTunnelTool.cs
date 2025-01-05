@@ -8,7 +8,6 @@ public class BridgeAndTunnelTool : BaseTool
 {
     Vector3 startPoint;
     Vector3 endPoint;
-    float radius = 1;
 
     bool startPointSet = false;
     bool endPointSet = false;
@@ -29,12 +28,16 @@ public class BridgeAndTunnelTool : BaseTool
             {
                 endPoint = result.point;
             }
+
+            if (EscapeDownEvent(e))
+            {
+                startPointSet = false;
+            }
         }
 
         if (LeftClickDownEvent(e)) // Left-click event
         {
             LeftClickAction(e);
-
         }
     }
 
@@ -68,8 +71,13 @@ public class BridgeAndTunnelTool : BaseTool
             typeof(BridgeOrTunnelShape),
             true) as BridgeOrTunnelShape;
 
-        GUILayout.Label($"Start point : {startPoint}");
-        GUILayout.Label($"End point : {endPoint}");
+        if(bridgeOrTunnelShape != null)
+        {
+            bridgeOrTunnelShape.radius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
+
+            GUILayout.Label($"Start point : {bridgeOrTunnelShape.StartPoint}");
+            GUILayout.Label($"End point : {bridgeOrTunnelShape.EndPoint}");
+        }
     }
 
     public override void DrawGizmos()
@@ -82,7 +90,6 @@ public class BridgeAndTunnelTool : BaseTool
 
     void CreateBridge(Vector3 startPoint, Vector3 endPoint)
     {
-
         if (bridgeOrTunnelShape == null) return;
 
         bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
@@ -91,6 +98,5 @@ public class BridgeAndTunnelTool : BaseTool
         bridgeOrTunnelShape.EndPoint = endPoint;
 
         LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelShape, new BaseModificationTools.AddShapeModifier());
-        Debug.Log("CreateBridge");
     }
 }

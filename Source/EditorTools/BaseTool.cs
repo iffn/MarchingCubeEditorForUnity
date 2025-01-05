@@ -43,6 +43,16 @@ public class BaseTool
     {
         return e.type == EventType.MouseDown && e.button == 0;
     }
+
+    public static bool EscapeDownEvent(Event e)
+    {
+        return e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape;
+    }
+
+    public static bool ControlIsHeld(Event e)
+    {
+        return e.control;
+    }
 }
 
 #endif

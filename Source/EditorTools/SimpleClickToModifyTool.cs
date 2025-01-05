@@ -123,8 +123,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (selectedShape) selectedShape.HandleSceneUpdate(e);
 
-        //Press escape to cancel
-        if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
+        if (EscapeDownEvent(e))
         {
             RaycastActive = false;
             e.Use();
@@ -142,7 +141,7 @@ public class SimpleClickToModifyTool : BaseTool
 
     BaseModificationTools.IVoxelModifier Modification(Event e)
     {
-        bool subtract = e.control;
+        bool subtract = ControlIsHeld(e);
 
         BaseModificationTools.IVoxelModifier modifier;
 
@@ -180,8 +179,6 @@ public class SimpleClickToModifyTool : BaseTool
     {
         selectedShape.gameObject.SetActive(true);
         //selectedShape.Color = e.control ? subtractionColor : additionColor;
-
-        
 
         if (LeftClickDownEvent(e))
         {
