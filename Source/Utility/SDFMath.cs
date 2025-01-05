@@ -65,6 +65,19 @@ public static class SDFMath
             Vector3 closestPoint = lineStart + t * ab; // Closest point on the segment
             return (point - closestPoint).magnitude; // Distance to the segment
         }
+
+        public static float DistanceToLevelPlaneFilledBelow(Vector3 point, Vector3 pointA, Vector3 pointB)
+        {
+            // Compute the normal vector in the XZ-plane
+            Vector3 ab = pointB - pointA;
+            Vector3 normal = new Vector3(-ab.z, 0, ab.x).normalized;
+
+            // Plane constant
+            float d = Vector3.Dot(normal, new Vector3(pointA.x, 0, pointA.z));
+
+            // Signed distance to the plane
+            return Vector3.Dot(normal, new Vector3(point.x, 0, point.z)) - d;
+        }
     }
 
     public static class CombinationFunctionsOutsideIsPositive

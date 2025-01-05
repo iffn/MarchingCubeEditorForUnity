@@ -55,6 +55,10 @@ public class BridgeOrTunnelShape : EditShape
 
     protected override float DistanceOutsideIsPositive(Vector3 localPoint)
     {
-        return SDFMath.ShapesDistanceOutsideIsPositive.DistanceToRoundedTube(localPoint, startPointOptimized, endPointOptimized, radius);
+        float roundTubeDistance = SDFMath.ShapesDistanceOutsideIsPositive.DistanceToRoundedTube(localPoint, startPointOptimized, endPointOptimized, radius);
+
+        float planeDistance = SDFMath.ShapesDistanceOutsideIsPositive.DistanceToLevelPlaneFilledBelow(localPoint, startPointOptimized, endPointOptimized);
+
+        return SDFMath.CombinationFunctionsOutsideIsPositive.Intersect(roundTubeDistance, planeDistance);
     }
 }
