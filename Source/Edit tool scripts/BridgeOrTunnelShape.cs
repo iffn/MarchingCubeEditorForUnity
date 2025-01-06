@@ -11,7 +11,7 @@ public class BridgeOrTunnelShape : EditShape
 
     public float radius = 1;
 
-    public Vector3 StartPoint
+    Vector3 StartPoint
     {
         set
         {
@@ -20,7 +20,7 @@ public class BridgeOrTunnelShape : EditShape
         get => startPoint.position;
     }
 
-    public Vector3 EndPoint
+    Vector3 EndPoint
     {
         set
         {
@@ -29,8 +29,25 @@ public class BridgeOrTunnelShape : EditShape
         get => endPoint.position;
     }
 
+
     Vector3 startPointOptimized;
     Vector3 endPointOptimized;
+    shapeTypes shapeType = shapeTypes.circle; 
+
+    public enum shapeTypes
+    {
+        circle,
+        flatTop,
+        flatBottom
+    }
+
+
+    public void SetParameters(Vector3 startPoint, Vector3 endPoint, shapeTypes shapeType)
+    {
+        StartPoint = startPoint;
+        EndPoint = endPoint;
+        this.shapeType = shapeType;
+    }
 
     public override void PrepareParameters(Transform gridTransform)
     {
@@ -57,8 +74,20 @@ public class BridgeOrTunnelShape : EditShape
     {
         float roundTubeDistance = SDFMath.ShapesDistanceOutsideIsPositive.DistanceToRoundedTube(localPoint, startPointOptimized, endPointOptimized, radius);
 
-        float planeDistance = SDFMath.ShapesDistanceOutsideIsPositive.DistanceToLevelPlaneFilledBelow(localPoint, startPointOptimized, endPointOptimized);
+        float planeDistance;
 
-        return SDFMath.CombinationFunctionsOutsideIsPositive.Intersect(roundTubeDistance, planeDistance);
+        switch (shapeType)
+        {
+            case shapeTypes.circle:
+                return roundTubeDistance;
+            case shapeTypes.flatTop:
+                planeDistance = SDFMath.ShapesDistanceOutsideIsPositive.DistanceToLevelPlaneFilledBelow(localPoint, startPointOptimized, endPointOptimized);
+                return SDFMath.CombinationFunctionsOutsideIsPositive.Intersect(roundTubeDistance, planeDistance);
+            case shapeTypes.flatBottom:
+                planeDistance = -SDFMath.ShapesDistanceOutsideIsPositive.DistanceToLevelPlaneFilledBelow(localPoint, startPointOptimized, endPointOptimized);
+                return SDFMath.CombinationFunctionsOutsideIsPositive.Intersect(roundTubeDistance, planeDistance);
+            default:
+                return roundTubeDistance;
+        }
     }
 }

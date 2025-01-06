@@ -55,7 +55,14 @@ public class BridgeAndTunnelTool : BaseTool
         }
         else if (endPointSet)
         {
-            CreateBridge(startPoint, endPoint);
+            if (ControlIsHeld(e))
+            {
+                CreateTunnel(startPoint, endPoint);
+            }
+            else
+            {
+                CreateBridge(startPoint, endPoint);
+            }
 
             startPoint = endPoint;
             e.Use();
@@ -74,9 +81,6 @@ public class BridgeAndTunnelTool : BaseTool
         if(bridgeOrTunnelShape != null)
         {
             bridgeOrTunnelShape.radius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
-
-            GUILayout.Label($"Start point : {bridgeOrTunnelShape.StartPoint}");
-            GUILayout.Label($"End point : {bridgeOrTunnelShape.EndPoint}");
         }
     }
 
@@ -94,9 +98,21 @@ public class BridgeAndTunnelTool : BaseTool
 
         bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
 
-        bridgeOrTunnelShape.StartPoint = startPoint;
-        bridgeOrTunnelShape.EndPoint = endPoint;
+        bridgeOrTunnelShape.SetParameters(startPoint, endPoint, BridgeOrTunnelShape.shapeTypes.flatTop);
 
         LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelShape, new BaseModificationTools.AddShapeModifier());
+    }
+
+    void CreateTunnel(Vector3 startPoint, Vector3 endPoint)
+    {
+        Debug.Log("Tunnel");
+
+        if (bridgeOrTunnelShape == null) return;
+
+        bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
+
+        bridgeOrTunnelShape.SetParameters(startPoint, endPoint, BridgeOrTunnelShape.shapeTypes.flatBottom);
+
+        LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelShape, new BaseModificationTools.SubtractShapeModifier());
     }
 }
