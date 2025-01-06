@@ -2,9 +2,9 @@
 
 ## Tools
 - [x] Heightmap addition
-- [ ] Limit height to cursor (Reimplement)
-- [ ] Tunnel
-- [ ] Path
+- [x] Limit height to cursor (Reimplement)
+- [x] Tunnel
+- [x] Path
 - [ ] Smoothing
 - [ ] Normal expansion
 - [ ] Copy paste tool
