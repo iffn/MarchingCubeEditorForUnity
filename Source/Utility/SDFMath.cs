@@ -68,15 +68,21 @@ public static class SDFMath
 
         public static float DistanceToLevelPlaneFilledBelow(Vector3 point, Vector3 pointA, Vector3 pointB)
         {
-            // Compute the normal vector in the XZ-plane
+            // Direction vector of the line AB
             Vector3 ab = pointB - pointA;
-            Vector3 normal = new Vector3(-ab.z, 0, ab.x).normalized;
+            float abLength = Mathf.Sqrt(ab.x * ab.x + ab.z * ab.z); // Only XZ length
 
-            // Plane constant
-            float d = Vector3.Dot(normal, new Vector3(pointA.x, 0, pointA.z));
+            // Projection of point onto the line AB (XZ-plane only)
+            float t = ((point.x - pointA.x) * (pointB.x - pointA.x) + (point.z - pointA.z) * (pointB.z - pointA.z)) / (abLength * abLength);
+
+            // Clamp t to the line segment [0, 1]
+            t = Mathf.Clamp01(t);
+
+            // Interpolated height at the projected point
+            float heightAtPoint = Mathf.Lerp(pointA.y, pointB.y, t);
 
             // Signed distance to the plane
-            return Vector3.Dot(normal, new Vector3(point.x, 0, point.z)) - d;
+            return point.y - heightAtPoint;
         }
     }
 
