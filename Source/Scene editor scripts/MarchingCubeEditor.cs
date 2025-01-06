@@ -14,6 +14,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionY = 20;
         int gridResolutionZ = 20;
 
+        int gridCExpandSize = 0;
+        
+
         List<BaseTool> tools;
 
         // This stores all the currently selectedTools across different Editors by using the
@@ -22,6 +25,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
 
         bool generalFoldout = true;
+        bool expansionFoldout = true;
         bool settingsFoldout = true;
         bool toolsFoldout = true;
 
@@ -91,6 +95,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             generalFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(generalFoldout, "General");
             if (generalFoldout)
             {
+                // Normal grid size
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("X");
@@ -108,6 +113,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
                 }
 
+                // Save and load
                 GUILayout.Label("Save data:");
                 ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
                 Controller.linkedSaveData,
@@ -136,6 +142,39 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
+            // Expansion
+            expansionFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(expansionFoldout, "Expansion");
+            if (expansionFoldout)
+            {
+                gridCExpandSize = EditorGUILayout.IntField("Expansion size", gridCExpandSize);
+
+                EditorGUILayout.BeginHorizontal();
+
+                if (GUILayout.Button("Expand +X"))
+                    Debug.Log(gridCExpandSize);
+
+                if (GUILayout.Button("Expand +Y"))
+                    Debug.Log(gridCExpandSize);
+
+                if (GUILayout.Button("Expand +Z"))
+                    Debug.Log(gridCExpandSize);
+
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+
+                if (GUILayout.Button("Expand -X"))
+                    Debug.Log(gridCExpandSize);
+
+                if (GUILayout.Button("Expand -Y"))
+                    Debug.Log(gridCExpandSize);
+
+                if (GUILayout.Button("Expand -Z"))
+                    Debug.Log(gridCExpandSize);
+
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
 
             settingsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(settingsFoldout, "Settings");
             if (settingsFoldout)
