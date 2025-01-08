@@ -89,6 +89,35 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             RecalculateMaxGrid();
         }
 
+        public void ChangeGridSize(int resolutionX, int resolutionY, int resolutionZ, int offsetX, int offsetY, int offsetZ)
+        {
+            // Create a new VoxelData array with the new size
+            VoxelData[,,] newVoxelData = new VoxelData[resolutionX, resolutionY, resolutionZ];
+
+            // Copying data over. Warning, max grid not calculated yet!
+            // Determine the size of the overlapping region
+            int overlapX = Mathf.Min(resolutionX, ResolutionX);
+            int overlapY = Mathf.Min(resolutionY, ResolutionY);
+            int overlapZ = Mathf.Min(resolutionZ, ResolutionZ);
+
+            // Copy the overlapping region from the old VoxelData to the new one
+            for (int x = offsetX; x < overlapX; x++)
+            {
+                for (int y = offsetY; y < overlapY; y++)
+                {
+                    for (int z = offsetZ; z < overlapZ; z++)
+                    {
+                        newVoxelData[x, y, z] = VoxelData[x, y, z];
+                    }
+                }
+            }
+
+            // Assign the new VoxelData array
+            VoxelData = newVoxelData;
+
+            RecalculateMaxGrid();
+        }
+
         public void ChangeGridSizeIfNeeded(int resolutionX, int resolutionY, int resolutionZ, bool copyDataIfChanging)
         {
             // Check if the current size matches the new size
@@ -98,34 +127,16 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 return;
             }
 
-            // Create a new VoxelData array with the new size
-            VoxelData[,,] newVoxelData = new VoxelData[resolutionX, resolutionY, resolutionZ];
-
-            // Copying data over. Warning, max grid not calculated yet!
             if (copyDataIfChanging)
             {
-                // Determine the size of the overlapping region
-                int overlapX = Mathf.Min(resolutionX, ResolutionX);
-                int overlapY = Mathf.Min(resolutionY, ResolutionY);
-                int overlapZ = Mathf.Min(resolutionZ, ResolutionZ);
-
-                // Copy the overlapping region from the old VoxelData to the new one
-                for (int x = 0; x < overlapX; x++)
-                {
-                    for (int y = 0; y < overlapY; y++)
-                    {
-                        for (int z = 0; z < overlapZ; z++)
-                        {
-                            newVoxelData[x, y, z] = VoxelData[x, y, z];
-                        }
-                    }
-                }
+                ChangeGridSize(resolutionX, resolutionY, resolutionZ, 0, 0, 0);
             }
+            else
+            {
+                VoxelData = new VoxelData[resolutionX, resolutionY, resolutionZ];
 
-            // Assign the new VoxelData array
-            VoxelData = newVoxelData;
-
-            RecalculateMaxGrid();
+                RecalculateMaxGrid();
+            }
         }
 
         public void CopyRegion(MarchingCubesModel source, Vector3Int minGrid, Vector3Int maxGrid)

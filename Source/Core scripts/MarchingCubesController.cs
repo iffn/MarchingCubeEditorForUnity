@@ -423,6 +423,51 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             previewView.MarkDirty();
             previewView.UpdateMeshIfDirty(previewModelWithOldData);
         }
+
+        public enum ExpansionDirections
+        {
+            XPos, YPos, ZPos,
+            XNeg, YNeg, ZNeg
+        }
+
+        public void ExpandGrid(int offset, ExpansionDirections expansionDirection)
+        {
+            int offsetX = 0;
+            int offsetY = 0;
+            int offsetZ = 0;
+
+            int resolutionX = mainModel.ResolutionX;
+            int resolutionY = mainModel.ResolutionY;
+            int resolutionZ = mainModel.ResolutionZ;
+
+            switch (expansionDirection)
+            {
+                case ExpansionDirections.XPos:
+                    resolutionX += offset;
+                    break;
+                case ExpansionDirections.YPos:
+                    resolutionY += offset;
+                    break;
+                case ExpansionDirections.ZPos:
+                    resolutionZ += offset;
+                    break;
+                case ExpansionDirections.XNeg:
+                    offsetX = offset;
+                    break;
+                case ExpansionDirections.YNeg:
+                    offsetY = offset;
+                    break;
+                case ExpansionDirections.ZNeg:
+                    offsetZ = offset;
+                    break;
+                default:
+                    break;
+            }
+
+            mainModel.ChangeGridSize(resolutionX, resolutionY, resolutionZ, offsetX, offsetY, offsetZ);
+
+            GenerateViewChunks();
+        }
     }
 }
 #endif

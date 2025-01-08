@@ -151,26 +151,26 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.BeginHorizontal();
 
                 if (GUILayout.Button("Expand +X"))
-                    Debug.Log(gridCExpandSize);
+                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XPos);
 
                 if (GUILayout.Button("Expand +Y"))
-                    Debug.Log(gridCExpandSize);
+                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YPos);
 
                 if (GUILayout.Button("Expand +Z"))
-                    Debug.Log(gridCExpandSize);
+                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZPos);
 
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
 
                 if (GUILayout.Button("Expand -X"))
-                    Debug.Log(gridCExpandSize);
+                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XNeg);
 
                 if (GUILayout.Button("Expand -Y"))
-                    Debug.Log(gridCExpandSize);
+                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YNeg);
 
                 if (GUILayout.Button("Expand -Z"))
-                    Debug.Log(gridCExpandSize);
+                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZNeg);
 
                 EditorGUILayout.EndHorizontal();
             }
