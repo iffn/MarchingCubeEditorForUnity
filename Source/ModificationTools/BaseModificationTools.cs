@@ -97,6 +97,94 @@ public class BaseModificationTools
         }
     }
 
+    public class GaussianSmoothingModifier : IVoxelModifier
+    {
+        readonly VoxelData[,,] voxelData;
+        float[,,] gaussianKernel;
+        readonly float weightThreshold;
+        readonly int radius;
+        readonly float sigma;
+
+        public GaussianSmoothingModifier(VoxelData[,,] voxelData, float weightThreshold, int radius, float sigma)
+        {
+            this.voxelData = voxelData;
+            this.weightThreshold = weightThreshold;
+            this.radius = radius;
+            this.sigma = sigma;
+
+            GenerateGaussianKernel(radius, sigma);
+        }
+
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        {
+            if(distanceOutsideIsPositive > 0) return currentValue;
+
+            if (Mathf.Abs(currentValue.WeightInsideIsPositive - weightThreshold) > sigma)
+                return currentValue;
+
+            float newWeight = ApplyKernel(x, y, z, voxelData, gaussianKernel, radius);
+            return currentValue.WithWeightInsideIsPositive(newWeight);
+        }
+
+        private void GenerateGaussianKernel(int radius, float sigma)
+        {
+            int size = 2 * radius + 1;
+            gaussianKernel = new float[size, size, size];
+            float sigma2 = 2 * sigma * sigma;
+            float normalization = 1f / Mathf.Pow(Mathf.PI * sigma2, 1.5f);
+
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int z = -radius; z <= radius; z++)
+                    {
+                        float distance2 = x * x + y * y + z * z;
+                        gaussianKernel[x + radius, y + radius, z + radius] = normalization * Mathf.Exp(-distance2 / sigma2);
+                    }
+                }
+            }
+        }
+
+        private float ApplyKernel(int x, int y, int z, VoxelData[,,] voxelData, float[,,] kernel, int radius)
+        {
+            float sum = 0f;
+            float weightSum = 0f;
+
+            // Get voxel data dimensions
+            int maxX = voxelData.GetLength(0);
+            int maxY = voxelData.GetLength(1);
+            int maxZ = voxelData.GetLength(2);
+
+            // Adjust loop limits to stay within bounds
+            int minI = Mathf.Max(-radius, -x);
+            int maxI = Mathf.Min(radius, maxX - x - 1);
+            int minJ = Mathf.Max(-radius, -y);
+            int maxJ = Mathf.Min(radius, maxY - y - 1);
+            int minK = Mathf.Max(-radius, -z);
+            int maxK = Mathf.Min(radius, maxZ - z - 1);
+
+            for (int i = minI; i <= maxI; i++)
+            {
+                for (int j = minJ; j <= maxJ; j++)
+                {
+                    for (int k = minK; k <= maxK; k++)
+                    {
+                        int nx = x + i;
+                        int ny = y + j;
+                        int nz = z + k;
+
+                        float weight = kernel[i + radius, j + radius, k + radius];
+                        sum += voxelData[nx, ny, nz].WeightInsideIsPositive * weight;
+                        weightSum += weight;
+                    }
+                }
+            }
+
+            return sum / weightSum;
+        }
+    }
+
     public class ChangeColorModifier : IVoxelModifier
     {
         private readonly Color32 color;
