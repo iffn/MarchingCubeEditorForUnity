@@ -45,15 +45,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public MarchingCubesController Controller => (MarchingCubesController)target;
 
-        public void LoadData()
+        void LoadData()
         {
             if (Controller.linkedSaveData == null)
                 return;
 
-            gridResolutionX = Controller.linkedSaveData.resolutionX;
-            gridResolutionY = Controller.linkedSaveData.resolutionY;
-            gridResolutionZ = Controller.linkedSaveData.resolutionZ;
-            Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
             Controller.SaveAndLoadManager.LoadGridData(Controller.linkedSaveData);
         }
 
@@ -74,9 +70,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             if (!Controller.IsInitialized)
             {
-                if (Controller.linkedSaveData == null)
-                    Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-                else
+                Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
+
+                if (Controller.linkedSaveData != null)
                     LoadData();
             }
             else

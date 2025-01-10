@@ -358,6 +358,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             mainModel.SetDataAndResizeIfNeeded(newData);
+            
+            GenerateViewChunks();
+
             UpdateAllChunks();
         }
 
