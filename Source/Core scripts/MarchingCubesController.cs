@@ -455,12 +455,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     resolutionZ += offset;
                     break;
                 case ExpansionDirections.XNeg:
+                    resolutionX += offset;
                     offsetX = offset;
                     break;
                 case ExpansionDirections.YNeg:
+                    resolutionY += offset;
                     offsetY = offset;
                     break;
                 case ExpansionDirections.ZNeg:
+                    resolutionZ += offset;
                     offsetZ = offset;
                     break;
                 default:
