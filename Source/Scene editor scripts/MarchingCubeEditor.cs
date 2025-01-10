@@ -78,12 +78,17 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
             else
             {
-                gridResolutionX = Controller.GridResolutionX;
-                gridResolutionY = Controller.GridResolutionY;
-                gridResolutionZ = Controller.GridResolutionZ;
+                UpdateGridResolutionFromController();
             }
 
             SceneView.duringSceneGui += UpdateSceneInteractionForController;
+        }
+
+        void UpdateGridResolutionFromController()
+        {
+            gridResolutionX = Controller.GridResolutionX;
+            gridResolutionY = Controller.GridResolutionY;
+            gridResolutionZ = Controller.GridResolutionZ;
         }
 
         //Components
@@ -99,6 +104,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 GUILayout.Label("Y");
                 GUILayout.Label("Z");
                 EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"{Controller.GridResolutionX}");
+                GUILayout.Label($"{Controller.GridResolutionY}");
+                GUILayout.Label($"{Controller.GridResolutionZ}");
+                EditorGUILayout.EndHorizontal();
+
                 EditorGUILayout.BeginHorizontal();
                 gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
                 gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
@@ -148,13 +160,22 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.BeginHorizontal();
 
                 if (GUILayout.Button("Expand +X"))
+                {
                     Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XPos);
+                    UpdateGridResolutionFromController();
+                }
 
                 if (GUILayout.Button("Expand +Y"))
+                {
                     Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YPos);
+                    UpdateGridResolutionFromController();
+                }
 
                 if (GUILayout.Button("Expand +Z"))
+                {
                     Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZPos);
+                    UpdateGridResolutionFromController();
+                }
 
                 EditorGUILayout.EndHorizontal();
 
@@ -166,6 +187,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     
                     if (moveTransformWhenExpanding)
                         Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.x * Vector3.right;
+
+                    UpdateGridResolutionFromController();
                 }
 
                 if (GUILayout.Button("Expand -Y"))
@@ -174,6 +197,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                     if (moveTransformWhenExpanding)
                         Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.y * Vector3.up;
+
+                    UpdateGridResolutionFromController();
                 }
 
                 if (GUILayout.Button("Expand -Z"))
@@ -182,6 +207,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                     if (moveTransformWhenExpanding)
                         Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.z * Vector3.forward;
+
+                    UpdateGridResolutionFromController();
                 }
 
                 EditorGUILayout.EndHorizontal();
