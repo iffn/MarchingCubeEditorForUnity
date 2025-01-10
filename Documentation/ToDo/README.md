@@ -5,7 +5,9 @@
 - [x] Limit height to cursor (Reimplement)
 - [x] Tunnel
 - [x] Path
-- [ ] Smoothing
+- [x] Smoothing
+  - [ ] Stop mostly removing material with GaussianSmoothingModifier
+  - [ ] Implement other smoothing modifiers if needed
 - [ ] Normal expansion
 - [ ] Copy paste tool
 
@@ -13,10 +15,10 @@
 - [x] Select tool from UI
 - [x] Link save file to prefab
 - [x] Integrate into inspector
-- [ ] Expand voxel field
+- [x] Expand voxel field
 
 ## Result visualization
-- [ ] Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
+- [x] Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
 - [ ] Triplanar shader
 - [ ] Create LOD level for Chunks
 
