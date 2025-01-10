@@ -43,11 +43,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public bool showGridOutline = false; // Toggle controlled by the editor tool
 
-        public int GridResolutionX => mainModel.VoxelData.GetLength(0);
-        public int GridResolutionY => mainModel.VoxelData.GetLength(1);
-        public int GridResolutionZ => mainModel.VoxelData.GetLength(2);
+        public int GridResolutionX => mainModel.VoxelDataGrid.GetLength(0);
+        public int GridResolutionY => mainModel.VoxelDataGrid.GetLength(1);
+        public int GridResolutionZ => mainModel.VoxelDataGrid.GetLength(2);
 
-        public VoxelData[,,] VoxelDataReference => mainModel.VoxelData;
+        public VoxelData[,,] VoxelDataReference => mainModel.VoxelDataGrid;
 
         public Vector3Int MaxGrid => mainModel.MaxGrid;
 
