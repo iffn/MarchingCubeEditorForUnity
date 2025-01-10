@@ -28,6 +28,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool expansionFoldout = true;
         bool settingsFoldout = true;
         bool toolsFoldout = true;
+        bool moveTransformWhenExpanding = true;
 
         BaseTool CurrentTool 
         {
@@ -160,15 +161,32 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.BeginHorizontal();
 
                 if (GUILayout.Button("Expand -X"))
+                {
                     Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XNeg);
+                    
+                    if (moveTransformWhenExpanding)
+                        Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.x * Vector3.right;
+                }
 
                 if (GUILayout.Button("Expand -Y"))
+                {
                     Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YNeg);
 
+                    if (moveTransformWhenExpanding)
+                        Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.y * Vector3.up;
+                }
+
                 if (GUILayout.Button("Expand -Z"))
+                {
                     Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZNeg);
 
+                    if (moveTransformWhenExpanding)
+                        Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.z * Vector3.forward;
+                }
+
                 EditorGUILayout.EndHorizontal();
+
+                moveTransformWhenExpanding = EditorGUILayout.Toggle("Move transform to keep position", moveTransformWhenExpanding);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
