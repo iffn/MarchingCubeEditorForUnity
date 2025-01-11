@@ -56,6 +56,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public override void OnInspectorGUI()
         {
+            DrawDefaultInspector();
             DrawSetupUI();
             DrawEditUI();
         }

@@ -11,7 +11,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     public class MarchingCubesController : MonoBehaviour
     {
         private MarchingCubesModel mainModel;
-        private MarchingCubesView previewView;
         private MarchingCubesModel previewModelWithOldData;
         private static readonly Vector3Int defaultChunkSize = new Vector3Int(16, 16, 16);
         private Vector3Int chunkSize = defaultChunkSize;
@@ -34,7 +33,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
 
         [SerializeField] GameObject chunkPrefab; // Prefab for chunk views
-        [SerializeField] private GameObject previewPrefab;
+        [SerializeField] private MarchingCubesView previewView;
+        [SerializeField] private Transform chunkHolder;
         [SerializeField] private VisualisationManager linkedVisualisationManager;
 
         
@@ -175,7 +175,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Destroy all chunks, save with foreach since Unity doesn't immediately destroy them
             List<GameObject> chunksToDestroy = new List<GameObject>();
 
-            foreach (Transform child in transform)
+            foreach (Transform child in chunkHolder)
             {
                 if (child.TryGetComponent(out MarchingCubesView view))
                 {
@@ -215,7 +215,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                         Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                        MarchingCubesView chunkView = Instantiate(chunkPrefab, transform).GetComponent<MarchingCubesView>();
+                        MarchingCubesView chunkView = Instantiate(chunkPrefab, chunkHolder).GetComponent<MarchingCubesView>();
                         chunkViews.Add(chunkView);
                         chunkView.Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders);
                     }
@@ -229,7 +229,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
-
             // We don't want to initialize if we are inside a prefab
             if (gameObject.scene.name == null)
                 return;
@@ -269,12 +268,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 previewModelWithOldData.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, false);
             }
 
-            if (!previewView)
-            {
-                previewView = Instantiate(previewPrefab, transform).GetComponent<MarchingCubesView>();
-                previewView.Initialize(Vector3Int.zero, Vector3Int.one, false);
-                DisplayPreviewShape = false;
-            }
+            previewView.Initialize(Vector3Int.zero, Vector3Int.one, false);
+            DisplayPreviewShape = false;
         }
 
         public bool IsInitialized => mainModel != null;
