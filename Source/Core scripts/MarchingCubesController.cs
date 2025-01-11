@@ -36,7 +36,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] private MarchingCubesView previewView;
         [SerializeField] private Transform chunkHolder;
         [SerializeField] private VisualisationManager linkedVisualisationManager;
-
         
         [SerializeField, HideInInspector]
         private bool invertNormals = false;

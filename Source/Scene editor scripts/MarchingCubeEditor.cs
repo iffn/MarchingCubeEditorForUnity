@@ -23,9 +23,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         // MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
 
-
+        bool defaultFoldout = false;
         bool generalFoldout = true;
-        bool expansionFoldout = true;
+        bool expansionFoldout = false;
         bool settingsFoldout = true;
         bool toolsFoldout = true;
         bool moveTransformWhenExpanding = true;
@@ -56,7 +56,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public override void OnInspectorGUI()
         {
-            DrawDefaultInspector();
+            defaultFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(defaultFoldout, "Default inspector");
+            if (defaultFoldout)
+            {
+                DrawDefaultInspector();
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
             DrawSetupUI();
             DrawEditUI();
         }
