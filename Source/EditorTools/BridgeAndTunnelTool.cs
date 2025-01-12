@@ -16,6 +16,25 @@ public class BridgeAndTunnelTool : BaseTool
 
     BridgeOrTunnelShape bridgeOrTunnelShape;
 
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        if(bridgeOrTunnelShape == null)
+        {
+            List<EditShape> shapes = LinkedMarchingCubeController.ShapeList;
+
+            foreach(EditShape shape in shapes)
+            {
+                if(shape is BridgeOrTunnelShape bridgeShape)
+                {
+                    bridgeOrTunnelShape = bridgeShape;
+                    break;
+                }
+            }
+        }
+    }
+
     public override void HandleSceneUpdate(Event e)
     {
         if (startPointSet)

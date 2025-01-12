@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 //#define DEBUG_PERFORMANCE
 
+using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -35,7 +36,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] GameObject chunkPrefab; // Prefab for chunk views
         [SerializeField] private MarchingCubesView previewView;
         [SerializeField] private Transform chunkHolder;
+        [SerializeField] Transform shapeHolder;
         [SerializeField] private VisualisationManager linkedVisualisationManager;
+
+        public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
         
         [SerializeField, HideInInspector]
         private bool invertNormals = false;
@@ -269,9 +273,23 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             previewView.Initialize(Vector3Int.zero, Vector3Int.one, false);
             DisplayPreviewShape = false;
+
+            GatherTools();
         }
 
         public bool IsInitialized => mainModel != null;
+
+        public void GatherTools()
+        {
+            ShapeList.Clear();
+
+            foreach (Transform child in shapeHolder)
+            {
+                if (!child.TryGetComponent(out EditShape tool)) return;
+
+                ShapeList.Add(tool);
+            }
+        }
 
         public void ApplyPreviewChanges()
         {

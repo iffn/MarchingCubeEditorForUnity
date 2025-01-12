@@ -40,18 +40,18 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 selectedTool[target] = value;
                 value.OnEnable();
 
-                Controller.VisualisationManager.drawGizmosTool = value;
+                LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = value;
             }
         }
 
-        public MarchingCubesController Controller => (MarchingCubesController)target;
+        public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
 
         void LoadData()
         {
-            if (Controller.linkedSaveData == null)
+            if (LinkedMarchingCubeController.linkedSaveData == null)
                 return;
 
-            Controller.SaveAndLoadManager.LoadGridData(Controller.linkedSaveData);
+            LinkedMarchingCubeController.SaveAndLoadManager.LoadGridData(LinkedMarchingCubeController.linkedSaveData);
         }
 
         public override void OnInspectorGUI()
@@ -76,11 +76,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         {
             tools = BaseTool.GetTools(this).ToList();
 
-            if (!Controller.IsInitialized)
+            if (!LinkedMarchingCubeController.IsInitialized)
             {
-                Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
+                LinkedMarchingCubeController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
 
-                if (Controller.linkedSaveData != null)
+                if (LinkedMarchingCubeController.linkedSaveData != null)
                     LoadData();
             }
             else
@@ -93,9 +93,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void UpdateGridResolutionFromController()
         {
-            gridResolutionX = Controller.GridResolutionX;
-            gridResolutionY = Controller.GridResolutionY;
-            gridResolutionZ = Controller.GridResolutionZ;
+            gridResolutionX = LinkedMarchingCubeController.GridResolutionX;
+            gridResolutionY = LinkedMarchingCubeController.GridResolutionY;
+            gridResolutionZ = LinkedMarchingCubeController.GridResolutionZ;
         }
 
         //Components
@@ -113,9 +113,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label($"{Controller.GridResolutionX}");
-                GUILayout.Label($"{Controller.GridResolutionY}");
-                GUILayout.Label($"{Controller.GridResolutionZ}");
+                GUILayout.Label($"{LinkedMarchingCubeController.GridResolutionX}");
+                GUILayout.Label($"{LinkedMarchingCubeController.GridResolutionY}");
+                GUILayout.Label($"{LinkedMarchingCubeController.GridResolutionZ}");
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
@@ -126,30 +126,30 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 if (GUILayout.Button("Apply and set empty"))
                 {
-                    Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
+                    LinkedMarchingCubeController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
                 }
 
                 // Save and load
                 GUILayout.Label("Save data:");
                 ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
-                Controller.linkedSaveData,
+                LinkedMarchingCubeController.linkedSaveData,
                 typeof(ScriptableObjectSaveData),
                 true) as ScriptableObjectSaveData;
 
 
-                if (newSaveData != Controller.linkedSaveData)
+                if (newSaveData != LinkedMarchingCubeController.linkedSaveData)
                 {
-                    Undo.RecordObject(Controller, "Set save data file");
-                    Controller.linkedSaveData = newSaveData;
-                    EditorUtility.SetDirty(Controller);
+                    Undo.RecordObject(LinkedMarchingCubeController, "Set save data file");
+                    LinkedMarchingCubeController.linkedSaveData = newSaveData;
+                    EditorUtility.SetDirty(LinkedMarchingCubeController);
                     if (!Application.isPlaying)
-                        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(Controller.gameObject.scene);
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(LinkedMarchingCubeController.gameObject.scene);
                 }
 
-                if (Controller.linkedSaveData != null)
+                if (LinkedMarchingCubeController.linkedSaveData != null)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    if (GUILayout.Button($"Save data")) Controller.SaveAndLoadManager.SaveGridData(Controller.linkedSaveData);
+                    if (GUILayout.Button($"Save data")) LinkedMarchingCubeController.SaveAndLoadManager.SaveGridData(LinkedMarchingCubeController.linkedSaveData);
                     if (GUILayout.Button($"Load data")) LoadData();
                     EditorGUILayout.EndHorizontal();
                 }
@@ -168,19 +168,19 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 if (GUILayout.Button("Expand +X"))
                 {
-                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XPos);
+                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XPos);
                     UpdateGridResolutionFromController();
                 }
 
                 if (GUILayout.Button("Expand +Y"))
                 {
-                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YPos);
+                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YPos);
                     UpdateGridResolutionFromController();
                 }
 
                 if (GUILayout.Button("Expand +Z"))
                 {
-                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZPos);
+                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZPos);
                     UpdateGridResolutionFromController();
                 }
 
@@ -190,30 +190,30 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 if (GUILayout.Button("Expand -X"))
                 {
-                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XNeg);
+                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XNeg);
                     
                     if (moveTransformWhenExpanding)
-                        Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.x * Vector3.right;
+                        LinkedMarchingCubeController.transform.localPosition -= gridCExpandSize * LinkedMarchingCubeController.transform.localScale.x * Vector3.right;
 
                     UpdateGridResolutionFromController();
                 }
 
                 if (GUILayout.Button("Expand -Y"))
                 {
-                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YNeg);
+                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YNeg);
 
                     if (moveTransformWhenExpanding)
-                        Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.y * Vector3.up;
+                        LinkedMarchingCubeController.transform.localPosition -= gridCExpandSize * LinkedMarchingCubeController.transform.localScale.y * Vector3.up;
 
                     UpdateGridResolutionFromController();
                 }
 
                 if (GUILayout.Button("Expand -Z"))
                 {
-                    Controller.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZNeg);
+                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZNeg);
 
                     if (moveTransformWhenExpanding)
-                        Controller.transform.localPosition -= gridCExpandSize * Controller.transform.localScale.z * Vector3.forward;
+                        LinkedMarchingCubeController.transform.localPosition -= gridCExpandSize * LinkedMarchingCubeController.transform.localScale.z * Vector3.forward;
 
                     UpdateGridResolutionFromController();
                 }
@@ -229,17 +229,17 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-                Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
-                Controller.PostProcessMesh = EditorGUILayout.Toggle("Post process mesh (slow)", Controller.PostProcessMesh);
+                LinkedMarchingCubeController.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", LinkedMarchingCubeController.ForceColliderOn);
+                LinkedMarchingCubeController.PostProcessMesh = EditorGUILayout.Toggle("Post process mesh (slow)", LinkedMarchingCubeController.PostProcessMesh);
 
-                if(Controller.PostProcessMesh)
+                if(LinkedMarchingCubeController.PostProcessMesh)
                 {
-                    Controller.AngleThresholdDeg = EditorGUILayout.FloatField("Angle threshold [°]", Controller.AngleThresholdDeg);
-                    Controller.AreaThreshold = EditorGUILayout.FloatField("Area threshold", Controller.AreaThreshold);
+                    LinkedMarchingCubeController.AngleThresholdDeg = EditorGUILayout.FloatField("Angle threshold [°]", LinkedMarchingCubeController.AngleThresholdDeg);
+                    LinkedMarchingCubeController.AreaThreshold = EditorGUILayout.FloatField("Area threshold", LinkedMarchingCubeController.AreaThreshold);
                 }
 
-                Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);
-                Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
+                LinkedMarchingCubeController.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", LinkedMarchingCubeController.VisualisationManager.ShowGridOutline);
+                LinkedMarchingCubeController.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", LinkedMarchingCubeController.InvertAllNormals);
 
                 EditorGUILayout.EndVertical();
             }
@@ -318,8 +318,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (!detectBoundingBox)
                 return RayHitResult.None;
 
-            Vector3 areaPosition = Controller.transform.position;
-            Vector3Int areaSize = Controller.MaxGrid;
+            Vector3 areaPosition = LinkedMarchingCubeController.transform.position;
+            Vector3Int areaSize = LinkedMarchingCubeController.MaxGrid;
             Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
             
             var result = bounds.GetIntersectRayPoints(ray);
