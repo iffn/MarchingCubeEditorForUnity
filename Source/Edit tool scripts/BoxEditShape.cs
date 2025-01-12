@@ -5,8 +5,10 @@ using UnityEngine.UIElements;
 
 namespace iffnsStuff.MarchingCubeEditor.EditTools
 {
-    public class BoxEditShape : EditShape
+    public class BoxEditShape : EditShape, IPlaceableByClick
     {
+        public EditShape AsEditShape => this;
+
         protected override float DistanceOutsideIsPositive(Vector3 localPoint)
         {
             return SDFMath.ShapesDistanceOutsideIsPositive.Box(localPoint, Vector3.one);

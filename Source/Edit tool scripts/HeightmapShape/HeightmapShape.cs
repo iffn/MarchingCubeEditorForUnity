@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-public class HeightmapShape : EditShape
+public class HeightmapShape : EditShape, IPlaceableByClick
 {
+    public EditShape AsEditShape => this;
+
     private float[,] heightmapData; // 2D array to store heightmap values
     private int heightmapWidth;
     private int heightmapHeight;

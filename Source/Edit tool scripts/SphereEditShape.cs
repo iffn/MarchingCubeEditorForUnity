@@ -4,8 +4,10 @@ using UnityEngine;
 
 namespace iffnsStuff.MarchingCubeEditor.EditTools
 {
-    public class SphereEditShape : EditShape
+    public class SphereEditShape : EditShape, IPlaceableByClick
     {
+        public EditShape AsEditShape => this;
+
         protected override float DistanceOutsideIsPositive(Vector3 localPoint)
         {
             // Transform the point into the shape's local space

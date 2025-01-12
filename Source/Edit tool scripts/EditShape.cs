@@ -161,6 +161,11 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             return (worldMin, worldMax);
         }
     }
+
+    interface IPlaceableByClick
+    {
+        EditShape AsEditShape { get; }
+    }
 }
 
 #endif

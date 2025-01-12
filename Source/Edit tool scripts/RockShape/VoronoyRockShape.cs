@@ -5,8 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VoronoyRockShape : EditShape
+public class VoronoyRockShape : EditShape, IPlaceableByClick
 {
+    public EditShape AsEditShape => this;
+
     // Parameters for the SDF
     float baseFrequency = 10.0f;
     float baseAmplitude = 0.05f;
