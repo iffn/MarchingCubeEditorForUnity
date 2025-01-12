@@ -11,7 +11,7 @@ using UnityEngine;
 public class BaseTool
 {
     protected MarchingCubeEditor LinkedMarchingCubeEditor { get; private set; }
-    protected MarchingCubesController LinkedMarchingCubeController => LinkedMarchingCubeEditor.Controller;
+    protected MarchingCubesController LinkedMarchingCubeController => LinkedMarchingCubeEditor.LinkedMarchingCubeController;
 
     public virtual string DisplayName => "Unnamed Tool";
     public virtual Texture DisplayIcon => null;
