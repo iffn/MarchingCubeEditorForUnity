@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +10,6 @@ using static UnityEditor.Progress;
 public class SimpleClickToModifyTool : BaseTool
 {
     // Editor variables
-    IPlaceableByClick selectedShape;
     bool raycastActive;
     bool RaycastActive
     {
@@ -31,7 +31,8 @@ public class SimpleClickToModifyTool : BaseTool
     double nextUpdateTime;
     double timeBetweenUpdates = 1.0 / 60.0;
 
-    List<IPlaceableByClick> EditShapes = new List<IPlaceableByClick>();
+    IPlaceableByClick selectedShape;
+    readonly List<IPlaceableByClick> EditShapes = new List<IPlaceableByClick>();
     string[] EditShapeNames;
     int selectedIndex;
 
@@ -62,6 +63,9 @@ public class SimpleClickToModifyTool : BaseTool
         {
             EditShapeNames[i] = EditShapes[i].AsEditShape.transform.name;
         }
+
+        selectedIndex = Math.Clamp(selectedIndex, 0, EditShapes.Count);
+        selectedShape = EditShapes[selectedIndex];
     }
 
     public override void OnDisable()
