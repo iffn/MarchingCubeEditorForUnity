@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 
+using iffnsStuff.MarchingCubeEditor.Core;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -162,9 +164,53 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         }
     }
 
-    interface IPlaceableByClick
+    public interface IPlaceableByClick
     {
         EditShape AsEditShape { get; }
+    }
+
+    public class PlaceableByClickHandler
+    {
+        public IPlaceableByClick SelectedShape { get; private set; }
+        public EditShape SelectedEditShape => SelectedShape.AsEditShape;
+        public List<IPlaceableByClick> EditShapes { get; } = new List<IPlaceableByClick>();
+        string[] EditShapeNames { get; }
+        int selectedIndex;
+
+        public PlaceableByClickHandler(MarchingCubesController linkedController)
+        {
+            List<EditShape> shapes = linkedController.ShapeList;
+
+            EditShapes.Clear();
+
+
+            foreach (EditShape shape in shapes)
+            {
+                if (shape is IPlaceableByClick clickableShape)
+                {
+                    EditShapes.Add(clickableShape);
+                }
+            }
+
+            EditShapeNames = new string[EditShapes.Count];
+
+            for (int i = 0; i < EditShapes.Count; i++)
+            {
+                EditShapeNames[i] = EditShapes[i].AsEditShape.transform.name;
+            }
+
+            selectedIndex = Math.Clamp(selectedIndex, 0, EditShapes.Count);
+            SelectedShape = EditShapes[selectedIndex];
+        }
+
+        public void EditorUI()
+        {
+            int newSelectedIndex = EditorGUILayout.Popup("Select Option", selectedIndex, EditShapeNames);
+
+            selectedIndex = newSelectedIndex;
+            SelectedShape = EditShapes[selectedIndex];
+            SelectedShape.AsEditShape.Initialize();
+        }
     }
 }
 
