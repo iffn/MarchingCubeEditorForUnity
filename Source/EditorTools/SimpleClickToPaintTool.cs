@@ -50,9 +50,15 @@ public class SimpleClickToPaintTool : BaseTool
 
         if (raycastActive)
         {
-            EditorGUILayout.HelpBox("Controls:\n" +
-                    "Click to paint\n" +
-                    "Shift Scroll to scale", MessageType.Info);
+            string helpText = "Controls:\n" +
+                    "Note that the scene has to be active for some of these to work.\n" +
+                    "Click to paint\n";
+
+            helpText += PlaceableByClick.SelectedEditShape.HelpText;
+
+            EditorGUILayout.HelpBox(helpText, MessageType.None);
+
+            PlaceableByClick.SelectedEditShape.DrawUI();
         }
     }
 
