@@ -201,15 +201,20 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
             selectedIndex = Math.Clamp(selectedIndex, 0, EditShapes.Count);
             SelectedShape = EditShapes[selectedIndex];
+            SelectedEditShape.Initialize();
         }
 
         public void EditorUI()
         {
             int newSelectedIndex = EditorGUILayout.Popup("Select Option", selectedIndex, EditShapeNames);
 
-            selectedIndex = newSelectedIndex;
-            SelectedShape = EditShapes[selectedIndex];
-            SelectedShape.AsEditShape.Initialize();
+            if(newSelectedIndex != selectedIndex)
+            {
+                SelectedEditShape.gameObject.SetActive(false);
+                selectedIndex = newSelectedIndex;
+                SelectedShape = EditShapes[selectedIndex];
+                SelectedEditShape.Initialize();
+            }
         }
     }
 }
