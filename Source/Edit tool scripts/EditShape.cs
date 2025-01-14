@@ -204,7 +204,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             SelectedEditShape.Initialize();
         }
 
-        public void EditorUI()
+        public void DrawEditorUI()
         {
             int newSelectedIndex = EditorGUILayout.Popup("Select Option", selectedIndex, EditShapeNames);
 

@@ -11,13 +11,13 @@ public class SimpleClickToPaintTool : BaseTool
     Color32 brushColor;
     AnimationCurve brushCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    public PlaceableByClickHandler PlaceableByClick;
+    PlaceableByClickHandler placeableByClick;
 
     public override string DisplayName => "Click to paint tool";
 
     public override void OnEnable()
     {
-        if (PlaceableByClick == null) PlaceableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
     public override void OnDisable()
@@ -28,7 +28,7 @@ public class SimpleClickToPaintTool : BaseTool
     public override void DrawUI()
     {
         // Handle shape assignment
-        PlaceableByClick.EditorUI();
+        placeableByClick.DrawEditorUI();
 
         // Handle color assignment
         brushColor = EditorGUILayout.ColorField("Brush Color", brushColor);
@@ -36,13 +36,13 @@ public class SimpleClickToPaintTool : BaseTool
         // Handle curve assignment
         brushCurve = EditorGUILayout.CurveField("Brush Curve", brushCurve, Color.cyan, new Rect(0, 0, 1f, 1f));
 
-        if (PlaceableByClick == null) return;
+        if (placeableByClick == null) return;
 
         //Settings
         bool newRaycastActive = EditorGUILayout.Toggle("Active", raycastActive);
         if(raycastActive != newRaycastActive)
         {
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(false);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
             LinkedMarchingCubeController.DisplayPreviewShape = false;
             LinkedMarchingCubeController.EnableAllColliders = newRaycastActive;
             raycastActive = newRaycastActive;
@@ -54,11 +54,11 @@ public class SimpleClickToPaintTool : BaseTool
                     "Note that the scene has to be active for some of these to work.\n" +
                     "Click to paint\n";
 
-            helpText += PlaceableByClick.SelectedEditShape.HelpText;
+            helpText += placeableByClick.SelectedEditShape.HelpText;
 
             EditorGUILayout.HelpBox(helpText, MessageType.None);
 
-            PlaceableByClick.SelectedEditShape.DrawUI();
+            placeableByClick.SelectedEditShape.DrawUI();
         }
     }
 
@@ -70,18 +70,18 @@ public class SimpleClickToPaintTool : BaseTool
 
         if(result != RayHitResult.None)
         {
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(true);
-            PlaceableByClick.SelectedEditShape.transform.position = result.point;
+            placeableByClick.SelectedEditShape.gameObject.SetActive(true);
+            placeableByClick.SelectedEditShape.transform.position = result.point;
 
             HandleDirectUpdate(e);
         }
         else
         {
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(false);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
             LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
-        if (PlaceableByClick.SelectedShape != null) PlaceableByClick.SelectedEditShape.HandleSceneUpdate(e);
+        if (placeableByClick.SelectedShape != null) placeableByClick.SelectedEditShape.HandleSceneUpdate(e);
 
         if (EscapeDownEvent(e))
         {
@@ -93,13 +93,13 @@ public class SimpleClickToPaintTool : BaseTool
 
     void HandleDirectUpdate(Event e)
     {
-        PlaceableByClick.SelectedEditShape.gameObject.SetActive(true);
+        placeableByClick.SelectedEditShape.gameObject.SetActive(true);
 
         // Left-click event
         if (LeftClickDownEvent(e))
         {
             LinkedMarchingCubeController.ModificationManager.ModifyData(
-                PlaceableByClick.SelectedEditShape, 
+                placeableByClick.SelectedEditShape, 
                 new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve)
             );
             e.Use();

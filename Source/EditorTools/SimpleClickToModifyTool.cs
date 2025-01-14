@@ -15,7 +15,7 @@ public class SimpleClickToModifyTool : BaseTool
     {
         set
         {
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(false);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
             LinkedMarchingCubeController.DisplayPreviewShape = false;
             LinkedMarchingCubeController.EnableAllColliders = value;
             raycastActive = value;
@@ -30,13 +30,13 @@ public class SimpleClickToModifyTool : BaseTool
     double nextUpdateTime;
     double timeBetweenUpdates = 1.0 / 60.0;
 
-    public PlaceableByClickHandler PlaceableByClick;
+    PlaceableByClickHandler placeableByClick;
     public override string DisplayName => "Click to modify tool";
 
     // Override functions
     public override void OnEnable()
     {
-        if(PlaceableByClick == null) PlaceableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        if(placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
     public override void OnDisable()
@@ -48,9 +48,9 @@ public class SimpleClickToModifyTool : BaseTool
     {
         //Handle shape assignment
 
-        if(PlaceableByClick == null) return;
+        if(placeableByClick == null) return;
 
-        PlaceableByClick.EditorUI();
+        placeableByClick.DrawEditorUI();
 
         //Settings
         bool newRaycastActive = EditorGUILayout.Toggle("Active", raycastActive);
@@ -62,7 +62,7 @@ public class SimpleClickToModifyTool : BaseTool
         bool newDisplayPreviewShape = EditorGUILayout.Toggle("Display preview shape", displayPreviewShape);
         if (displayPreviewShape != newDisplayPreviewShape)
         {
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(false);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
             LinkedMarchingCubeController.DisplayPreviewShape = false;
             displayPreviewShape = newDisplayPreviewShape;
         }
@@ -76,11 +76,11 @@ public class SimpleClickToModifyTool : BaseTool
                     "Click to add\n" +
                     "Ctrl Click to subtract\n";
 
-            helpText += PlaceableByClick.SelectedEditShape.HelpText;
+            helpText += placeableByClick.SelectedEditShape.HelpText;
 
             EditorGUILayout.HelpBox(helpText, MessageType.None);
 
-            PlaceableByClick.SelectedEditShape.DrawUI();
+            placeableByClick.SelectedEditShape.DrawUI();
         }
     }
 
@@ -92,7 +92,7 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (result != RayHitResult.None)
         {
-            PlaceableByClick.SelectedEditShape.transform.position = result.point;
+            placeableByClick.SelectedEditShape.transform.position = result.point;
 
             if (displayPreviewShape)
             {
@@ -102,16 +102,16 @@ public class SimpleClickToModifyTool : BaseTool
             else
             {
                 HandleDirectUpdate(e);
-                PlaceableByClick.SelectedEditShape.gameObject.SetActive(true);
+                placeableByClick.SelectedEditShape.gameObject.SetActive(true);
             }
         }
         else
         {
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(false);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
             LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
-        if (PlaceableByClick.SelectedShape != null) PlaceableByClick.SelectedEditShape.HandleSceneUpdate(e);
+        if (placeableByClick.SelectedShape != null) placeableByClick.SelectedEditShape.HandleSceneUpdate(e);
 
         if (EscapeDownEvent(e))
         {
@@ -140,13 +140,13 @@ public class SimpleClickToModifyTool : BaseTool
             if (subtract)
             {
                 modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        PlaceableByClick.SelectedEditShape.transform.position.y,
+                        placeableByClick.SelectedEditShape.transform.position.y,
                         BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.SubtractOnly);
             }
             else
             {
                 modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        PlaceableByClick.SelectedEditShape.transform.position.y,
+                        placeableByClick.SelectedEditShape.transform.position.y,
                         BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly);
             }
         }
@@ -167,12 +167,12 @@ public class SimpleClickToModifyTool : BaseTool
 
     void HandleDirectUpdate(Event e)
     {
-        PlaceableByClick.SelectedEditShape.gameObject.SetActive(true);
+        placeableByClick.SelectedEditShape.gameObject.SetActive(true);
         //selectedShape.Color = e.control ? subtractionColor : additionColor;
 
         if (LeftClickDownEvent(e))
         {
-            LinkedMarchingCubeController.ModificationManager.ModifyData(PlaceableByClick.SelectedEditShape, Modification(e));
+            LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick.SelectedEditShape, Modification(e));
 
             e.Use();
             return;
@@ -183,9 +183,9 @@ public class SimpleClickToModifyTool : BaseTool
     {
         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
         {
-            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(PlaceableByClick.SelectedEditShape, Modification(e));
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(placeableByClick.SelectedEditShape, Modification(e));
 
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(false);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
 
             nextUpdateTime = EditorApplication.timeSinceStartup + timeBetweenUpdates;
         }
