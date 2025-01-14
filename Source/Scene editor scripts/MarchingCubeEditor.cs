@@ -15,13 +15,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionZ = 20;
 
         int gridCExpandSize = 0;
-        
 
         List<BaseTool> tools;
-
-        // This stores all the currently selectedTools across different Editors by using the
-        // MarchingCubesController as a Key.
-        readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
 
         bool defaultFoldout = false;
         bool generalFoldout = true;
@@ -30,17 +25,29 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool toolsFoldout = true;
         bool moveTransformWhenExpanding = true;
 
+        // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
+        readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
         BaseTool CurrentTool 
         {
             get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
-            set 
+            set
             {
-                if (selectedTool.TryGetValue(target, out BaseTool tool)) 
-                    tool.OnDisable();
-                selectedTool[target] = value;
-                value.OnEnable();
+                if (selectedTool.TryGetValue(target, out BaseTool currentTool))
+                {
+                    currentTool.OnDisable();
+                }
 
-                LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = value;
+                if (value == null)
+                {
+                    selectedTool.Remove(target);
+                    LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = null;
+                }
+                else
+                {
+                    selectedTool[target] = value;
+                    value.OnEnable();
+                    LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = value;
+                }
             }
         }
 
@@ -278,7 +285,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                             if (GUILayout.Button(tools[index].DisplayName))
                             {
-                                CurrentTool = tools[index];
+                                if(CurrentTool == tools[index])
+                                {
+                                    CurrentTool = null;
+                                }
+                                else
+                                {
+                                    CurrentTool = tools[index];
+                                }
+                                
                             }
 
                             // Restore original colors
