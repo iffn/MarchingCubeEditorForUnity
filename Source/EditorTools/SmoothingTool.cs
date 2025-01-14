@@ -7,11 +7,10 @@ using UnityEngine;
 public class SmoothingTool : BaseTool
 {
     // Editor variables
+    bool raycastActive = true;
     float threshold = 0.5f;
     int radius = 3;
     float sigma = 2f;
-
-    bool raycastActive = false;
 
     // Internal variables
     PlaceableByClickHandler PlaceableByClick;

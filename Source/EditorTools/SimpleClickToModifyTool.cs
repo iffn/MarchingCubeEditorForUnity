@@ -10,7 +10,7 @@ using static UnityEditor.Progress;
 public class SimpleClickToModifyTool : BaseTool
 {
     // Editor variables
-    bool raycastActive;
+    bool raycastActive = true;
     bool RaycastActive
     {
         set
@@ -22,15 +22,14 @@ public class SimpleClickToModifyTool : BaseTool
         }
     }
 
+    PlaceableByClickHandler placeableByClick;
     bool displayPreviewShape;
-
     bool limitHeightToCursor;
 
     // Internal variables
     double nextUpdateTime;
     double timeBetweenUpdates = 1.0 / 60.0;
 
-    PlaceableByClickHandler placeableByClick;
     public override string DisplayName => "Click to modify tool";
 
     // Override functions

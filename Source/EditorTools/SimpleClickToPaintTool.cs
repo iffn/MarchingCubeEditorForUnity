@@ -6,13 +6,13 @@ using UnityEngine;
 
 public class SimpleClickToPaintTool : BaseTool
 {
-    bool raycastActive;
-    Vector3 originalShapePosition;
+    // Editor variabels
+    bool raycastActive = true;
     Color32 brushColor;
     AnimationCurve brushCurve = AnimationCurve.Linear(0, 0, 1, 1);
-
     PlaceableByClickHandler placeableByClick;
 
+    // Internal values
     public override string DisplayName => "Click to paint tool";
 
     public override void OnEnable()
