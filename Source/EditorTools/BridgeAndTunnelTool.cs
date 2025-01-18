@@ -124,8 +124,6 @@ public class BridgeAndTunnelTool : BaseTool
 
     void CreateTunnel(Vector3 startPoint, Vector3 endPoint)
     {
-        Debug.Log("Tunnel");
-
         if (bridgeOrTunnelShape == null) return;
 
         bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
