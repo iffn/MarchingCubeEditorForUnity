@@ -27,8 +27,6 @@ public class VisualisationManager : MonoBehaviour
 
     private void OnDrawGizmos() //ToDo: Implement different controller scales
     {
-        if (!ShowGridOutline) return;
-
         if (linkedController == null || !linkedController.IsInitialized) return;
 
         // Draw tool gizmos
@@ -37,11 +35,13 @@ public class VisualisationManager : MonoBehaviour
             drawGizmosTool.DrawGizmos();
         }
 
-        // Draw outline
-        Vector3 outlineSize = new Vector3(linkedController.GridResolutionX - 1, linkedController.GridResolutionY - 1, linkedController.GridResolutionZ - 1);
-        Gizmos.color = Color.cyan;
-        Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, outlineSize);
-        Gizmos.DrawWireCube(Vector3.one / 2f, Vector3.one);
+        if (ShowGridOutline)
+        {
+            Vector3 outlineSize = new Vector3(linkedController.GridResolutionX - 1, linkedController.GridResolutionY - 1, linkedController.GridResolutionZ - 1);
+            Gizmos.color = Color.cyan;
+            Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, outlineSize);
+            Gizmos.DrawWireCube(Vector3.one / 2f, Vector3.one);
+        }
     }
 }
 #endif
