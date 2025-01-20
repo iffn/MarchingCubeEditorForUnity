@@ -3,13 +3,18 @@
 ## Tools
 - [x] Heightmap addition
 - [x] Limit height to cursor (Reimplement)
-- [x] Tunnel
+- Tunnel
+  - [x] Basic implementation
+  - [ ] Preview with options
 - [x] Path
-- [x] Smoothing
+- Surface modifications
+  - [x] Basic implementation
   - [ ] Stop mostly removing material with GaussianSmoothingModifier
   - [ ] Implement other smoothing modifiers if needed
+  - [ ] Add roughen tool option
 - [ ] Normal expansion
 - [ ] Copy paste tool
+- [ ] Let tool GameObjects have their own UI
 
 ## Editor options
 - [x] Select tool from UI
@@ -18,9 +23,13 @@
 - [x] Expand voxel field
 
 ## Result visualization
-- [x] Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
+- Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
+  - [x] Basic implementation
+  - [ ] Give more options (One chunk, smooth normals, remove narrow triangles)
+  - [ ] Give time limits for processing
+  - [ ] Set on build option
 - [ ] Triplanar shader
-- [ ] Create LOD level for Chunks
+- [ ] Create LOD level for Chunks (Low prio)
 
 ## Tool visualization
 - [x] Distance function shader
@@ -32,10 +41,13 @@
 
 ## Performance improvements
 - [ ] Measure current mesh processing time
-- [ ] Iplement elemements (Like the preview) as a geometry shader
+- [ ] Implement elemements (Like the preview) as a geometry shader (Low prio)
 
 ## Additional functionalities
 - [x] Chunks
 - [x] Coloring with weight and vertex colors
-- [ ] Improve the GameObject sorting inside the MarchingCube prefab
-- [ ] Create testing concept
+- [x] Improve the GameObject sorting inside the MarchingCube prefab
+- [ ] Create testing concept (Low prio)
+
+## Branch merge checklist
+- [ ] Use preprocessor directives to allow building the project
