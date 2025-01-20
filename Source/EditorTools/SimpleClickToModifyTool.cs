@@ -31,6 +31,11 @@ public class SimpleClickToModifyTool : BaseTool
     double timeBetweenUpdates = 1.0 / 60.0;
 
     public override string DisplayName => "Click to modify tool";
+    
+    bool ShouldSubtract(Event e)
+    {
+        return ControlIsHeld(e);
+    }
 
     // Override functions
     public override void OnEnable()
@@ -130,7 +135,7 @@ public class SimpleClickToModifyTool : BaseTool
 
     BaseModificationTools.IVoxelModifier Modification(Event e)
     {
-        bool subtract = ControlIsHeld(e);
+        bool subtract = ShouldSubtract(e);
 
         BaseModificationTools.IVoxelModifier modifier;
 
@@ -182,6 +187,11 @@ public class SimpleClickToModifyTool : BaseTool
     {
         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
         {
+            if (ShouldSubtract(e))
+                LinkedMarchingCubeController.ModificationManager.ShowPreviewState(MarchingCubesPreview.PreviewDisplayStates.subtraction);
+            else
+                LinkedMarchingCubeController.ModificationManager.ShowPreviewState(MarchingCubesPreview.PreviewDisplayStates.addition);
+
             LinkedMarchingCubeController.ModificationManager.ShowPreviewData(placeableByClick.SelectedEditShape, Modification(e));
 
             placeableByClick.SelectedEditShape.gameObject.SetActive(false);

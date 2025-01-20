@@ -34,10 +34,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
 
         [SerializeField] GameObject chunkPrefab; // Prefab for chunk views
-        [SerializeField] private MarchingCubesView previewView;
+        [SerializeField] private MarchingCubesPreview previewView;
         [SerializeField] private Transform chunkHolder;
         [SerializeField] Transform shapeHolder;
         [SerializeField] private VisualisationManager linkedVisualisationManager;
+
+        public MarchingCubesPreview Preview => previewView;
 
         public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
         

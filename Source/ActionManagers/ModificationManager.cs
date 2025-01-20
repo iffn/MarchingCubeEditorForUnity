@@ -4,6 +4,7 @@ using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
 using UnityEngine;
 using static BaseModificationTools;
+using static MarchingCubesPreview;
 
 public class ModificationManager
 {
@@ -31,6 +32,11 @@ public class ModificationManager
 
         // Update affected chunk meshes
         linkedController.UpdateAffectedChunks(minGrid, maxGrid);
+    }
+
+    public void ShowPreviewState(MarchingCubesPreview.PreviewDisplayStates newState)
+    {
+       linkedController.Preview.ShowPreviewState(newState);
     }
 
     public void ShowPreviewData(EditShape shape, IVoxelModifier modifier)

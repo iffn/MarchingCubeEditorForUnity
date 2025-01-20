@@ -43,17 +43,12 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// <summary>
         /// The shape's position in world space.
         /// </summary>
-        public Vector3 Position => transform.position;
+        public Vector3 WorldPosition => transform.position;
 
         /// <summary>
         /// The shape's scale in local space.
         /// </summary>
-        public Vector3 Scale => transform.localScale;
-
-        /// <summary>
-        /// Material linked to the shape for visualization.
-        /// </summary>
-        [SerializeField] private Material linkedMaterial;
+        public Vector3 LocalScale => transform.localScale;
 
         readonly protected List<ShortcutHandler> shortcutHandlers = new List<ShortcutHandler>();
 
@@ -98,29 +93,6 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             foreach (ShortcutHandler handler in shortcutHandlers)
             {
                 handler.HandleShortcut(e);
-            }
-        }
-
-        public Color Color
-        {
-            set
-            {
-                //ToDo: Make better
-                return;
-
-                if (linkedMaterial == null)
-                {
-                    Renderer renderer = GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        linkedMaterial = renderer.material;
-                    }
-                }
-
-                if (linkedMaterial != null)
-                {
-                    linkedMaterial.SetColor("_Color", value);
-                }
             }
         }
 
