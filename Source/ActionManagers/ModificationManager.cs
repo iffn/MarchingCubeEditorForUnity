@@ -34,9 +34,9 @@ public class ModificationManager
         linkedController.UpdateAffectedChunks(minGrid, maxGrid);
     }
 
-    public void ShowPreviewState(MarchingCubesPreview.PreviewDisplayStates newState)
+    public void SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates newState)
     {
-       linkedController.Preview.ShowPreviewState(newState);
+       linkedController.Preview.SetPreviewDisplayState(newState);
     }
 
     public void ShowPreviewData(EditShape shape, IVoxelModifier modifier)

@@ -188,9 +188,9 @@ public class SimpleClickToModifyTool : BaseTool
         if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
         {
             if (ShouldSubtract(e))
-                LinkedMarchingCubeController.ModificationManager.ShowPreviewState(MarchingCubesPreview.PreviewDisplayStates.subtraction);
+                LinkedMarchingCubeController.ModificationManager.SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates.subtraction);
             else
-                LinkedMarchingCubeController.ModificationManager.ShowPreviewState(MarchingCubesPreview.PreviewDisplayStates.addition);
+                LinkedMarchingCubeController.ModificationManager.SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates.addition);
 
             LinkedMarchingCubeController.ModificationManager.ShowPreviewData(placeableByClick.SelectedEditShape, Modification(e));
 

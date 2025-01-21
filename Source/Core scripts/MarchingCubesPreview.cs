@@ -16,7 +16,7 @@ public class MarchingCubesPreview : MarchingCubesView
         subtraction
     }
 
-    public void ShowPreviewState(PreviewDisplayStates state)
+    public void SetPreviewDisplayState(PreviewDisplayStates state)
     {
         Material previewMaterial = AdditionPreviewMaterial;
 
