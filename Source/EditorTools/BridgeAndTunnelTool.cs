@@ -8,13 +8,17 @@ public class BridgeAndTunnelTool : BaseTool
 {
     Vector3 startPoint;
     Vector3 endPoint;
-
     bool startPointSet = false;
     bool endPointSet = false;
+    bool previewingTunnel = false;
 
     public override string DisplayName => "Bridge and tunnel tool";
 
     BridgeOrTunnelShape bridgeOrTunnelShape;
+
+    // Editor properties
+    bool showPreviewBeforeApplying = true;
+    bool confirmToApply = true;
 
     public override void OnEnable()
     {
@@ -46,6 +50,14 @@ public class BridgeAndTunnelTool : BaseTool
             if (endPointSet)
             {
                 endPoint = result.point;
+
+                if (showPreviewBeforeApplying)
+                {
+                    if (ControlIsHeld(e))
+                        PreviewTunnel(startPoint, endPoint);
+                    else
+                        PreviewBridge(startPoint, endPoint);
+                }
             }
 
             if (EscapeDownEvent(e))
@@ -74,16 +86,28 @@ public class BridgeAndTunnelTool : BaseTool
         }
         else if (endPointSet)
         {
-            if (ControlIsHeld(e))
+            if (!confirmToApply)
             {
-                CreateTunnel(startPoint, endPoint);
-            }
-            else
-            {
-                CreateBridge(startPoint, endPoint);
+                if (showPreviewBeforeApplying)
+                {
+                    ApplyPreviewChanges();
+                }
+                else
+                {
+                    if (ControlIsHeld(e))
+                    {
+                        CreateTunnel(startPoint, endPoint);
+                    }
+                    else
+                    {
+                        CreateBridge(startPoint, endPoint);
+                    }
+                }
+                
             }
 
             startPoint = endPoint;
+            
             e.Use();
         }
     }
@@ -101,6 +125,45 @@ public class BridgeAndTunnelTool : BaseTool
         {
             bridgeOrTunnelShape.radius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
         }
+
+        showPreviewBeforeApplying = EditorGUILayout.Toggle("Show preview before applying", showPreviewBeforeApplying);
+        confirmToApply = EditorGUILayout.Toggle("Confirm to apply", confirmToApply);
+
+        if(confirmToApply && startPointSet && endPointSet)
+        {
+            if (showPreviewBeforeApplying)
+            {
+                if (previewingTunnel)
+                {
+                    if (GUILayout.Button($"Switch to bridge"))
+                    {
+                        PreviewBridge(startPoint, endPoint);
+                        previewingTunnel = false;
+                    }
+
+                    if (GUILayout.Button($"Apply tunnel"))
+                        ApplyPreviewChanges();
+                }
+                else
+                {
+                    if (GUILayout.Button($"Apply bridge"))
+                        ApplyPreviewChanges();
+
+                    if (GUILayout.Button($"Switch to tunnel"))
+                    {
+                        PreviewTunnel(startPoint, endPoint);
+                        previewingTunnel = true;
+                    }
+                }
+            }
+            else
+            {
+                if (GUILayout.Button($"Create bridge"))
+                    CreateBridge(startPoint, endPoint);
+                if (GUILayout.Button($"Create tunnel"))
+                    CreateTunnel(startPoint, endPoint);
+            }
+        }
     }
 
     public override void DrawGizmos()
@@ -111,24 +174,55 @@ public class BridgeAndTunnelTool : BaseTool
         }
     }
 
-    void CreateBridge(Vector3 startPoint, Vector3 endPoint)
+    void PrepareBridge(Vector3 startPoint, Vector3 endPoint)
     {
-        if (bridgeOrTunnelShape == null) return;
-
         bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
 
         bridgeOrTunnelShape.SetParameters(startPoint, endPoint, BridgeOrTunnelShape.shapeTypes.flatTop);
+    }
+
+    void PrepareTunnel(Vector3 startPoint, Vector3 endPoint)
+    {
+        bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
+
+        bridgeOrTunnelShape.SetParameters(startPoint, endPoint, BridgeOrTunnelShape.shapeTypes.flatBottom);
+    }
+
+    void PreviewBridge(Vector3 startPoint, Vector3 endPoint)
+    {
+        PrepareBridge(startPoint, endPoint);
+
+        LinkedMarchingCubeController.ModificationManager.SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates.addition);
+        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(bridgeOrTunnelShape, new BaseModificationTools.AddShapeModifier());
+        
+        previewingTunnel = false;
+    }
+
+    void PreviewTunnel(Vector3 startPoint, Vector3 endPoint)
+    {
+        PrepareTunnel(startPoint, endPoint);
+
+        LinkedMarchingCubeController.ModificationManager.SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates.subtraction);
+        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(bridgeOrTunnelShape, new BaseModificationTools.SubtractShapeModifier());
+
+        previewingTunnel = true;
+    }
+
+    void ApplyPreviewChanges()
+    {
+        LinkedMarchingCubeController.ApplyPreviewChanges();
+    }
+
+    void CreateBridge(Vector3 startPoint, Vector3 endPoint)
+    {
+        PrepareBridge(startPoint, endPoint);
 
         LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelShape, new BaseModificationTools.AddShapeModifier());
     }
 
     void CreateTunnel(Vector3 startPoint, Vector3 endPoint)
     {
-        if (bridgeOrTunnelShape == null) return;
-
-        bridgeOrTunnelShape.transform.position = LinkedMarchingCubeController.transform.position;
-
-        bridgeOrTunnelShape.SetParameters(startPoint, endPoint, BridgeOrTunnelShape.shapeTypes.flatBottom);
+        PrepareTunnel(startPoint, endPoint);
 
         LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelShape, new BaseModificationTools.SubtractShapeModifier());
     }
