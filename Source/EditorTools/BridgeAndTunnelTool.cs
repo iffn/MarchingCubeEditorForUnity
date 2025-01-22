@@ -37,79 +37,102 @@ public class BridgeAndTunnelTool : BaseTool
                 }
             }
         }
+
+        LinkedMarchingCubeController.EnableAllColliders = true;
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
     }
 
     public override void HandleSceneUpdate(Event e)
     {
         if (startPointSet)
         {
-            RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
-
-            endPointSet = (result != RayHitResult.None);
-
-            if (endPointSet)
+            if (confirmToApply)
             {
+                if (LeftClickDownEvent(e))
+                {
+                    RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
+
+                    endPointSet = (result != RayHitResult.None);
+                    endPoint = result.point;
+
+                    if (showPreviewBeforeApplying)
+                    {
+                        if (ControlIsHeld(e))
+                            PreviewTunnel(startPoint, endPoint);
+                        else
+                            PreviewBridge(startPoint, endPoint);
+                    }
+
+                    ShowPreviewCheck();
+
+                    e.Use();
+                }
+            }
+            else
+            {
+                RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
+
+                endPointSet = (result != RayHitResult.None);
                 endPoint = result.point;
 
-                if (showPreviewBeforeApplying)
+                if (endPointSet)
                 {
-                    if (ControlIsHeld(e))
-                        PreviewTunnel(startPoint, endPoint);
-                    else
-                        PreviewBridge(startPoint, endPoint);
+                    if (showPreviewBeforeApplying)
+                    {
+                        if (ControlIsHeld(e))
+                            PreviewTunnel(startPoint, endPoint);
+                        else
+                            PreviewBridge(startPoint, endPoint);
+                    }
+
+                    if (LeftClickDownEvent(e))
+                    {
+                        if (showPreviewBeforeApplying)
+                            ApplyPreviewChanges();
+                        else
+                        {
+                            if (ControlIsHeld(e))
+                                CreateTunnel(startPoint, endPoint);
+                            else
+                                CreateBridge(startPoint, endPoint);
+                        }
+                    }
                 }
+
+                ShowPreviewCheck();
             }
 
             if (EscapeDownEvent(e))
             {
                 startPointSet = false;
+                endPointSet = false;
+                if (showPreviewBeforeApplying) LinkedMarchingCubeController.DisplayPreviewShape = false;
             }
         }
-
-        if (LeftClickDownEvent(e)) // Left-click event
+        else
         {
-            LeftClickAction(e);
+            if (LeftClickDownEvent(e)) // Left-click event
+            {
+                RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
+
+                if (result == RayHitResult.None) return;
+
+                startPoint = result.point;
+                startPointSet = true;
+                e.Use();
+            }
         }
     }
 
-    void LeftClickAction(Event e)
+    void ShowPreviewCheck()
     {
-        if (!startPointSet)
-        {
-            RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
+        bool showPreview = showPreviewBeforeApplying && startPointSet && endPointSet;
 
-            if (result == RayHitResult.None) return;
-
-            startPoint = result.point;
-            startPointSet = true;
-            e.Use();
-        }
-        else if (endPointSet)
-        {
-            if (!confirmToApply)
-            {
-                if (showPreviewBeforeApplying)
-                {
-                    ApplyPreviewChanges();
-                }
-                else
-                {
-                    if (ControlIsHeld(e))
-                    {
-                        CreateTunnel(startPoint, endPoint);
-                    }
-                    else
-                    {
-                        CreateBridge(startPoint, endPoint);
-                    }
-                }
-                
-            }
-
-            startPoint = endPoint;
-            
-            e.Use();
-        }
+        LinkedMarchingCubeController.DisplayPreviewShape = showPreview;
     }
 
     public override void DrawUI()
@@ -126,7 +149,14 @@ public class BridgeAndTunnelTool : BaseTool
             bridgeOrTunnelShape.radius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
         }
 
-        showPreviewBeforeApplying = EditorGUILayout.Toggle("Show preview before applying", showPreviewBeforeApplying);
+        bool newShowPreviewBeforeApplying = EditorGUILayout.Toggle("Show preview before applying", showPreviewBeforeApplying);
+        if(newShowPreviewBeforeApplying != showPreviewBeforeApplying)
+        {
+            showPreviewBeforeApplying = newShowPreviewBeforeApplying;
+
+            ShowPreviewCheck();
+        }
+        
         confirmToApply = EditorGUILayout.Toggle("Confirm to apply", confirmToApply);
 
         if(confirmToApply && startPointSet && endPointSet)
