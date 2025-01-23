@@ -100,6 +100,8 @@ public class BridgeAndTunnelTool : BaseTool
                             else
                                 CreateBridge(startPoint, endPoint);
                         }
+
+                        e.Use();
                     }
                 }
 
@@ -220,6 +222,8 @@ public class BridgeAndTunnelTool : BaseTool
 
     void PreviewBridge(Vector3 startPoint, Vector3 endPoint)
     {
+        if ((startPoint - endPoint).magnitude == 0) return;
+
         PrepareBridge(startPoint, endPoint);
 
         LinkedMarchingCubeController.ModificationManager.SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates.addition);
@@ -230,6 +234,7 @@ public class BridgeAndTunnelTool : BaseTool
 
     void PreviewTunnel(Vector3 startPoint, Vector3 endPoint)
     {
+        if ((startPoint - endPoint).magnitude == 0) return;
         PrepareTunnel(startPoint, endPoint);
 
         LinkedMarchingCubeController.ModificationManager.SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates.subtraction);
