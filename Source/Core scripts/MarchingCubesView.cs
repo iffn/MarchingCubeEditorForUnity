@@ -116,15 +116,55 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void UpdateMesh(List<Vector3> vertices, List<int> triangles, List<Color32> colors)
         {
+            if (vertices == null || vertices.Count == 0)
+            {
+                Debug.LogError("Vertices list is empty. Cannot update mesh.");
+                return;
+            }
+
+            if (triangles == null || triangles.Count == 0)
+            {
+                Debug.LogError("Triangles list is empty. Cannot update mesh.");
+                return;
+            }
+
+            if (colors != null && colors.Count != vertices.Count)
+            {
+                Debug.LogError("Colors list length does not match vertices count.");
+                return;
+            }
+
+            foreach (int index in triangles)
+            {
+                if (index < 0 || index >= vertices.Count)
+                {
+                    Debug.LogError($"Invalid triangle index: {index}. Vertices count: {vertices.Count}");
+                    return;
+                }
+            }
+
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                Vector3 vertex = vertices[i];
+                if (float.IsNaN(vertex.x) || float.IsNaN(vertex.y) || float.IsNaN(vertex.z) ||
+                    float.IsInfinity(vertex.x) || float.IsInfinity(vertex.y) || float.IsInfinity(vertex.z))
+                {
+                    Debug.LogError($"Invalid vertex at index {i}: {vertex}");
+                    return;
+                }
+            }
+
             Mesh mesh = meshFilter.sharedMesh;
             mesh.Clear();
 
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
-            mesh.SetColors(colors);
+            if (colors != null)
+                mesh.SetColors(colors);
 
             FinishMesh();
         }
+
 
         void UpdateCollider()
         {

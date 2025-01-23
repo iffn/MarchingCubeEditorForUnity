@@ -18,7 +18,7 @@ public class BridgeAndTunnelTool : BaseTool
 
     // Editor properties
     bool showPreviewBeforeApplying = true;
-    bool confirmToApply = true;
+    bool confirmToApply = false;
 
     public override void OnEnable()
     {
@@ -92,7 +92,16 @@ public class BridgeAndTunnelTool : BaseTool
                     if (LeftClickDownEvent(e))
                     {
                         if (showPreviewBeforeApplying)
+                        {
                             ApplyPreviewChanges();
+                            startPoint = endPoint;
+
+                            PrepareBridge(startPoint, endPoint); 
+
+                            LinkedMarchingCubeController.ModificationManager.SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates.addition);
+                            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(bridgeOrTunnelShape, new BaseModificationTools.AddShapeModifier());
+                        }
+                            
                         else
                         {
                             if (ControlIsHeld(e))
