@@ -19,6 +19,7 @@ public class BridgeAndTunnelTool : BaseTool
     // Editor properties
     bool showPreviewBeforeApplying = true;
     bool confirmToApply = true;
+    bool continueWithEndPoint = true;
 
     public override void OnEnable()
     {
@@ -92,7 +93,10 @@ public class BridgeAndTunnelTool : BaseTool
                     if (LeftClickDownEvent(e))
                     {
                         if (showPreviewBeforeApplying)
+                        {
                             ApplyPreviewChanges();
+                            if(continueWithEndPoint) startPoint = endPoint;
+                        }
                         else
                         {
                             if (ControlIsHeld(e))
@@ -161,7 +165,9 @@ public class BridgeAndTunnelTool : BaseTool
         
         confirmToApply = EditorGUILayout.Toggle("Confirm to apply", confirmToApply);
 
-        if(confirmToApply && startPointSet && endPointSet)
+        continueWithEndPoint = EditorGUILayout.Toggle("Continue with end point", continueWithEndPoint);
+
+        if (confirmToApply && startPointSet && endPointSet)
         {
             if (showPreviewBeforeApplying)
             {
