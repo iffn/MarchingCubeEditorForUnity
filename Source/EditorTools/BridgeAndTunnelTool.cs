@@ -209,6 +209,16 @@ public class BridgeAndTunnelTool : BaseTool
         if(startPointSet && endPointSet)
         {
             Gizmos.DrawLine(startPoint, endPoint);
+
+            LinkedMarchingCubeController.VisualisationManager.DrawCircle(endPoint, bridgeOrTunnelShape.radius, 12, startPoint - endPoint);
+        }
+
+        if (startPointSet)
+        {
+            if (endPointSet)
+                LinkedMarchingCubeController.VisualisationManager.DrawCircle(startPoint, bridgeOrTunnelShape.radius, 12, startPoint - endPoint);
+            else
+                LinkedMarchingCubeController.VisualisationManager.DrawCircle(startPoint, bridgeOrTunnelShape.radius, 12, Vector3.up);
         }
     }
 
