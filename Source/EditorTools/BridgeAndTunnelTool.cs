@@ -152,7 +152,20 @@ public class BridgeAndTunnelTool : BaseTool
 
         if(bridgeOrTunnelShape != null)
         {
-            bridgeOrTunnelShape.radius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
+            float newRadius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
+
+            if(newRadius != bridgeOrTunnelShape.radius)
+            {
+                bridgeOrTunnelShape.radius = newRadius;
+
+                if(showPreviewBeforeApplying && startPointSet && endPointSet)
+                {
+                    if(previewingTunnel)
+                        PreviewTunnel(startPoint, endPoint);
+                    else
+                        PreviewBridge(startPoint, endPoint);
+                }
+            }
         }
 
         bool newShowPreviewBeforeApplying = EditorGUILayout.Toggle("Show preview before applying", showPreviewBeforeApplying);
