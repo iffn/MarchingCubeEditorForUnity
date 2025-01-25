@@ -18,7 +18,7 @@ public class BridgeAndTunnelTool : BaseTool
 
     // Editor properties
     bool showPreviewBeforeApplying = true;
-    bool confirmToApply = true;
+    bool confirmToApply = false;
     bool continueWithEndPoint = true;
 
     public override void OnEnable()
