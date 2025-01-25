@@ -25,6 +25,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool settingsFoldout = true;
         bool toolsFoldout = true;
 
+        PostProcessingEditorElement postProcessingEditorElement;
+
         BaseTool CurrentTool 
         {
             get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
@@ -54,6 +56,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         public override void OnInspectorGUI()
         {
             DrawSetupUI();
+            postProcessingEditorElement.DrawAsFoldout(Controller);
             DrawEditUI();
         }
 
@@ -65,6 +68,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         private void OnEnable() 
         {
             tools = BaseTool.GetTools(this).ToList();
+
+            if(postProcessingEditorElement == null)
+                postProcessingEditorElement = new PostProcessingEditorElement();
 
             if (!Controller.IsInitialized)
             {
@@ -141,13 +147,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
-                Controller.PostProcessMesh = EditorGUILayout.Toggle("Post process mesh (slow)", Controller.PostProcessMesh);
-
-                if(Controller.PostProcessMesh)
-                {
-                    Controller.AngleThresholdDeg = EditorGUILayout.FloatField("Angle threshold [°]", Controller.AngleThresholdDeg);
-                    Controller.AreaThreshold = EditorGUILayout.FloatField("Area threshold", Controller.AreaThreshold);
-                }
 
                 Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);
                 Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
