@@ -10,6 +10,10 @@ graph LR
     Controller --> Model
     Controller --> View
 ```
+The core is set up with a Model-View-Controller pattern.
+- The model holds the voxel data.
+- The view uses the model data to generate the mesh.
+- The controller controls the interactions between the model and the view.
 
 ## User interaction
 ```mermaid
