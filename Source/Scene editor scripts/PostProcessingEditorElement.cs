@@ -7,7 +7,11 @@ using UnityEngine;
 public class PostProcessingEditorElement : EditorElement
 {
     public override string DisplayName => "Post processing";
-    protected override bool foldoutOutOpenByDefault => false;
+
+    public PostProcessingEditorElement(bool foldoutOpenByDefault) : base(foldoutOpenByDefault)
+    {
+        
+    }
 
     // Post processing options
     bool createOneChunk;

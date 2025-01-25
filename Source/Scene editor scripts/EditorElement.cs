@@ -11,12 +11,11 @@ public abstract class EditorElement
 
     public abstract void DrawUI(MarchingCubesController linkedController);
 
-    protected abstract bool foldoutOutOpenByDefault { get; }
     public bool foldoutOpen;
 
-    public EditorElement()
+    public EditorElement(bool foldoutOpenByDefault)
     {
-        foldoutOpen = foldoutOutOpenByDefault;
+        foldoutOpen = foldoutOpenByDefault;
     }
 
     public void DrawAsFoldout(MarchingCubesController linkedController)
