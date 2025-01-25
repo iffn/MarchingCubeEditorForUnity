@@ -70,7 +70,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             tools = BaseTool.GetTools(this).ToList();
 
             if(postProcessingEditorElement == null)
-                postProcessingEditorElement = new PostProcessingEditorElement(false);
+                postProcessingEditorElement = new PostProcessingEditorElement(true);
 
             if (!Controller.IsInitialized)
             {

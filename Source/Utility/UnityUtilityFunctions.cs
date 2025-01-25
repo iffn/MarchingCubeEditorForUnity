@@ -1,7 +1,9 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
 public static class UnityUtilityFunctions
 {
@@ -91,6 +93,17 @@ public static class UnityUtilityFunctions
         else if (Mathf.Approximately(localPoint.z, -halfSize.z)) return Vector3.back;
 
         return Vector3.zero;
+    }
+
+    [System.Serializable]
+    public class FieldMetadata
+    {
+        public string Name; // Display name in the UI
+        public Func<PostProcessingOptions, bool> IsVisible; // Visibility condition
+        public Func<PostProcessingOptions, object> GetValue; // Retrieves the current value
+        public Func<PostProcessingOptions, object, PostProcessingOptions> SetValue; // Sets the field value
+        public Type FieldType; // Type of the field (e.g., float, bool)
+        public object DefaultValue; // Default value
     }
 }
 #endif

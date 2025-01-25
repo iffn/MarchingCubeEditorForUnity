@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
 public class PostProcessingEditorElement : EditorElement
 {
@@ -13,26 +14,48 @@ public class PostProcessingEditorElement : EditorElement
         
     }
 
-    // Post processing options
-    bool createOneChunk;
-    bool smoothNormals;
-    bool mergeTriangles;
-    bool updateWhileEditing;
-    float maxProcessingTimeSeconds = 10;
-
     // Output
     float lastProcessingTimeSeconds = 0;
     int lastMergedElemements = 0;
 
-
     public override void DrawUI(MarchingCubesController linkedController)
     {
-        linkedController.PostProcessMesh = EditorGUILayout.Toggle("Post process mesh (slow)", linkedController.PostProcessMesh);
+        PostProcessingOptions options = linkedController.currentPostProcessingOptions;
 
-        if (linkedController.PostProcessMesh)
+        bool changed = false;
+
+        foreach (UnityUtilityFunctions.FieldMetadata field in PostProcessingOptions.FieldDefinitions)
         {
-            linkedController.AngleThresholdDeg = EditorGUILayout.FloatField("Angle threshold [°]", linkedController.AngleThresholdDeg);
-            linkedController.AreaThreshold = EditorGUILayout.FloatField("Area threshold", linkedController.AreaThreshold);
+            // Check if the field is visible
+            if (field.IsVisible(options))
+            {
+                // Draw the field based on its type
+                if (field.FieldType == typeof(bool))
+                {
+                    bool currentValue = (bool)field.GetValue(options);
+                    bool newValue = EditorGUILayout.Toggle(field.Name, currentValue);
+                    if (newValue != currentValue)
+                    {
+                        options = field.SetValue(options, newValue);
+                        changed = true;
+                    }
+                }
+                else if (field.FieldType == typeof(float))
+                {
+                    float currentValue = (float)field.GetValue(options);
+                    float newValue = EditorGUILayout.FloatField(field.Name, currentValue);
+                    if (!Mathf.Approximately(newValue, currentValue))
+                    {
+                        options = field.SetValue(options, newValue);
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        if (changed)
+        {
+            linkedController.currentPostProcessingOptions = options;
         }
     }
 }
