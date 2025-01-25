@@ -5,7 +5,9 @@
 - [x] Limit height to cursor (Reimplement)
 - Tunnel
   - [x] Basic implementation
-  - [ ] Preview with options
+  - [x] Preview with options
+  - [ ] Better gizmos shape
+  - [ ] Different tunnel cross sections
 - [x] Path
 - Surface modifications
   - [x] Basic implementation
