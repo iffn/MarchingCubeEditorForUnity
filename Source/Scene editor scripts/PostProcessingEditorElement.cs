@@ -58,6 +58,8 @@ public class PostProcessingEditorElement : EditorElement
             linkedController.CurrentPostProcessingOptions = options;
         }
 
+        GUILayout.Label($"Last post processing time: {MarchingCubesView.ElapsedPostProcessingTimeSeconds}");
+
         if (GUILayout.Button($"Post process mesh")) linkedController.PostProcessMesh();
     }
 }

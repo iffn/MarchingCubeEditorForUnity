@@ -320,7 +320,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            UpdateAllChunks();
+            UpdateAllChunks(postProcessCall);
 
             UpdateColliderStates();
         }
@@ -415,13 +415,22 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void UpdateAllChunks()
+        void UpdateAllChunks(bool postProcessingCall)
         {
-            foreach (var chunkView in chunkViews)
+            foreach (MarchingCubesView view in chunkViews)
             {
-                chunkView.MarkDirty();
-                chunkView.UpdateMeshIfDirty(mainModel);
-                if(currentPostProcessingOptions.postProcessWhileEditing) chunkView.PostProcessMesh(currentPostProcessingOptions);
+                view.MarkDirty();
+                view.UpdateMeshIfDirty(mainModel);
+            }
+
+            if (currentPostProcessingOptions.postProcessWhileEditing || postProcessingCall)
+            {
+                MarchingCubesView.ResetPostProcessingTime();
+
+                foreach(MarchingCubesView view in chunkViews)
+                {
+                    view.PostProcessMesh(currentPostProcessingOptions);
+                }
             }
         }
 
@@ -450,18 +459,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if(updateModel) UpdateAllChunks();
+            if(updateModel) UpdateAllChunks(false);
         }
 
         public void PostProcessMesh()
         {
+            MarchingCubesView.ResetPostProcessingTime();
             GenerateViewChunks(true);
         }
 
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             mainModel.SetDataAndResizeIfNeeded(newData);
-            UpdateAllChunks();
+            UpdateAllChunks(false);
         }
 
         /// <summary>

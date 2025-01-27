@@ -9,6 +9,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
     public class MarchingCubesView : MonoBehaviour
     {
+        static readonly System.Diagnostics.Stopwatch PostProcessingStopwatch = new System.Diagnostics.Stopwatch();
+
+        public static void ResetPostProcessingTime()
+        {
+            PostProcessingStopwatch.Reset();
+        }
+
+        public static double ElapsedPostProcessingTimeSeconds => PostProcessingStopwatch.Elapsed.TotalSeconds;
+
         private MeshFilter meshFilter;
         private MeshCollider meshCollider;
 
@@ -191,6 +200,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void PostProcessMesh(PostProcessingOptions currentPostProcessingOptions)
         {
+            PostProcessingStopwatch.Start();
+
             if (currentPostProcessingOptions.mergeTriangles)
             {
                 MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
@@ -207,6 +218,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
                 if (ColliderEnabled) UpdateCollider();
             }
+
+            PostProcessingStopwatch.Stop();
         }
 
         void FinishMesh()
