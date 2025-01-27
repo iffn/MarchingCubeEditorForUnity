@@ -295,7 +295,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (currentPostProcessingOptions.postProcessWhileEditing || postProcessingCall)
             {
-                MarchingCubesView.ResetPostProcessingTime();
+                MarchingCubesView.ResetPostProcessingDiagnostics();
 
                 foreach(MarchingCubesView view in chunkViews)
                 {
@@ -334,7 +334,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void PostProcessMesh()
         {
-            MarchingCubesView.ResetPostProcessingTime();
+            MarchingCubesView.ResetPostProcessingDiagnostics();
             GenerateViewChunks(true);
         }
 

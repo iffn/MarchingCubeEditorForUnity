@@ -11,8 +11,11 @@ public static class MeshUtilityFunctions
     // https://github.com/Shirakumo/manifolds/blob/main/normalize.lisp
     // https://github.com/Shirakumo/manifolds/blob/main/manifolds.lisp
 
-    public static void RemoveDegenerateTriangles(Mesh mesh, float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
+    public static void RemoveDegenerateTriangles(Mesh mesh, out int removedVertices, out int modifiedElements, float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
     {
+        int initialVertexCount = mesh.vertexCount;
+        int modifiedElementsCounter = 0;
+
 #if DebugPerformance
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
@@ -47,14 +50,17 @@ public static class MeshUtilityFunctions
                 if (a_d < b_d && a_d < c_d)
                 {
                     FuseEdge(a, b, face);
+                    modifiedElementsCounter++;
                 }
                 else if (b_d < a_d && b_d < c_d)
                 {
                     FuseEdge(b, c, face);
+                    modifiedElementsCounter++;
                 }
                 else
                 {
                     FuseEdge(c, a, face);
+                    modifiedElementsCounter++;
                 }
                 return true;
             }
@@ -76,14 +82,17 @@ public static class MeshUtilityFunctions
                 if (ab_d < a_d && ab_d < b_d)
                 {
                     FuseEdge(a, b, face);
+                    modifiedElementsCounter++;
                 }
                 else if (a_d < b_d)
                 {
                     SplitEdge(corner, b, a, face);
+                    modifiedElementsCounter++;
                 }
                 else
                 {
                     SplitEdge(corner, a, b, face);
+                    modifiedElementsCounter++;
                 }
                 return true;
             }
@@ -318,7 +327,10 @@ public static class MeshUtilityFunctions
 #if DebugPerformance
         Debug.Log($"Total time needed: {stopwatch.Elapsed.TotalSeconds}");
 #endif
-    }
+
+        removedVertices = initialVertexCount - mesh.vertexCount;
+        modifiedElements = modifiedElementsCounter;
+    }   
 
     static Dictionary<int, List<int>> VertexFaces(List<int> faces)
     {

@@ -17,7 +17,7 @@ public class SimplifyMeshTest : MonoBehaviour
         mesh.triangles = baseMeshFilter.mesh.triangles;
 
         Debug.Log($"Running for: {transform.name}");
-        MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, angleThresholdDeg, areaThreshold);
+        MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, out int removedVertices, out int modifiedElements, angleThresholdDeg, areaThreshold);
 
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();

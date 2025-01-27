@@ -59,6 +59,8 @@ public class PostProcessingEditorElement : EditorElement
         }
 
         GUILayout.Label($"Last post processing time: {MarchingCubesView.ElapsedPostProcessingTimeSeconds}");
+        GUILayout.Label($"Modified elements: {MarchingCubesView.ModifiedElements}");
+        GUILayout.Label($"Removed vertices: {MarchingCubesView.RemovedVertices}");
 
         if (GUILayout.Button($"Post process mesh")) linkedController.PostProcessMesh();
     }

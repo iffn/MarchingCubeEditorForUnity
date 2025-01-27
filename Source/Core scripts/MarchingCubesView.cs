@@ -10,10 +10,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     public class MarchingCubesView : MonoBehaviour
     {
         static readonly System.Diagnostics.Stopwatch PostProcessingStopwatch = new System.Diagnostics.Stopwatch();
+        public static int ModifiedElements { get; private set; }
+        public static int RemovedVertices { get; private set; }
 
-        public static void ResetPostProcessingTime()
+        public static void ResetPostProcessingDiagnostics()
         {
             PostProcessingStopwatch.Reset();
+            ModifiedElements = 0;
+            RemovedVertices = 0;
         }
 
         public static double ElapsedPostProcessingTimeSeconds => PostProcessingStopwatch.Elapsed.TotalSeconds;
@@ -204,7 +208,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (currentPostProcessingOptions.mergeTriangles)
             {
-                MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
+                MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, out int removedVertices, out int modifiedElements, currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
+
+                ModifiedElements += modifiedElements;
+                RemovedVertices += removedVertices;
             }
 
             FinishMesh();
@@ -292,7 +299,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 adjacencyList[v2].Add(v1);
             }
         }
-
 
         public static void MergeCloseVertices(Mesh mesh, float threshold)
         {
