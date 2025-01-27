@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
@@ -188,20 +189,24 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                      gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
         }
 
-        public void PostProcessMesh(float angleThresholdDeg, float areaThresholdDeg)
+        public void PostProcessMesh(PostProcessingOptions currentPostProcessingOptions)
         {
-            MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, angleThresholdDeg, areaThresholdDeg);
+            if (currentPostProcessingOptions.mergeTriangles)
+            {
+                MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
+            }
 
             FinishMesh();
 
-            /*
-            meshFilter.sharedMesh.RecalculateNormals();
-            SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, distanceFactorBias);
+            if (currentPostProcessingOptions.smoothNormals)
+            {
+                meshFilter.sharedMesh.RecalculateNormals();
+                SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias);
 
-            meshFilter.sharedMesh.RecalculateTangents();
-            //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
-            if (ColliderEnabled) UpdateCollider();
-            */
+                meshFilter.sharedMesh.RecalculateTangents();
+                //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
+                if (ColliderEnabled) UpdateCollider();
+            }
         }
 
         void FinishMesh()

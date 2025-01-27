@@ -20,7 +20,7 @@ public class PostProcessingEditorElement : EditorElement
 
     public override void DrawUI(MarchingCubesController linkedController)
     {
-        PostProcessingOptions options = linkedController.currentPostProcessingOptions;
+        PostProcessingOptions options = linkedController.CurrentPostProcessingOptions;
 
         bool changed = false;
 
@@ -55,7 +55,9 @@ public class PostProcessingEditorElement : EditorElement
 
         if (changed)
         {
-            linkedController.currentPostProcessingOptions = options;
+            linkedController.CurrentPostProcessingOptions = options;
         }
+
+        if (GUILayout.Button($"Post process mesh")) linkedController.PostProcessMesh();
     }
 }
