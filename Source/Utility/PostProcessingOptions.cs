@@ -12,7 +12,7 @@ public struct PostProcessingOptions
     public bool mergeTriangles;
     public float angleThresholdDeg;
     public float areaThreshold;
-    public float maxProcessingTimeSeconds;
+    public double maxProcessingTimeSeconds;
 
     public static List<FieldMetadata> FieldDefinitions = new List<FieldMetadata>
             {
@@ -110,11 +110,11 @@ public struct PostProcessingOptions
                 new FieldMetadata
                 {
                     Name = "Max Processing Time [s]",
-                    FieldType = typeof(float),
+                    FieldType = typeof(double),
                     GetValue = opts => opts.maxProcessingTimeSeconds,
                     SetValue = (opts, val) =>
                     {
-                        opts.maxProcessingTimeSeconds = (float)val;
+                        opts.maxProcessingTimeSeconds = (double)val;
                         return opts; // Return the updated struct
                     },
                     DefaultValue = 10f,

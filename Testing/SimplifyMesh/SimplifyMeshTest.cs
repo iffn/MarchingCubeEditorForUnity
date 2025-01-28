@@ -16,8 +16,11 @@ public class SimplifyMeshTest : MonoBehaviour
         mesh.vertices = baseMeshFilter.mesh.vertices;
         mesh.triangles = baseMeshFilter.mesh.triangles;
 
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        double maxTime = 0;
+
         Debug.Log($"Running for: {transform.name}");
-        MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, out int removedVertices, out int modifiedElements, angleThresholdDeg, areaThreshold);
+        MeshUtilityFunctions.RemoveDegenerateTriangles(mesh, sw, maxTime, out int removedVertices, out int modifiedElements, angleThresholdDeg, areaThreshold);
 
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();

@@ -50,6 +50,17 @@ public class PostProcessingEditorElement : EditorElement
                         changed = true;
                     }
                 }
+                else if (field.FieldType == typeof(double))
+                {
+                    float currentValue = (float)(double)field.GetValue(options);
+                    float newValue = EditorGUILayout.FloatField(field.Name, currentValue);
+                    if (!Mathf.Approximately(newValue, currentValue))
+                    {
+                        double newValueDouble = newValue;
+                        options = field.SetValue(options, newValueDouble);
+                        changed = true;
+                    }
+                }
             }
         }
 

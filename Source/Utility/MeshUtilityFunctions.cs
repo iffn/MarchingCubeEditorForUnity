@@ -1,8 +1,8 @@
-//# define DebugPerformance
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public static class MeshUtilityFunctions
@@ -11,15 +11,15 @@ public static class MeshUtilityFunctions
     // https://github.com/Shirakumo/manifolds/blob/main/normalize.lisp
     // https://github.com/Shirakumo/manifolds/blob/main/manifolds.lisp
 
-    public static void RemoveDegenerateTriangles(Mesh mesh, out int removedVertices, out int modifiedElements, float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
+    public static void RemoveDegenerateTriangles(
+        Mesh mesh, 
+        Stopwatch sw, double maxTime, 
+        out int removedVertices, out int modifiedElements, 
+        float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
     {
         int initialVertexCount = mesh.vertexCount;
         int modifiedElementsCounter = 0;
 
-#if DebugPerformance
-        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-#endif  
         Color[] colors = mesh.colors;
 
         bool considerColors = colors.Length == mesh.vertices.Length;
@@ -209,7 +209,6 @@ public static class MeshUtilityFunctions
                 }
             }
 
-
             // Delete the original face
             // (delete-triangle face)
             DeleteTriangle(face);
@@ -302,6 +301,8 @@ public static class MeshUtilityFunctions
         // Actual function:
         for (int i = 0; i < newIndices.Count; i += 3)
         {
+            if (sw.Elapsed.TotalSeconds > maxTime) break;
+
             int face = i / 3;
             int p1 = newIndices[i];
             int p2 = newIndices[i + 1];
@@ -323,10 +324,6 @@ public static class MeshUtilityFunctions
         if (considerColors) mesh.colors = newColors.ToArray();
 
         RemoveUnusedVertices(mesh);
-
-#if DebugPerformance
-        Debug.Log($"Total time needed: {stopwatch.Elapsed.TotalSeconds}");
-#endif
 
         removedVertices = initialVertexCount - mesh.vertexCount;
         modifiedElements = modifiedElementsCounter;

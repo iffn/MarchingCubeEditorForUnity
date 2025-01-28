@@ -208,7 +208,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (currentPostProcessingOptions.mergeTriangles)
             {
-                MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, out int removedVertices, out int modifiedElements, currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
+                MeshUtilityFunctions.RemoveDegenerateTriangles(
+                    meshFilter.sharedMesh, 
+                    PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds, 
+                    out int removedVertices, out int modifiedElements, 
+                    currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
 
                 ModifiedElements += modifiedElements;
                 RemovedVertices += removedVertices;
