@@ -50,7 +50,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public Vector3Int MaxGrid => mainModel.MaxGrid;
 
-        PostProcessingOptions currentPostProcessingOptions = new PostProcessingOptions();
+        PostProcessingOptions currentPostProcessingOptions = PostProcessingOptions.Default;
         public PostProcessingOptions CurrentPostProcessingOptions
         {
             get => currentPostProcessingOptions;
