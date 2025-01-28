@@ -295,12 +295,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (currentPostProcessingOptions.postProcessWhileEditing || postProcessingCall)
             {
-                MarchingCubesView.ResetPostProcessingDiagnostics();
-
-                foreach(MarchingCubesView view in chunkViews)
-                {
-                    view.PostProcessMesh(currentPostProcessingOptions);
-                }
+                PostProcessMesh();
             }
         }
 
@@ -335,7 +330,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void PostProcessMesh()
         {
             MarchingCubesView.ResetPostProcessingDiagnostics();
-            GenerateViewChunks(true);
+
+            foreach (MarchingCubesView view in chunkViews)
+            {
+                view.PostProcessMesh(currentPostProcessingOptions);
+            }
         }
 
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
