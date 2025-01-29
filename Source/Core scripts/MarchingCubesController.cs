@@ -135,10 +135,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void GenerateViewChunks(bool postProcessCall)
+        void GenerateViewChunks(bool directPostProcessCall)
         {
             // Decide on chunk size
-            if ((postProcessCall || currentPostProcessingOptions.postProcessWhileEditing) && currentPostProcessingOptions.createOneChunk)
+            if ((directPostProcessCall || currentPostProcessingOptions.postProcessWhileEditing) && currentPostProcessingOptions.createOneChunk)
             {
                 chunkSize = new Vector3Int(mainModel.ResolutionX, mainModel.ResolutionY, mainModel.ResolutionZ);
             }
@@ -197,7 +197,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            UpdateAllChunks(postProcessCall);
+            UpdateAllChunks();
 
             UpdateColliderStates();
         }
@@ -301,7 +301,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void UpdateAllChunks(bool postProcessingCall)
+        void UpdateAllChunks()
         {
             foreach (MarchingCubesView view in chunkViews)
             {
@@ -309,7 +309,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 view.UpdateMeshIfDirty(mainModel);
             }
 
-            if (currentPostProcessingOptions.postProcessWhileEditing || postProcessingCall)
+            if (currentPostProcessingOptions.postProcessWhileEditing)
             {
                 PostProcessMesh();
             }
@@ -340,7 +340,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if(updateModel) UpdateAllChunks(false);
+            if(updateModel) UpdateAllChunks();
         }
 
         public void PostProcessMesh()
@@ -356,7 +356,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             mainModel.SetDataAndResizeIfNeeded(newData);
-            GenerateViewChunks();
+            GenerateViewChunks(false);
 
             UpdateAllChunks();
         }
@@ -469,7 +469,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             mainModel.ChangeGridSize(resolutionX, resolutionY, resolutionZ, offsetX, offsetY, offsetZ);
 
-            GenerateViewChunks();
+            GenerateViewChunks(false);
         }
     }
 }

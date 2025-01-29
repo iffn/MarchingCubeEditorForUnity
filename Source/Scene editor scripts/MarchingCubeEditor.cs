@@ -74,7 +74,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             EditorGUILayout.EndFoldoutHeaderGroup();
 
             DrawSetupUI();
-            postProcessingEditorElement.DrawAsFoldout(Controller);
+            postProcessingEditorElement.DrawAsFoldout(LinkedMarchingCubeController);
             DrawEditUI();
         }
 
