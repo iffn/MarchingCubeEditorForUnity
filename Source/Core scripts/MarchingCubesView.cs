@@ -223,7 +223,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (currentPostProcessingOptions.smoothNormals)
             {
                 meshFilter.sharedMesh.RecalculateNormals();
-                SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias);
+                SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
 
                 meshFilter.sharedMesh.RecalculateTangents();
                 //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
@@ -241,8 +241,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (ColliderEnabled) UpdateCollider();
         }
 
-        void SmoothNormalsWithDistanceBias(Mesh mesh, float distanceBiasFactor)
+        void SmoothNormalsWithDistanceBias(Mesh mesh, float distanceBiasFactor, PostProcessingOptions currentPostProcessingOptions)
         {
+            if (currentPostProcessingOptions.maxProcessingTimeSeconds > PostProcessingStopwatch.Elapsed.TotalSeconds)
+            {
+                Debug.LogWarning("Did not start normal smoothing because time already ran out.");
+                return;
+            }
+            
             // Step 1: Recalculate initial normals
             mesh.RecalculateNormals();
             Vector3[] vertices = mesh.vertices;
@@ -285,6 +291,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                 smoothedNormal /= totalWeight; // Normalize by total weight
                 smoothedNormals[i] = smoothedNormal.normalized;
+
+                if (currentPostProcessingOptions.maxProcessingTimeSeconds > PostProcessingStopwatch.Elapsed.TotalSeconds)
+                {
+                    Debug.LogWarning("Interrupted normal smoothing because time ran out. Continuation not yet implemented for this.");
+                    break;
+                }
             }
 
             // Step 4: Update mesh normals

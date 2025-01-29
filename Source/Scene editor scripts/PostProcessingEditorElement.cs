@@ -11,12 +11,8 @@ public class PostProcessingEditorElement : EditorElement
 
     public PostProcessingEditorElement(bool foldoutOpenByDefault) : base(foldoutOpenByDefault)
     {
-        
+        // Constructor
     }
-
-    // Output
-    float lastProcessingTimeSeconds = 0;
-    int lastMergedElemements = 0;
 
     public override void DrawUI(MarchingCubesController linkedController)
     {
