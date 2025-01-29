@@ -1,8 +1,6 @@
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 public static class MeshUtilityFunctions
@@ -13,7 +11,7 @@ public static class MeshUtilityFunctions
 
     public static void RemoveDegenerateTriangles(
         Mesh mesh, 
-        Stopwatch sw, double maxTime, 
+        System.Diagnostics.Stopwatch sw, double maxTime,
         out int removedVertices, out int modifiedElements, 
         float angleThreshold = 0.01f, float areaThreshold = 0.001f) // Based on remove-degenerate-triangles
     {
@@ -280,7 +278,7 @@ public static class MeshUtilityFunctions
             // Ensure adjacency array is large enough
             if (newFaceIndex >= adjacency.Length)
             {
-                Array.Resize(ref adjacency, newFaceIndex + 1);
+                System.Array.Resize(ref adjacency, newFaceIndex + 1);
                 adjacency[newFaceIndex] = new List<int>();
             }
 
@@ -301,7 +299,11 @@ public static class MeshUtilityFunctions
         // Actual function:
         for (int i = 0; i < newIndices.Count; i += 3)
         {
-            if (sw.Elapsed.TotalSeconds > maxTime) break;
+            if (sw.Elapsed.TotalSeconds > maxTime)
+            {
+                Debug.LogWarning("Did not finish removing triangles. Running post processsing again will continue it.");
+                break;
+            }
 
             int face = i / 3;
             int p1 = newIndices[i];
@@ -562,7 +564,7 @@ public static class MeshUtilityFunctions
         }
         else
         {
-            throw new ArgumentException($"Edge {a}, {b} is not part of face {face}!");
+            throw new System.ArgumentException($"Edge {a}, {b} is not part of face {face}!");
         }
     }
 
