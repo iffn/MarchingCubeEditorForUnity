@@ -2,12 +2,26 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
     public class MarchingCubesView : MonoBehaviour
     {
+        static readonly System.Diagnostics.Stopwatch PostProcessingStopwatch = new System.Diagnostics.Stopwatch();
+        public static int ModifiedElements { get; private set; }
+        public static int RemovedVertices { get; private set; }
+
+        public static void ResetPostProcessingDiagnostics()
+        {
+            PostProcessingStopwatch.Reset();
+            ModifiedElements = 0;
+            RemovedVertices = 0;
+        }
+
+        public static double ElapsedPostProcessingTimeSeconds => PostProcessingStopwatch.Elapsed.TotalSeconds;
+
         private MeshFilter meshFilter;
         private MeshCollider meshCollider;
 
@@ -190,20 +204,35 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                      gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
         }
 
-        public void PostProcessMesh(float angleThresholdDeg, float areaThresholdDeg)
+        public void PostProcessMesh(PostProcessingOptions currentPostProcessingOptions)
         {
-            MeshUtilityFunctions.RemoveDegenerateTriangles(meshFilter.sharedMesh, angleThresholdDeg, areaThresholdDeg);
+            PostProcessingStopwatch.Start();
+
+            if (currentPostProcessingOptions.mergeTriangles)
+            {
+                MeshUtilityFunctions.RemoveDegenerateTriangles(
+                    meshFilter.sharedMesh, 
+                    PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds, 
+                    out int removedVertices, out int modifiedElements, 
+                    currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
+
+                ModifiedElements += modifiedElements;
+                RemovedVertices += removedVertices;
+            }
 
             FinishMesh();
 
-            /*
-            meshFilter.sharedMesh.RecalculateNormals();
-            SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, distanceFactorBias);
+            if (currentPostProcessingOptions.smoothNormals)
+            {
+                meshFilter.sharedMesh.RecalculateNormals();
+                SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
 
-            meshFilter.sharedMesh.RecalculateTangents();
-            //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
-            if (ColliderEnabled) UpdateCollider();
-            */
+                meshFilter.sharedMesh.RecalculateTangents();
+                //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
+                if (ColliderEnabled) UpdateCollider();
+            }
+
+            PostProcessingStopwatch.Stop();
         }
 
         void FinishMesh()
@@ -214,8 +243,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (ColliderEnabled) UpdateCollider();
         }
 
-        void SmoothNormalsWithDistanceBias(Mesh mesh, float distanceBiasFactor)
+        void SmoothNormalsWithDistanceBias(Mesh mesh, float distanceBiasFactor, PostProcessingOptions currentPostProcessingOptions)
         {
+            if (currentPostProcessingOptions.maxProcessingTimeSeconds > PostProcessingStopwatch.Elapsed.TotalSeconds)
+            {
+                Debug.LogWarning("Did not start normal smoothing because time already ran out.");
+                return;
+            }
+            
             // Step 1: Recalculate initial normals
             mesh.RecalculateNormals();
             Vector3[] vertices = mesh.vertices;
@@ -258,6 +293,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                 smoothedNormal /= totalWeight; // Normalize by total weight
                 smoothedNormals[i] = smoothedNormal.normalized;
+
+                if (currentPostProcessingOptions.maxProcessingTimeSeconds > PostProcessingStopwatch.Elapsed.TotalSeconds)
+                {
+                    Debug.LogWarning("Interrupted normal smoothing because time ran out. Continuation not yet implemented for this.");
+                    break;
+                }
             }
 
             // Step 4: Update mesh normals
@@ -276,7 +317,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 adjacencyList[v2].Add(v1);
             }
         }
-
 
         public static void MergeCloseVertices(Mesh mesh, float threshold)
         {

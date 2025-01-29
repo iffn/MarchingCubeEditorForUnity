@@ -25,8 +25,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool toolsFoldout = true;
         bool moveTransformWhenExpanding = true;
 
+		PostProcessingEditorElement postProcessingEditorElement;
+
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
+		
         BaseTool CurrentTool 
         {
             get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
@@ -71,6 +74,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             EditorGUILayout.EndFoldoutHeaderGroup();
 
             DrawSetupUI();
+            postProcessingEditorElement.DrawAsFoldout(Controller);
             DrawEditUI();
         }
 
@@ -82,7 +86,10 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         private void OnEnable() 
         {
             tools = BaseTool.GetTools(this).ToList();
-
+			
+			if(postProcessingEditorElement == null)
+                postProcessingEditorElement = new PostProcessingEditorElement(true);
+			
             if (!LinkedMarchingCubeController.IsInitialized)
             {
                 LinkedMarchingCubeController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
@@ -237,13 +244,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 LinkedMarchingCubeController.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", LinkedMarchingCubeController.ForceColliderOn);
-                LinkedMarchingCubeController.PostProcessMesh = EditorGUILayout.Toggle("Post process mesh (slow)", LinkedMarchingCubeController.PostProcessMesh);
-
-                if(LinkedMarchingCubeController.PostProcessMesh)
-                {
-                    LinkedMarchingCubeController.AngleThresholdDeg = EditorGUILayout.FloatField("Angle threshold [°]", LinkedMarchingCubeController.AngleThresholdDeg);
-                    LinkedMarchingCubeController.AreaThreshold = EditorGUILayout.FloatField("Area threshold", LinkedMarchingCubeController.AreaThreshold);
-                }
 
                 LinkedMarchingCubeController.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", LinkedMarchingCubeController.VisualisationManager.ShowGridOutline);
                 LinkedMarchingCubeController.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", LinkedMarchingCubeController.InvertAllNormals);

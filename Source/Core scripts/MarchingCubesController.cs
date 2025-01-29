@@ -5,6 +5,7 @@ using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static UnityUtilityFunctions;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
@@ -56,6 +57,17 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public Vector3Int MaxGrid => mainModel.MaxGrid;
 
+        PostProcessingOptions currentPostProcessingOptions = PostProcessingOptions.Default;
+        public PostProcessingOptions CurrentPostProcessingOptions
+        {
+            get => currentPostProcessingOptions;
+            set
+            {
+                currentPostProcessingOptions = value;
+                GenerateViewChunks(false);
+            }
+        }
+
         //Managers
         public ModificationManager ModificationManager { get; private set; }
         public SaveAndLoadManager SaveAndLoadManager { get; private set; }
@@ -64,48 +76,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             get
             {
                 return linkedVisualisationManager;
-            }
-        }
-
-        bool postProcessMesh = false;
-        public bool PostProcessMesh
-        {
-            get => postProcessMesh;
-            set
-            {
-                if(postProcessMesh != value)
-                {
-                    postProcessMesh = value;
-                    GenerateViewChunks();
-                }
-            }
-        }
-
-        float angleThresholdDeg = 2f;
-        public float AngleThresholdDeg
-        {
-            get => angleThresholdDeg;
-            set
-            {
-                if(angleThresholdDeg != value)
-                {
-                    angleThresholdDeg = value;
-                    if (postProcessMesh) GenerateViewChunks();
-                }
-            }
-        }
-
-        float areaThreshold = 0.001f;
-        public float AreaThreshold
-        {
-            get => areaThreshold;
-            set
-            {
-                if (areaThreshold != value)
-                {
-                    areaThreshold = value;
-                    if (postProcessMesh) GenerateViewChunks();
-                }
             }
         }
 
@@ -165,10 +135,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void GenerateViewChunks()
+        void GenerateViewChunks(bool postProcessCall)
         {
             // Decide on chunk size
-            if (postProcessMesh)
+            if ((postProcessCall || currentPostProcessingOptions.postProcessWhileEditing) && currentPostProcessingOptions.createOneChunk)
             {
                 chunkSize = new Vector3Int(mainModel.ResolutionX, mainModel.ResolutionY, mainModel.ResolutionZ);
             }
@@ -227,7 +197,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            UpdateAllChunks();
+            UpdateAllChunks(postProcessCall);
 
             UpdateColliderStates();
         }
@@ -261,7 +231,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
 
             //Generate views
-            GenerateViewChunks();
+            GenerateViewChunks(false);
 
             // Setup preview model
             if (previewModelWithOldData == null)
@@ -331,13 +301,17 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void UpdateAllChunks()
+        void UpdateAllChunks(bool postProcessingCall)
         {
-            foreach (var chunkView in chunkViews)
+            foreach (MarchingCubesView view in chunkViews)
             {
-                chunkView.MarkDirty();
-                chunkView.UpdateMeshIfDirty(mainModel);
-                if (PostProcessMesh) chunkView.PostProcessMesh(AngleThresholdDeg, AreaThreshold);
+                view.MarkDirty();
+                view.UpdateMeshIfDirty(mainModel);
+            }
+
+            if (currentPostProcessingOptions.postProcessWhileEditing || postProcessingCall)
+            {
+                PostProcessMesh();
             }
         }
 
@@ -366,13 +340,22 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if(updateModel) UpdateAllChunks();
+            if(updateModel) UpdateAllChunks(false);
+        }
+
+        public void PostProcessMesh()
+        {
+            MarchingCubesView.ResetPostProcessingDiagnostics();
+
+            foreach (MarchingCubesView view in chunkViews)
+            {
+                view.PostProcessMesh(currentPostProcessingOptions);
+            }
         }
 
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             mainModel.SetDataAndResizeIfNeeded(newData);
-            
             GenerateViewChunks();
 
             UpdateAllChunks();
