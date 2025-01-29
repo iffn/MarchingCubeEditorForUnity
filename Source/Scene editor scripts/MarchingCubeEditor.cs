@@ -88,7 +88,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             tools = BaseTool.GetTools(this).ToList();
 			
 			if(postProcessingEditorElement == null)
-                postProcessingEditorElement = new PostProcessingEditorElement(true);
+                postProcessingEditorElement = new PostProcessingEditorElement(false);
 			
             if (!LinkedMarchingCubeController.IsInitialized)
             {
