@@ -19,13 +19,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         List<BaseTool> tools;
 
         bool defaultFoldout = false;
-        bool generalFoldout = true;
         bool expansionFoldout = false;
         bool settingsFoldout = true;
         bool toolsFoldout = true;
         bool moveTransformWhenExpanding = true;
 
-		PostProcessingEditorElement postProcessingEditorElement;
+        SizeAndLoaderEditorElement sizeAndLoaderEditorElement;
+        PostProcessingEditorElement postProcessingEditorElement;
 
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
@@ -56,7 +56,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
 
-        void LoadData()
+        public void LoadData()
         {
             if (LinkedMarchingCubeController.linkedSaveData == null)
                 return;
@@ -74,7 +74,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             EditorGUILayout.EndFoldoutHeaderGroup();
 
             DrawSetupUI();
-            postProcessingEditorElement.DrawAsFoldout(LinkedMarchingCubeController);
+            postProcessingEditorElement.DrawAsFoldout();
             DrawEditUI();
         }
 
@@ -86,9 +86,12 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         private void OnEnable() 
         {
             tools = BaseTool.GetTools(this).ToList();
-			
+
+            if (sizeAndLoaderEditorElement == null)
+                sizeAndLoaderEditorElement = new SizeAndLoaderEditorElement(this, true);
+
 			if(postProcessingEditorElement == null)
-                postProcessingEditorElement = new PostProcessingEditorElement(false);
+                postProcessingEditorElement = new PostProcessingEditorElement(this, false);
 			
             if (!LinkedMarchingCubeController.IsInitialized)
             {
@@ -115,62 +118,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         //Components
         void DrawSetupUI()
         {
-            generalFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(generalFoldout, "General");
-            if (generalFoldout)
-            {
-                // Normal grid size
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("X");
-                GUILayout.Label("Y");
-                GUILayout.Label("Z");
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label($"{LinkedMarchingCubeController.GridResolutionX}");
-                GUILayout.Label($"{LinkedMarchingCubeController.GridResolutionY}");
-                GUILayout.Label($"{LinkedMarchingCubeController.GridResolutionZ}");
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.BeginHorizontal();
-                gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
-                gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
-                gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
-                EditorGUILayout.EndHorizontal();
-
-                if (GUILayout.Button("Apply and set empty"))
-                {
-                    LinkedMarchingCubeController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-                }
-
-                // Save and load
-                GUILayout.Label("Save data:");
-                ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
-                LinkedMarchingCubeController.linkedSaveData,
-                typeof(ScriptableObjectSaveData),
-                true) as ScriptableObjectSaveData;
-
-
-                if (newSaveData != LinkedMarchingCubeController.linkedSaveData)
-                {
-                    Undo.RecordObject(LinkedMarchingCubeController, "Set save data file");
-                    LinkedMarchingCubeController.linkedSaveData = newSaveData;
-                    EditorUtility.SetDirty(LinkedMarchingCubeController);
-                    if (!Application.isPlaying)
-                        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(LinkedMarchingCubeController.gameObject.scene);
-                }
-
-                if (LinkedMarchingCubeController.linkedSaveData != null)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    if (GUILayout.Button($"Save data")) LinkedMarchingCubeController.SaveAndLoadManager.SaveGridData(LinkedMarchingCubeController.linkedSaveData);
-                    if (GUILayout.Button($"Load data")) LoadData();
-                    EditorGUILayout.EndHorizontal();
-                }
-
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+            sizeAndLoaderEditorElement.DrawAsFoldout();
 
             // Expansion
             expansionFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(expansionFoldout, "Expansion");
