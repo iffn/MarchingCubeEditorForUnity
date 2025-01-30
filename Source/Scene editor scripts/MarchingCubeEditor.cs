@@ -10,18 +10,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
     [CustomEditor(typeof(MarchingCubesController))]
     public class MarchingCubeEditor : Editor
     {
-        int gridCExpandSize = 0;
-
         List<BaseTool> tools;
 
         bool defaultFoldout = false;
-        bool expansionFoldout = false;
-        bool settingsFoldout = true;
         bool toolsFoldout = true;
 
         SizeAndLoaderEditorElement sizeAndLoaderEditorElement;
         ExpansionEditorElement expansionEditorElement;
         PostProcessingEditorElement postProcessingEditorElement;
+        SettingsEditorElement settingsEditorElement;
 
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
@@ -103,6 +100,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
 			if(postProcessingEditorElement == null)
                 postProcessingEditorElement = new PostProcessingEditorElement(this, false);
+
+			if(settingsEditorElement == null)
+                settingsEditorElement = new SettingsEditorElement(this, false);
             
             // Seutp tools
             tools = BaseTool.GetTools(this).ToList();
@@ -117,19 +117,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
             expansionEditorElement.DrawAsFoldout();
 
-            settingsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(settingsFoldout, "Settings");
-            if (settingsFoldout)
-            {
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-                LinkedMarchingCubeController.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", LinkedMarchingCubeController.ForceColliderOn);
-
-                LinkedMarchingCubeController.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", LinkedMarchingCubeController.VisualisationManager.ShowGridOutline);
-                LinkedMarchingCubeController.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", LinkedMarchingCubeController.InvertAllNormals);
-
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+            settingsEditorElement.DrawAsFoldout();
         }
 
         void DrawEditUI()
