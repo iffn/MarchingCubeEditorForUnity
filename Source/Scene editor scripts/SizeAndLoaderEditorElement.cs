@@ -16,6 +16,9 @@ public class SizeAndLoaderEditorElement : EditorElement
     public SizeAndLoaderEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
     {
         // Constructor
+        int gridResolutionX = linkedController.GridResolutionX;
+        int gridResolutionY = linkedController.GridResolutionY;
+        int gridResolutionZ = linkedController.GridResolutionZ;
     }
 
     public override void DrawUI()

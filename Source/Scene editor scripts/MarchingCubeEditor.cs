@@ -10,10 +10,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
     [CustomEditor(typeof(MarchingCubesController))]
     public class MarchingCubeEditor : Editor
     {
-        int gridResolutionX = 20;
-        int gridResolutionY = 20;
-        int gridResolutionZ = 20;
-
         int gridCExpandSize = 0;
 
         List<BaseTool> tools;
@@ -22,9 +18,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool expansionFoldout = false;
         bool settingsFoldout = true;
         bool toolsFoldout = true;
-        bool moveTransformWhenExpanding = true;
 
         SizeAndLoaderEditorElement sizeAndLoaderEditorElement;
+        ExpansionEditorElement expansionEditorElement;
         PostProcessingEditorElement postProcessingEditorElement;
 
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
@@ -85,34 +81,33 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable() 
         {
-            tools = BaseTool.GetTools(this).ToList();
-
-            if (sizeAndLoaderEditorElement == null)
-                sizeAndLoaderEditorElement = new SizeAndLoaderEditorElement(this, true);
-
-			if(postProcessingEditorElement == null)
-                postProcessingEditorElement = new PostProcessingEditorElement(this, false);
-			
+			// Initialize controller
             if (!LinkedMarchingCubeController.IsInitialized)
             {
-                LinkedMarchingCubeController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
+                LinkedMarchingCubeController.Initialize(20, 20, 20, true);
 
                 if (LinkedMarchingCubeController.linkedSaveData != null)
                     LoadData();
             }
             else
             {
-                UpdateGridResolutionFromController();
+                // ToDo: Update resolution
             }
 
-            SceneView.duringSceneGui += UpdateSceneInteractionForController;
-        }
+            // Setup foldouts
+            if (sizeAndLoaderEditorElement == null)
+                sizeAndLoaderEditorElement = new SizeAndLoaderEditorElement(this, true);
 
-        void UpdateGridResolutionFromController()
-        {
-            gridResolutionX = LinkedMarchingCubeController.GridResolutionX;
-            gridResolutionY = LinkedMarchingCubeController.GridResolutionY;
-            gridResolutionZ = LinkedMarchingCubeController.GridResolutionZ;
+			if(expansionEditorElement == null)
+                expansionEditorElement = new ExpansionEditorElement(this, false);
+
+			if(postProcessingEditorElement == null)
+                postProcessingEditorElement = new PostProcessingEditorElement(this, false);
+            
+            // Seutp tools
+            tools = BaseTool.GetTools(this).ToList();
+
+            SceneView.duringSceneGui += UpdateSceneInteractionForController;
         }
 
         //Components
@@ -120,71 +115,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         {
             sizeAndLoaderEditorElement.DrawAsFoldout();
 
-            // Expansion
-            expansionFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(expansionFoldout, "Expansion");
-            if (expansionFoldout)
-            {
-                gridCExpandSize = EditorGUILayout.IntField("Expansion size", gridCExpandSize);
-
-                EditorGUILayout.BeginHorizontal();
-
-                if (GUILayout.Button("Expand +X"))
-                {
-                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XPos);
-                    UpdateGridResolutionFromController();
-                }
-
-                if (GUILayout.Button("Expand +Y"))
-                {
-                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YPos);
-                    UpdateGridResolutionFromController();
-                }
-
-                if (GUILayout.Button("Expand +Z"))
-                {
-                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZPos);
-                    UpdateGridResolutionFromController();
-                }
-
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.BeginHorizontal();
-
-                if (GUILayout.Button("Expand -X"))
-                {
-                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XNeg);
-                    
-                    if (moveTransformWhenExpanding)
-                        LinkedMarchingCubeController.transform.localPosition -= gridCExpandSize * LinkedMarchingCubeController.transform.localScale.x * Vector3.right;
-
-                    UpdateGridResolutionFromController();
-                }
-
-                if (GUILayout.Button("Expand -Y"))
-                {
-                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YNeg);
-
-                    if (moveTransformWhenExpanding)
-                        LinkedMarchingCubeController.transform.localPosition -= gridCExpandSize * LinkedMarchingCubeController.transform.localScale.y * Vector3.up;
-
-                    UpdateGridResolutionFromController();
-                }
-
-                if (GUILayout.Button("Expand -Z"))
-                {
-                    LinkedMarchingCubeController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZNeg);
-
-                    if (moveTransformWhenExpanding)
-                        LinkedMarchingCubeController.transform.localPosition -= gridCExpandSize * LinkedMarchingCubeController.transform.localScale.z * Vector3.forward;
-
-                    UpdateGridResolutionFromController();
-                }
-
-                EditorGUILayout.EndHorizontal();
-
-                moveTransformWhenExpanding = EditorGUILayout.Toggle("Move transform to keep position", moveTransformWhenExpanding);
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+            expansionEditorElement.DrawAsFoldout();
 
             settingsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(settingsFoldout, "Settings");
             if (settingsFoldout)
