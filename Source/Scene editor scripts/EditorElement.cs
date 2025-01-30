@@ -29,10 +29,15 @@ public abstract class EditorElement
 
     public void DrawAsFoldout()
     {
-        foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, DisplayName);
+        
         if (foldoutOpen)
         {
+            foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, $"{DisplayName}:");
             DrawUI();
+        }
+        else
+        {
+            foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, DisplayName); // Only show colon when foldout is open
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
     }
