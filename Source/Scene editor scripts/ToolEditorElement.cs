@@ -16,6 +16,18 @@ public class ToolEditorElement : EditorElement
         tools = BaseTool.GetTools(linkedEditor).ToList();
     }
 
+    BaseTool currentTool
+    {
+        get
+        {
+            return linkedEditor.CurrentTool;
+        }
+        set
+        {
+            linkedEditor.CurrentTool = value;
+        }
+    }
+
     public override void DrawUI()
     {
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -36,7 +48,7 @@ public class ToolEditorElement : EditorElement
                     Color originalBackground = GUI.backgroundColor;
                     Color originalContentColor = GUI.contentColor;
 
-                    if (tools[index] == linkedEditor.CurrentTool)
+                    if (tools[index] == currentTool)
                     {
                         // Set custom colors for the selected tool
                         GUI.backgroundColor = highlightColor;
@@ -45,13 +57,13 @@ public class ToolEditorElement : EditorElement
 
                     if (GUILayout.Button(tools[index].DisplayName))
                     {
-                        if (linkedEditor.CurrentTool == tools[index])
+                        if (currentTool == tools[index])
                         {
-                            linkedEditor.CurrentTool = null;
+                            currentTool = null;
                         }
                         else
                         {
-                            linkedEditor.CurrentTool = tools[index];
+                            currentTool = tools[index];
                         }
                     }
 
@@ -61,6 +73,13 @@ public class ToolEditorElement : EditorElement
                 }
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        // Draw current tool UI
+        if (currentTool != null)
+        {
+            GUILayout.Label($"{currentTool.DisplayName}:");
+            currentTool.DrawUI();
         }
 
         EditorGUILayout.EndVertical();
