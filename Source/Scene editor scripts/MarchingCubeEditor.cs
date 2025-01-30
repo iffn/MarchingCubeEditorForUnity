@@ -17,6 +17,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         PostProcessingEditorElement postProcessingEditorElement;
         SettingsEditorElement settingsEditorElement;
         ToolEditorElement toolEditorElement;
+        
+        public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
 
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
@@ -43,39 +45,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                     LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = value;
                 }
             }
-        }
-
-        public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
-
-        public void LoadData()
-        {
-            if (LinkedMarchingCubeController.linkedSaveData == null)
-                return;
-
-            LinkedMarchingCubeController.SaveAndLoadManager.LoadGridData(LinkedMarchingCubeController.linkedSaveData);
-        }
-
-        public override void OnInspectorGUI()
-        {
-            defaultFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(defaultFoldout, "Default inspector");
-            if (defaultFoldout)
-            {
-                DrawDefaultInspector();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            sizeAndLoaderEditorElement.DrawAsFoldout();
-            expansionEditorElement.DrawAsFoldout();
-            settingsEditorElement.DrawAsFoldout();
-
-            postProcessingEditorElement.DrawAsFoldout();
-
-            toolEditorElement.DrawAsFoldout();
-        }
-
-        private void OnDisable() 
-        {
-            SceneView.duringSceneGui -= UpdateSceneInteractionForController;
         }
 
         private void OnEnable() 
@@ -110,6 +79,37 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 toolEditorElement = new ToolEditorElement(this, true);
             
             SceneView.duringSceneGui += UpdateSceneInteractionForController;
+        }
+
+        private void OnDisable() 
+        {
+            SceneView.duringSceneGui -= UpdateSceneInteractionForController;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            defaultFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(defaultFoldout, "Default inspector");
+            if (defaultFoldout)
+            {
+                DrawDefaultInspector();
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
+            sizeAndLoaderEditorElement.DrawAsFoldout();
+            expansionEditorElement.DrawAsFoldout();
+            settingsEditorElement.DrawAsFoldout();
+
+            postProcessingEditorElement.DrawAsFoldout();
+
+            toolEditorElement.DrawAsFoldout();
+        }
+
+        public void LoadData()
+        {
+            if (LinkedMarchingCubeController.linkedSaveData == null)
+                return;
+
+            LinkedMarchingCubeController.SaveAndLoadManager.LoadGridData(LinkedMarchingCubeController.linkedSaveData);
         }
 
         void UpdateSceneInteractionForController(SceneView sceneView)
