@@ -29,7 +29,6 @@ public abstract class EditorElement
 
     public void DrawAsFoldout()
     {
-        
         if (foldoutOpen)
         {
             foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, $"{DisplayName}:");

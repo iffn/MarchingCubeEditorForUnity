@@ -10,20 +10,18 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
     [CustomEditor(typeof(MarchingCubesController))]
     public class MarchingCubeEditor : Editor
     {
-        List<BaseTool> tools;
-
         bool defaultFoldout = false;
-        bool toolsFoldout = true;
 
         SizeAndLoaderEditorElement sizeAndLoaderEditorElement;
         ExpansionEditorElement expansionEditorElement;
         PostProcessingEditorElement postProcessingEditorElement;
         SettingsEditorElement settingsEditorElement;
+        ToolEditorElement toolEditorElement;
 
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
         readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
 		
-        BaseTool CurrentTool 
+        public BaseTool CurrentTool 
         {
             get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
             set
@@ -66,9 +64,13 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
-            DrawSetupUI();
+            sizeAndLoaderEditorElement.DrawAsFoldout();
+            expansionEditorElement.DrawAsFoldout();
+            settingsEditorElement.DrawAsFoldout();
+
             postProcessingEditorElement.DrawAsFoldout();
-            DrawEditUI();
+
+            toolEditorElement.DrawAsFoldout();
         }
 
         private void OnDisable() 
@@ -103,92 +105,17 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
 			if(settingsEditorElement == null)
                 settingsEditorElement = new SettingsEditorElement(this, false);
+
+			if(toolEditorElement == null)
+                toolEditorElement = new ToolEditorElement(this, true);
             
-            // Seutp tools
-            tools = BaseTool.GetTools(this).ToList();
-
             SceneView.duringSceneGui += UpdateSceneInteractionForController;
-        }
-
-        //Components
-        void DrawSetupUI()
-        {
-            sizeAndLoaderEditorElement.DrawAsFoldout();
-
-            expansionEditorElement.DrawAsFoldout();
-
-            settingsEditorElement.DrawAsFoldout();
-        }
-
-        void DrawEditUI()
-        {
-            toolsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(toolsFoldout, "Tools");
-            if (toolsFoldout)
-            {
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-                int columns = 2; // Number of buttons per row
-
-                Color highlightColor = new Color(0.7f, 0.7f, 1f); //ToDo: Improve highlight color
-
-                for (int i = 0; i < tools.Count; i += columns)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    for (int j = 0; j < columns; j++)
-                    {
-                        int index = i + j;
-                        if (index < tools.Count) // Ensure index is within bounds
-                        {
-                            // Store original colors
-                            Color originalBackground = GUI.backgroundColor;
-                            Color originalContentColor = GUI.contentColor;
-
-                            if (tools[index] == CurrentTool)
-                            {
-                                // Set custom colors for the selected tool
-                                GUI.backgroundColor = highlightColor;
-                                GUI.contentColor = Color.white; // Text color
-                            }
-
-                            if (GUILayout.Button(tools[index].DisplayName))
-                            {
-                                if(CurrentTool == tools[index])
-                                {
-                                    CurrentTool = null;
-                                }
-                                else
-                                {
-                                    CurrentTool = tools[index];
-                                }
-                                
-                            }
-
-                            // Restore original colors
-                            GUI.backgroundColor = originalBackground;
-                            GUI.contentColor = originalContentColor;
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-
-                // Draw current tool UI
-                if (CurrentTool != null)
-                {
-                    GUILayout.Label($"{CurrentTool.DisplayName}:");
-                    CurrentTool.DrawUI();
-                }
-                    
-
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         void UpdateSceneInteractionForController(SceneView sceneView)
         {
             CurrentTool?.HandleSceneUpdate(Event.current);
         }
-
         
         public RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
         {
