@@ -1,7 +1,6 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.EditTools;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class HeightmapShape : EditShape, IPlaceableByClick
@@ -158,3 +157,4 @@ public class HeightmapShape : EditShape, IPlaceableByClick
         }
     }
 }
+#endif
