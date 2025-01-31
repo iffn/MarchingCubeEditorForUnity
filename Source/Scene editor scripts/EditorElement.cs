@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,3 +29,4 @@ public abstract class EditorElement
         EditorGUILayout.EndFoldoutHeaderGroup();
     }
 }
+#endif

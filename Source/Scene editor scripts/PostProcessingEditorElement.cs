@@ -1,9 +1,9 @@
+#if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
 public class PostProcessingEditorElement : EditorElement
 {
@@ -72,3 +72,4 @@ public class PostProcessingEditorElement : EditorElement
         if (GUILayout.Button($"Post process mesh")) linkedController.PostProcessMesh();
     }
 }
+#endif
