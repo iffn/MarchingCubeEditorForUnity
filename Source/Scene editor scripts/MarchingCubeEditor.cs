@@ -116,6 +116,12 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         {
             CurrentTool?.HandleSceneUpdate(Event.current);
         }
+
+        public void RefreshUI()
+        {
+            EditorUtility.SetDirty(target);
+            Repaint();
+        }
         
         public RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
         {

@@ -8,6 +8,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
     {
         public EditShape AsEditShape => this;
 
+        public override OffsetTypes offsetType => OffsetTypes.towardsNormal;
         protected override float DistanceOutsideIsPositive(Vector3 localPoint)
         {
             // Transform the point into the shape's local space

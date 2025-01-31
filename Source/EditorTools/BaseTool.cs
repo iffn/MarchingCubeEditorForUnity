@@ -53,6 +53,11 @@ public class BaseTool
     {
         return e.control;
     }
+
+    public void RefreshUI()
+    {
+        LinkedMarchingCubeEditor.RefreshUI();
+    }
 }
 
 #endif

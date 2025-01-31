@@ -11,6 +11,14 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
     [ExecuteInEditMode]
     public abstract class EditShape : MonoBehaviour
     {
+        public enum OffsetTypes
+        {
+            vertical,
+            towardsNormal
+        }
+
+        public abstract OffsetTypes offsetType { get; }
+
         private Matrix4x4 worldToLocalMatrix;
 
         /// <summary>

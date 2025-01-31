@@ -9,6 +9,8 @@ public class VoronoyRockShape : EditShape, IPlaceableByClick
 {
     public EditShape AsEditShape => this;
 
+    public override OffsetTypes offsetType => OffsetTypes.towardsNormal;
+
     // Parameters for the SDF
     float baseFrequency = 10.0f;
     float baseAmplitude = 0.05f;

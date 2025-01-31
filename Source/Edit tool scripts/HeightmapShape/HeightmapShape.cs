@@ -7,6 +7,8 @@ public class HeightmapShape : EditShape, IPlaceableByClick
 {
     public EditShape AsEditShape => this;
 
+    public override OffsetTypes offsetType => OffsetTypes.vertical;
+
     private float[,] heightmapData; // 2D array to store heightmap values
     private int heightmapWidth;
     private int heightmapHeight;

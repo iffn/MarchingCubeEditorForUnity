@@ -9,6 +9,8 @@ public class BridgeOrTunnelShape : EditShape
     [SerializeField] Transform startPoint;
     [SerializeField] Transform endPoint;
 
+    public override OffsetTypes offsetType => OffsetTypes.towardsNormal;
+
     public float radius = 1;
 
     Vector3 StartPoint

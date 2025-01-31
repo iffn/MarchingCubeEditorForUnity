@@ -22,6 +22,11 @@ public class SimpleClickToModifyTool : BaseTool
         }
     }
 
+    KeyCode offsetKey = KeyCode.C;
+    bool offsetKeyHeld = false;
+    float currentOffset = 0;
+    float offsetSpeed = 0.1f;
+
     PlaceableByClickHandler placeableByClick;
     bool displayPreviewShape;
     bool limitHeightToCursor;
@@ -41,6 +46,7 @@ public class SimpleClickToModifyTool : BaseTool
     public override void OnEnable()
     {
         if(placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        currentOffset = 0;
     }
 
     public override void OnDisable()
@@ -78,7 +84,8 @@ public class SimpleClickToModifyTool : BaseTool
             string helpText = "Controls:\n" +
                     "Note that the scene has to be active for some of these to work.\n" +
                     "Click to add\n" +
-                    "Ctrl Click to subtract\n";
+                    "Ctrl Click to subtract\n" +
+                    $"Hold {offsetKey} and scroll to change the offset. Currently: {currentOffset.ToString("F1")}"; // "F1" keeps one decimal place
 
             helpText += placeableByClick.SelectedEditShape.HelpText;
 
@@ -96,7 +103,22 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (result != RayHitResult.None)
         {
-            placeableByClick.SelectedEditShape.transform.position = result.point;
+            Vector3 offsetDirection;
+
+            switch (placeableByClick.SelectedEditShape.offsetType)
+            {
+                case EditShape.OffsetTypes.vertical:
+                    offsetDirection = Vector3.up;
+                    break;
+                case EditShape.OffsetTypes.towardsNormal:
+                    offsetDirection = result.normal;
+                    break;
+                default:
+                    offsetDirection = result.normal;
+                    break;
+            }
+
+            placeableByClick.SelectedEditShape.transform.position = result.point + currentOffset * offsetDirection;
 
             if (displayPreviewShape)
             {
@@ -115,11 +137,32 @@ public class SimpleClickToModifyTool : BaseTool
             LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
-        if (placeableByClick.SelectedShape != null) placeableByClick.SelectedEditShape.HandleSceneUpdate(e);
+        if (e.keyCode == offsetKey)
+        {
+            if(e.type == EventType.KeyDown)
+                offsetKeyHeld = true;
+
+            if (e.type == EventType.KeyUp)
+                offsetKeyHeld = false;
+        }
+
+        if (offsetKeyHeld && e.type == EventType.ScrollWheel)
+        {
+            currentOffset += offsetSpeed * Mathf.Sign(e.delta.y);
+            RefreshUI();
+            e.Use();
+        }
+        else
+        {
+            if (placeableByClick.SelectedShape != null)
+                placeableByClick.SelectedEditShape.HandleSceneUpdate(e);
+        }
 
         if (EscapeDownEvent(e))
         {
             RaycastActive = false;
+            currentOffset = 0;
+            RefreshUI();
             e.Use();
             return;
         }
