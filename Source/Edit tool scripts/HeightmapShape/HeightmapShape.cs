@@ -59,9 +59,14 @@ public class HeightmapShape : EditShape, IPlaceableByClick
             for (int y = 0; y < heightmapHeight; y++)
             {
                 // Read pixel grayscale value and store as height
-                heightmapData[x, y] = heightmapTexture.GetPixel(x, y).r;
+                float rawValue = heightmapTexture.GetPixel(x, y).r;
 
-                if(max < heightmapData[x, y]) max = heightmapData[x, y];
+                //Convert from gamma to linear color space
+                float linearValue = Mathf.GammaToLinearSpace(rawValue);
+
+                heightmapData[x, y] = Mathf.Clamp01(linearValue); // Clamp to 0-1
+
+                if (max < heightmapData[x, y]) max = heightmapData[x, y];
                 if(min > heightmapData[x, y]) min = heightmapData[x, y];
             }
         }
