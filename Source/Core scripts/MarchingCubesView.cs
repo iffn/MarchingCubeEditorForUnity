@@ -243,7 +243,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void SmoothNormalsWithDistanceBias(Mesh mesh, float distanceBiasFactor, PostProcessingOptions currentPostProcessingOptions)
         {
-            if (currentPostProcessingOptions.maxProcessingTimeSeconds > PostProcessingStopwatch.Elapsed.TotalSeconds)
+            if (PostProcessingStopwatch.Elapsed.TotalSeconds > currentPostProcessingOptions.maxProcessingTimeSeconds)
             {
                 Debug.LogWarning("Did not start normal smoothing because time already ran out.");
                 return;
@@ -292,7 +292,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 smoothedNormal /= totalWeight; // Normalize by total weight
                 smoothedNormals[i] = smoothedNormal.normalized;
 
-                if (currentPostProcessingOptions.maxProcessingTimeSeconds > PostProcessingStopwatch.Elapsed.TotalSeconds)
+                if (PostProcessingStopwatch.Elapsed.TotalSeconds > currentPostProcessingOptions.maxProcessingTimeSeconds)
                 {
                     Debug.LogWarning("Interrupted normal smoothing because time ran out. Continuation not yet implemented for this.");
                     break;
