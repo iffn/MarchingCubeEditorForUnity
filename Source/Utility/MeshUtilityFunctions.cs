@@ -231,11 +231,11 @@ public static class MeshUtilityFunctions
                 }
             }
 
-            bool EdgeExists(int face, int v1, int v2)
+            bool EdgeExists(int face2, int v1, int v2)
             {
-                int i0 = newIndices[face * 3];
-                int i1 = newIndices[face * 3 + 1];
-                int i2 = newIndices[face * 3 + 2];
+                int i0 = newIndices[face2 * 3];
+                int i1 = newIndices[face2 * 3 + 1];
+                int i2 = newIndices[face2 * 3 + 2];
                 return (i0 == v1 && i1 == v2) || (i1 == v1 && i2 == v2) || (i2 == v1 && i0 == v2) ||
                        (i0 == v2 && i1 == v1) || (i1 == v2 && i2 == v1) || (i2 == v2 && i0 == v1);
             }
