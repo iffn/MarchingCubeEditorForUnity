@@ -1,7 +1,9 @@
 # Marching cube editor ToDo
 
 ## Tools
-- [x] Heightmap addition
+- Heightmap addition
+  - [x] Implement
+  - [ ] Fix wrong addition when world origin of heightmap not (0,0,0)
 - [x] Limit height to cursor (Reimplement)
 - Tunnel
   - [x] Basic implementation
