@@ -12,74 +12,24 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     [SelectionBase]
     public class MarchingCubesController : MonoBehaviour
     {
-        private MarchingCubesModel mainModel;
-        private MarchingCubesModel previewModelWithOldData;
-        private static readonly Vector3Int defaultChunkSize = new Vector3Int(16, 16, 16);
-        private Vector3Int chunkSize = defaultChunkSize;
-
-        public ScriptableObjectSaveData linkedSaveData;
-
-        private readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
-        public List<MarchingCubesView> ChunkViews => chunkViews;
-
-        public bool DisplayPreviewShape
-        {
-            set
-            {
-                previewView.gameObject.SetActive(value);
-            }
-            get
-            {
-                return previewView.gameObject.activeSelf;
-            }
-        }
-
         [SerializeField] GameObject chunkPrefab; // Prefab for chunk views
-        [SerializeField] private MarchingCubesPreview previewView;
-        [SerializeField] private Transform chunkHolder;
+        [SerializeField] MarchingCubesPreview previewView;
+        [SerializeField] Transform chunkHolder;
         [SerializeField] Transform shapeHolder;
-        [SerializeField] private VisualisationManager linkedVisualisationManager;
-
-        public MarchingCubesPreview Preview => previewView;
-
-        public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
-
-        [SerializeField, HideInInspector]
-        private bool invertNormals = false;
-        public bool IsInitialized => mainModel != null;
-
+        [SerializeField] VisualisationManager linkedVisualisationManager;
+        
+        public ScriptableObjectSaveData linkedSaveData;
         public bool showGridOutline = false; // Toggle controlled by the editor tool
 
-        public int GridResolutionX => mainModel.VoxelDataGrid.GetLength(0);
-        public int GridResolutionY => mainModel.VoxelDataGrid.GetLength(1);
-        public int GridResolutionZ => mainModel.VoxelDataGrid.GetLength(2);
 
-        public VoxelData[,,] VoxelDataReference => mainModel.VoxelDataGrid;
+        MarchingCubesModel mainModel;
+        MarchingCubesModel previewModelWithOldData;
+        static readonly Vector3Int defaultChunkSize = new Vector3Int(16, 16, 16);
+        Vector3Int chunkSize = defaultChunkSize;
 
-        public Vector3Int MaxGrid => mainModel.MaxGrid;
+        readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
 
-        PostProcessingOptions currentPostProcessingOptions = PostProcessingOptions.Default;
-        public PostProcessingOptions CurrentPostProcessingOptions
-        {
-            get => currentPostProcessingOptions;
-            set
-            {
-                currentPostProcessingOptions = value;
-                if (value.postProcessWhileEditing)
-                    GenerateViewChunks(true);
-            }
-        }
-
-        //Managers
-        public ModificationManager ModificationManager { get; private set; }
-        public SaveAndLoadManager SaveAndLoadManager { get; private set; }
-        public VisualisationManager VisualisationManager
-        {
-            get
-            {
-                return linkedVisualisationManager;
-            }
-        }
+        public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
 
         [HideInInspector, SerializeField] bool forceColliderOn = false;
         public bool ForceColliderOn
@@ -108,12 +58,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 forceColliderOn = value;
 
 #if UNITY_EDITOR
-                EditorUtility.SetDirty(this);
+                EditorUtility.SetDirty(this); // Makes it saveable
 #endif
             }
         }
 
-        bool enableAllColliders = false; // EnableAllColliders
+        bool enableAllColliders = false;
         public bool EnableAllColliders
         {
             get
@@ -129,6 +79,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        bool invertNormals = false;
         public bool InvertAllNormals
         {
             set
@@ -140,6 +91,51 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             get => invertNormals;
         }
+
+        PostProcessingOptions currentPostProcessingOptions = PostProcessingOptions.Default;
+        public PostProcessingOptions CurrentPostProcessingOptions
+        {
+            get => currentPostProcessingOptions;
+            set
+            {
+                currentPostProcessingOptions = value;
+                if (value.postProcessWhileEditing)
+                    GenerateViewChunks(true);
+            }
+        }
+
+
+        public bool DisplayPreviewShape
+        {
+            set
+            {
+                previewView.gameObject.SetActive(value);
+            }
+            get
+            {
+                return previewView.gameObject.activeSelf;
+            }
+        }
+
+        //Managers
+        public ModificationManager ModificationManager { get; private set; }
+        public SaveAndLoadManager SaveAndLoadManager { get; private set; }
+        public VisualisationManager VisualisationManager
+        {
+            get
+            {
+                return linkedVisualisationManager;
+            }
+        }
+
+        public List<MarchingCubesView> ChunkViews => chunkViews;
+        public MarchingCubesPreview Preview => previewView;
+        public bool IsInitialized => mainModel != null;
+        public int GridResolutionX => mainModel.VoxelDataGrid.GetLength(0);
+        public int GridResolutionY => mainModel.VoxelDataGrid.GetLength(1);
+        public int GridResolutionZ => mainModel.VoxelDataGrid.GetLength(2);
+        public Vector3Int MaxGrid => mainModel.MaxGrid;
+        public VoxelData[,,] VoxelDataReference => mainModel.VoxelDataGrid;
 
         // Internal functions
         void UpdateColliderStates()
@@ -236,7 +232,22 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        void GatherTools()
+        {
+            ShapeList.Clear();
+
+            foreach (Transform child in shapeHolder)
+            {
+                if (!child.TryGetComponent(out EditShape tool)) return;
+
+                ShapeList.Add(tool);
+            }
+        }
+
         // External funcitons
+        /// <summary>
+        /// Initializes the controller. Can be called again.
+        /// </summary>
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
             // We don't want to initialize if we are inside a prefab
@@ -284,18 +295,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             GatherTools();
         }
 
-        public void GatherTools()
-        {
-            ShapeList.Clear();
-
-            foreach (Transform child in shapeHolder)
-            {
-                if (!child.TryGetComponent(out EditShape tool)) return;
-
-                ShapeList.Add(tool);
-            }
-        }
-
+        /// <summary>
+        /// Applies the current preview changes
+        /// </summary>
         public void ApplyPreviewChanges()
         {
             // Get grid size from preview
@@ -312,6 +314,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             UpdateAffectedChunks(gridBoundsMin, gridBoundsMax);
         }
 
+        /// <summary>
+        /// Marks all chunks between and including the two grid points diry for editing.
+        /// </summary>
         public void MarkRegionDirty(Vector3Int minGrid, Vector3Int maxGrid)
         {
             foreach (var chunkView in chunkViews) // ToDo: Optimize doing a for instead of a foreach loop
@@ -323,6 +328,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        /// <summary>
+        /// Updates all dirty chunks.
+        /// </summary>
         public void UpdateAffectedChunks(Vector3Int minGrid, Vector3Int maxGrid)
         {
             foreach (var chunkView in chunkViews)
@@ -334,6 +342,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        /// <summary>
+        /// Sets all grid data to empty
+        /// </summary>
         public void SetEmptyGrid(bool updateModel)
         {
             for (int x = 0; x < mainModel.ResolutionX; x++)
@@ -350,17 +361,23 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (updateModel) UpdateAllChunks(false);
         }
 
-        public void PostProcessMesh()
-        {
-            GenerateViewChunks(true);
-        }
-
+        /// <summary>
+        /// Sets all grid data. Resizes if needed
+        /// </summary>
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             mainModel.SetDataAndResizeIfNeeded(newData);
             GenerateViewChunks(false);
 
             UpdateAllChunks(false);
+        }
+
+        /// <summary>
+        /// Applies the current post processing options
+        /// </summary>
+        public void PostProcessMesh()
+        {
+            GenerateViewChunks(true);
         }
 
         /// <summary>
