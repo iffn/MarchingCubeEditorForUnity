@@ -39,6 +39,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         
         [SerializeField, HideInInspector]
         private bool invertNormals = false;
+        public bool IsInitialized => mainModel != null;
 
         public bool showGridOutline = false; // Toggle controlled by the editor tool
 
@@ -57,7 +58,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             set
             {
                 currentPostProcessingOptions = value;
-                GenerateViewChunks(false);
+                if(value.postProcessWhileEditing)
+                    GenerateViewChunks(true);
             }
         }
 
@@ -120,6 +122,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        public bool InvertAllNormals
+        {
+            set 
+            {
+                if (InvertAllNormals != value) 
+                    chunkViews.ForEach(chunk => chunk.InvertedNormals = value);
+
+                invertNormals = value;
+            }
+            get => invertNormals;
+        }
+
+        // Internal functions
         void UpdateColliderStates()
         {
             foreach (MarchingCubesView chunkView in chunkViews)
@@ -194,7 +209,27 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             UpdateColliderStates();
         }
+        
+        void UpdateAllChunks(bool postProcessingCall)
+        {
+            foreach (MarchingCubesView view in chunkViews)
+            {
+                view.MarkDirty();
+                view.UpdateMeshIfDirty(mainModel);
+            }
 
+            if (postProcessingCall || currentPostProcessingOptions.postProcessWhileEditing)
+            {
+                MarchingCubesView.ResetPostProcessingDiagnostics();
+
+                foreach (MarchingCubesView view in chunkViews)
+                {
+                    view.PostProcessMesh(currentPostProcessingOptions);
+                }
+            }
+        }
+
+        // External funcitons
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
         {
 
@@ -245,8 +280,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        public bool IsInitialized => mainModel != null;
-
         public void ApplyPreviewChanges()
         {
             // Get grid size from preview
@@ -285,32 +318,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void UpdateAllChunks(bool postProcessingCall)
-        {
-            foreach (MarchingCubesView view in chunkViews)
-            {
-                view.MarkDirty();
-                view.UpdateMeshIfDirty(mainModel);
-            }
-
-            if (currentPostProcessingOptions.postProcessWhileEditing || postProcessingCall)
-            {
-                PostProcessMesh();
-            }
-        }
-
-        public bool InvertAllNormals
-        {
-            set 
-            {
-                if (InvertAllNormals != value) 
-                    chunkViews.ForEach(chunk => chunk.InvertedNormals = value);
-
-                invertNormals = value;
-            }
-            get => invertNormals;
-        }
-
         public void SetEmptyGrid(bool updateModel)
         {
             for (int x = 0; x < mainModel.ResolutionX; x++)
@@ -329,12 +336,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void PostProcessMesh()
         {
-            MarchingCubesView.ResetPostProcessingDiagnostics();
-
-            foreach (MarchingCubesView view in chunkViews)
-            {
-                view.PostProcessMesh(currentPostProcessingOptions);
-            }
+            GenerateViewChunks(true);
         }
 
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
