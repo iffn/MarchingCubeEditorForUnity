@@ -296,25 +296,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         }
 
         /// <summary>
-        /// Applies the current preview changes
-        /// </summary>
-        public void ApplyPreviewChanges()
-        {
-            // Get grid size from preview
-            Vector3Int gridBoundsMin = previewView.GridBoundsMin;
-            Vector3Int gridBoundsMax = previewView.GridBoundsMax;
-
-            // Copy data from preview
-            mainModel.CopyRegion(previewModelWithOldData, gridBoundsMin, gridBoundsMax);
-
-            // Mark affected chunks as dirty
-            MarkRegionDirty(gridBoundsMin, gridBoundsMax);
-
-            // Update affected chunk meshes
-            UpdateAffectedChunks(gridBoundsMin, gridBoundsMax);
-        }
-
-        /// <summary>
         /// Marks all chunks between and including the two grid points diry for editing.
         /// </summary>
         public void MarkRegionDirty(Vector3Int minGrid, Vector3Int maxGrid)
@@ -367,6 +348,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             mainModel.SetDataAndResizeIfNeeded(newData);
+            previewModelWithOldData.ChangeGridSizeIfNeeded(GridResolutionX, GridResolutionY, GridResolutionZ, false);
             GenerateViewChunks(false);
 
             UpdateAllChunks(false);
@@ -443,6 +425,25 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             previewView.UpdateMeshIfDirty(previewModelWithOldData);
         }
 
+        /// <summary>
+        /// Applies the current preview changes
+        /// </summary>
+        public void ApplyPreviewChanges()
+        {
+            // Get grid size from preview
+            Vector3Int gridBoundsMin = previewView.GridBoundsMin;
+            Vector3Int gridBoundsMax = previewView.GridBoundsMax;
+
+            // Copy data from preview
+            mainModel.CopyRegion(previewModelWithOldData, gridBoundsMin, gridBoundsMax);
+
+            // Mark affected chunks as dirty
+            MarkRegionDirty(gridBoundsMin, gridBoundsMax);
+
+            // Update affected chunk meshes
+            UpdateAffectedChunks(gridBoundsMin, gridBoundsMax);
+        }
+
         public enum ExpansionDirections
         {
             XPos, YPos, ZPos,
@@ -487,6 +488,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
 
             mainModel.ChangeGridSize(resolutionX, resolutionY, resolutionZ, offsetX, offsetY, offsetZ);
+
+            previewModelWithOldData.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, false); // ToDo: Check when chaning grid size
 
             GenerateViewChunks(false);
         }
