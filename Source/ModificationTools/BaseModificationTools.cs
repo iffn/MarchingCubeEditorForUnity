@@ -218,14 +218,12 @@ public class BaseModificationTools
 
         public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
         {
-            /*
             // Ignore voxels outside the surface
             if (distanceOutsideIsPositive > 0) return currentValue;
 
             // Apply threshold filtering
             if (Mathf.Abs(currentValue.WeightInsideIsPositive - weightThreshold) > intensity)
                 return currentValue;
-            */
 
             // Convert voxel index to world position
             Vector3 worldPos = voxelOrigin + new Vector3(x, y, z) * voxelSize;
