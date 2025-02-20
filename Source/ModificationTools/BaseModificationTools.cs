@@ -185,6 +185,72 @@ public class BaseModificationTools
         }
     }
 
+    public class WorldSpaceRougheningModifier : IVoxelModifier
+    {
+        readonly VoxelData[,,] voxelData;
+        readonly float weightThreshold;
+        readonly int radius;
+        readonly float intensity;
+        readonly float frequency;
+        readonly float falloffSharpness;
+        readonly Vector3 voxelOrigin;
+        readonly float voxelSize;
+
+        public WorldSpaceRougheningModifier(
+            VoxelData[,,] voxelData,
+            float weightThreshold,
+            int radius,
+            float intensity,
+            float frequency,
+            float falloffSharpness,
+            Vector3 voxelOrigin,
+            float voxelSize)
+        {
+            this.voxelData = voxelData;
+            this.weightThreshold = weightThreshold;
+            this.radius = radius;
+            this.intensity = intensity;
+            this.frequency = frequency;
+            this.falloffSharpness = falloffSharpness;
+            this.voxelOrigin = voxelOrigin;
+            this.voxelSize = voxelSize;
+        }
+
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        {
+            /*
+            // Ignore voxels outside the surface
+            if (distanceOutsideIsPositive > 0) return currentValue;
+
+            // Apply threshold filtering
+            if (Mathf.Abs(currentValue.WeightInsideIsPositive - weightThreshold) > intensity)
+                return currentValue;
+            */
+
+            // Convert voxel index to world position
+            Vector3 worldPos = voxelOrigin + new Vector3(x, y, z) * voxelSize;
+
+            // Sample Perlin noise based on world position
+            float noiseValue = Mathf.PerlinNoise(worldPos.x * frequency, worldPos.z * frequency);
+
+            // Normalize noise to range [-1, 1]
+            noiseValue = (noiseValue * 2f) - 1f;
+
+            // Apply distance-based falloff for smoother transitions
+            float distanceToCenter = Vector3.Distance(worldPos, voxelOrigin);
+            float falloff = Mathf.SmoothStep(1f, 0f, Mathf.Pow(distanceToCenter / radius, falloffSharpness));
+
+            // Apply noise to current voxel weight
+            float addition = noiseValue * intensity;// * falloff;
+            float modifiedWeight = currentValue.WeightInsideIsPositive + addition;
+
+            //Debug.Log($"{noiseValue}, {falloff}, {distanceToCenter/radius}");
+
+            return currentValue.WithWeightInsideIsPositive(modifiedWeight);
+        }
+    }
+
+
     public class ChangeColorModifier : IVoxelModifier
     {
         private readonly Color32 color;

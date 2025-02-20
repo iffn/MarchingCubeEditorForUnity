@@ -8,9 +8,17 @@ public class SmoothingTool : BaseTool
 {
     // Editor variables
     bool raycastActive = true;
-    float threshold = 0.5f;
-    int radius = 3;
-    float sigma = 2f;
+    bool smooth = false;
+
+    float smoothThreshold = 0.5f;
+    int smoothRadius = 3;
+    float smoothSigma = 2f;
+
+    float weightThreshold = 0.5f;
+    int radius = 10;
+    float intensity = 0.2f;
+    float frequency = 0.1f;
+    float falloffSharpness = 2f;
 
     // Internal variables
     PlaceableByClickHandler PlaceableByClick;
@@ -34,18 +42,46 @@ public class SmoothingTool : BaseTool
 
         raycastActive = EditorGUILayout.Toggle("Active", raycastActive);
 
-        threshold = EditorGUILayout.FloatField("Threshold", threshold);
-        radius = EditorGUILayout.IntField("Radius", radius);
-        sigma = EditorGUILayout.FloatField("Sigma", sigma);
+        smooth = EditorGUILayout.Toggle("Smooth", smooth);
+
+        if (smooth)
+        {
+            smoothThreshold = EditorGUILayout.FloatField("Threshold", smoothThreshold);
+            smoothRadius = EditorGUILayout.IntField("Radius", smoothRadius);
+            smoothSigma = EditorGUILayout.FloatField("Sigma", smoothSigma);
+        }
+        else
+        {
+            weightThreshold = EditorGUILayout.FloatField("Weight threshold", weightThreshold);
+            radius = EditorGUILayout.IntField("Radius", smoothRadius);
+            intensity = EditorGUILayout.FloatField("Intensity", intensity);
+            frequency = EditorGUILayout.FloatField("Frequency", frequency);
+            falloffSharpness = EditorGUILayout.FloatField("FalloffSharpness", falloffSharpness);
+        }
     }
 
-    BaseModificationTools.IVoxelModifier Modification()
+    BaseModificationTools.IVoxelModifier GaussianSmoothingModification()
     {
         return new BaseModificationTools.GaussianSmoothingModifier(
             LinkedMarchingCubeController.VoxelDataReference,
-            threshold,
+            smoothThreshold,
+            smoothRadius,
+            smoothSigma
+            );
+    }
+
+    BaseModificationTools.IVoxelModifier WorldSpaceRougheningModification()
+    {
+        return new BaseModificationTools.WorldSpaceRougheningModifier(
+            LinkedMarchingCubeController.VoxelDataReference,
+            weightThreshold,
             radius,
-            sigma);
+            intensity,
+            frequency,
+            falloffSharpness,
+            LinkedMarchingCubeController.transform.position,
+            LinkedMarchingCubeController.transform.lossyScale.x
+            );
     }
 
     public override void HandleSceneUpdate(Event e)
@@ -66,9 +102,18 @@ public class SmoothingTool : BaseTool
 
             if (LeftClickDownEvent(e))
             {
-                LinkedMarchingCubeController.ModificationManager.ModifyData(
-                    PlaceableByClick.SelectedEditShape,
-                    Modification());
+                if (smooth)
+                {
+                    LinkedMarchingCubeController.ModificationManager.ModifyData(
+                        PlaceableByClick.SelectedEditShape,
+                        GaussianSmoothingModification());
+                }
+                else
+                {
+                    LinkedMarchingCubeController.ModificationManager.ModifyData(
+                        PlaceableByClick.SelectedEditShape,
+                        WorldSpaceRougheningModification());
+                }
 
                 e.Use();
             }
