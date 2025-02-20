@@ -21,14 +21,14 @@ public class SmoothingTool : BaseTool
     float falloffSharpness = 2f;
 
     // Internal variables
-    PlaceableByClickHandler PlaceableByClick;
+    PlaceableByClickHandler placeableByClick;
 
     // Override functions
     public override string DisplayName => "Click to smooth";
 
     public override void OnEnable()
     {
-        if (PlaceableByClick == null) PlaceableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
     public override void OnDisable()
@@ -38,7 +38,7 @@ public class SmoothingTool : BaseTool
 
     public override void DrawUI()
     {
-        PlaceableByClick.DrawEditorUI();
+        placeableByClick.DrawEditorUI();
 
         raycastActive = EditorGUILayout.Toggle("Active", raycastActive);
 
@@ -57,6 +57,18 @@ public class SmoothingTool : BaseTool
             intensity = EditorGUILayout.FloatField("Intensity", intensity);
             frequency = EditorGUILayout.FloatField("Frequency", frequency);
             falloffSharpness = EditorGUILayout.FloatField("FalloffSharpness", falloffSharpness);
+        }
+
+        if (raycastActive)
+        {
+            string helpText = "Controls:\n" +
+                    "Note that the scene has to be active for some of these to work.\n";
+
+            helpText += placeableByClick.SelectedEditShape.HelpText;
+
+            EditorGUILayout.HelpBox(helpText, MessageType.None);
+
+            placeableByClick.SelectedEditShape.DrawUI();
         }
     }
 
@@ -88,30 +100,30 @@ public class SmoothingTool : BaseTool
     {
         if (!raycastActive) return;
 
-        if(PlaceableByClick == null) return;
+        if(placeableByClick == null) return;
 
-        PlaceableByClick.SelectedEditShape.HandleSceneUpdate(e);
+        placeableByClick.SelectedEditShape.HandleSceneUpdate(e);
 
         RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
         if (result != RayHitResult.None)
         {
-            PlaceableByClick.SelectedEditShape.transform.position = result.point;
+            placeableByClick.SelectedEditShape.transform.position = result.point;
 
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(true);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(true);
 
             if (LeftClickDownEvent(e))
             {
                 if (smooth)
                 {
                     LinkedMarchingCubeController.ModificationManager.ModifyData(
-                        PlaceableByClick.SelectedEditShape,
+                        placeableByClick.SelectedEditShape,
                         GaussianSmoothingModification());
                 }
                 else
                 {
                     LinkedMarchingCubeController.ModificationManager.ModifyData(
-                        PlaceableByClick.SelectedEditShape,
+                        placeableByClick.SelectedEditShape,
                         WorldSpaceRougheningModification());
                 }
 
@@ -120,7 +132,7 @@ public class SmoothingTool : BaseTool
         }
         else
         {
-            PlaceableByClick.SelectedEditShape.gameObject.SetActive(false);
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
             LinkedMarchingCubeController.DisplayPreviewShape = false;
         }
 
