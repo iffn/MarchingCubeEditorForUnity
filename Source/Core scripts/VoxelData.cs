@@ -12,7 +12,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public VoxelData(float weight, Color32 color)
         {
-            WeightInsideIsPositive = weight;
+            WeightInsideIsPositive = Mathf.Clamp(weight, -1f, 1f);
             Color = color;
         }
 
