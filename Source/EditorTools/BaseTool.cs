@@ -8,12 +8,12 @@ using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using UnityEditor;
 using UnityEngine;
 
-public class BaseTool
+public abstract class BaseTool
 {
     protected MarchingCubeEditor LinkedMarchingCubeEditor { get; private set; }
     protected MarchingCubesController LinkedMarchingCubeController => LinkedMarchingCubeEditor.LinkedMarchingCubeController;
 
-    public virtual string DisplayName => "Unnamed Tool";
+    public abstract string DisplayName { get; }
     public virtual Texture DisplayIcon => null;
 
     public virtual void DrawUI() {}
