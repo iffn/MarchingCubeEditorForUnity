@@ -81,11 +81,11 @@ public class ModificationManager
         float worldToGridScaleFactor = linkedControllerTransform.localScale.magnitude; //ToDo: Reimplement scaling
 
         // Parallel processing
-        System.Threading.Tasks.Parallel.For(minGrid.x, maxGrid.x, x =>
+        System.Threading.Tasks.Parallel.For(minGrid.x, maxGrid.x + 1, x =>
         {
-            for (int y = minGrid.y; y < maxGrid.y; y++)
+            for (int y = minGrid.y; y < maxGrid.y + 1; y++)
             {
-                for (int z = minGrid.z; z < maxGrid.z; z++)
+                for (int z = minGrid.z; z < maxGrid.z + 1; z++)
                 {
                     // Transform grid position to world space
                     Vector3 gridPoint = new Vector3(x, y, z);
