@@ -6,13 +6,15 @@ public class BaseModificationTools
 {
     public interface IVoxelModifier
     {
-        VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive);
+        VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive);
     }
 
     public class AddShapeModifier : IVoxelModifier
     {
-        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
         {
+            VoxelData currentValue = currentData[x, y, z];
+
             //return currentValue.WithWeightInsideIsPositive(Mathf.Max(currentValue.WeightInsideIsPositive, -distanceOutsideIsPositive));
 
             float newDistanceOutsideIsPositive = SDFMath.CombinationFunctionsOutsideIsPositive.Add(currentValue.DistanceOutsideIsPositive, distanceOutsideIsPositive);
@@ -23,8 +25,10 @@ public class BaseModificationTools
 
     public class SubtractShapeModifier : IVoxelModifier
     {
-        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
         {
+            VoxelData currentValue = currentData[x, y, z];
+
             float newDistanceOutsideIsPositive = SDFMath.CombinationFunctionsOutsideIsPositive.Subtract(currentValue.DistanceOutsideIsPositive, distanceOutsideIsPositive);
 
             return currentValue.WithDistanceOutsideIsPositive(newDistanceOutsideIsPositive);
@@ -50,8 +54,10 @@ public class BaseModificationTools
             this.booleanType = booleanType;
         }
 
-        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
         {
+            VoxelData currentValue = currentData[x, y, z];
+
             Vector3 samplePoint = new Vector3(x, y, z); //ToDo: Implement position, rotation and scale
 
             float currentDistance = currentValue.WeightInsideIsPositive;
@@ -115,9 +121,11 @@ public class BaseModificationTools
             GenerateGaussianKernel(radius, sigma);
         }
 
-        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
         {
-            if(distanceOutsideIsPositive > 0) return currentValue;
+            VoxelData currentValue = currentData[x, y, z];
+
+            if (distanceOutsideIsPositive > 0) return currentValue;
 
             if (Mathf.Abs(currentValue.WeightInsideIsPositive - weightThreshold) > sigma)
                 return currentValue;
@@ -216,8 +224,10 @@ public class BaseModificationTools
             this.voxelSize = voxelSize;
         }
 
-        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
         {
+            VoxelData currentValue = currentData[x, y, z];
+
             if (distanceOutsideIsPositive > voxelSize)
                 return currentValue;
             
@@ -225,9 +235,6 @@ public class BaseModificationTools
             {
                 return currentValue;
             }
-
-            Debug.Log(currentValue.WeightInsideIsPositive);
-
 
             Vector3 worldPos = voxelOrigin + new Vector3(x, y, z) * voxelSize;
 
@@ -265,8 +272,10 @@ public class BaseModificationTools
             this.curve = curve;
         }
 
-        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distance)
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distance)
         {
+            VoxelData currentValue = currentData[x, y, z];
+
             Color32 newColor = Color.Lerp(color, currentValue.Color, curve.Evaluate(distance));
 
             return currentValue.WithColor(newColor);

@@ -94,8 +94,7 @@ public class ModificationManager
                     float distanceOutsideIsPositive = shape.OptimizedDistanceOutsideIsPositive(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
 
                     // Modify the voxel value
-                    VoxelData currentValue = getDataPoint(x, y, z);
-                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, currentValue, distanceOutsideIsPositive);
+                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, linkedController.VoxelDataReference, distanceOutsideIsPositive);
                     setDataPoint(x, y, z, newValue);
                 }
             }
