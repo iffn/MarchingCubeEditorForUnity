@@ -35,26 +35,37 @@ public class ModifySurface : BaseTool
         
     }
 
+    enum SurfaceOptions
+    {
+        smooth,
+        roughen
+    }
+
+    int surfaceModification;
+
     public override void DrawUI()
     {
         placeableByClick.DrawEditorUI();
 
         raycastActive = EditorGUILayout.Toggle("Active", raycastActive);
 
-        smooth = EditorGUILayout.Toggle("Smooth", smooth);
+        surfaceModification = EditorGUILayout.Popup("Select Option", surfaceModification, new string[] {"Smooth", "Roughen"});
 
-        if (smooth)
+        switch (surfaceModification)
         {
-            smoothThreshold = EditorGUILayout.FloatField("Threshold", smoothThreshold);
-            smoothRadius = EditorGUILayout.IntField("Radius", smoothRadius);
-            smoothSigma = EditorGUILayout.FloatField("Sigma", smoothSigma);
-        }
-        else
-        {
-            roughenRadius = EditorGUILayout.IntField("Radius", roughenRadius);
-            roughenIntensity = EditorGUILayout.FloatField("Intensity", roughenIntensity);
-            roughenFrequency = EditorGUILayout.FloatField("Frequency", roughenFrequency);
-            roughenFalloffSharpness = EditorGUILayout.FloatField("FalloffSharpness", roughenFalloffSharpness);
+            case 0:
+                smoothThreshold = EditorGUILayout.FloatField("Threshold", smoothThreshold);
+                smoothRadius = EditorGUILayout.IntField("Radius", smoothRadius);
+                smoothSigma = EditorGUILayout.FloatField("Sigma", smoothSigma);
+                break;
+            case 1:
+                roughenRadius = EditorGUILayout.IntField("Radius", roughenRadius);
+                roughenIntensity = EditorGUILayout.FloatField("Intensity", roughenIntensity);
+                roughenFrequency = EditorGUILayout.FloatField("Frequency", roughenFrequency);
+                roughenFalloffSharpness = EditorGUILayout.FloatField("FalloffSharpness", roughenFalloffSharpness);
+                break;
+            default:
+                break;
         }
 
         if (raycastActive)
