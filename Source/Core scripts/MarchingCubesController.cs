@@ -273,7 +273,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (setEmpty)
             {
-                SetEmptyGrid(true);
+                SetEmptyGrid(false); // Don't update model since chunks not yet generated
             }
 
             //Generate views
