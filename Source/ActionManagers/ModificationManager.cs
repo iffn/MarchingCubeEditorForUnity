@@ -2,6 +2,7 @@
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using static BaseModificationTools;
 using static MarchingCubesPreview;
@@ -80,6 +81,23 @@ public class ModificationManager
     {
         float worldToGridScaleFactor = linkedControllerTransform.localScale.magnitude; //ToDo: Reimplement scaling
 
+        VoxelData[,,] oldData = new VoxelData[
+            linkedController.VoxelDataReference.GetLength(0),
+            linkedController.VoxelDataReference.GetLength(1),
+            linkedController.VoxelDataReference.GetLength(2)
+        ];
+
+        Parallel.For(0, oldData.GetLength(0), x =>
+        {
+            for (int y = 0; y < oldData.GetLength(1); y++)
+            {
+                for (int z = 0; z < oldData.GetLength(2); z++)
+                {
+                    oldData[x, y, z] = linkedController.VoxelDataReference[x, y, z];
+                }
+            }
+        });
+
         // Parallel processing
         System.Threading.Tasks.Parallel.For(minGrid.x, maxGrid.x + 1, x =>
         {
@@ -94,7 +112,7 @@ public class ModificationManager
                     float distanceOutsideIsPositive = shape.OptimizedDistanceOutsideIsPositive(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
 
                     // Modify the voxel value
-                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, linkedController.VoxelDataReference, distanceOutsideIsPositive);
+                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, oldData, distanceOutsideIsPositive);
                     setDataPoint(x, y, z, newValue);
                 }
             }

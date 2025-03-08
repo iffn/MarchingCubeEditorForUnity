@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using iffnsStuff.MarchingCubeEditor.Core;
+using System.Collections.Generic;
 
 public class BaseModificationTools
 {
@@ -228,14 +229,57 @@ public class BaseModificationTools
         {
             VoxelData currentValue = currentData[x, y, z];
 
-            if (distanceOutsideIsPositive > voxelSize)
-                return currentValue;
-            
-            if (currentValue.WeightInsideIsPositive > 0.5f || currentValue.WeightInsideIsPositive < -0.5f)
+            //Only modify data inside the shape
+            if (distanceOutsideIsPositive > 0) return currentValue;
+
+            // Check 6-connected neighbors
+            bool hasDifferentSign = false;
+            int[,] offsets = {
+                { 1, 0, 0 }, { -1, 0, 0 }, // X neighbors
+                { 0, 1, 0 }, { 0, -1, 0 }, // Y neighbors
+                { 0, 0, 1 }, { 0, 0, -1 }  // Z neighbors
+            };
+
+            List<float> weights = new List<float>();
+
+            for (int i = 0; i < 6; i++)
             {
-                return currentValue;
+                int nx = x + offsets[i, 0];
+                int ny = y + offsets[i, 1];
+                int nz = z + offsets[i, 2];
+
+                // Ensure the neighbor is within bounds
+                if (nx >= 0 && ny >= 0 && nz >= 0 &&
+                    nx < currentData.GetLength(0) &&
+                    ny < currentData.GetLength(1) &&
+                    nz < currentData.GetLength(2))
+                {
+                    float neighborWeight = currentData[nx, ny, nz].WeightInsideIsPositive;
+
+                    weights.Add(neighborWeight);
+
+                    // Bitwise sign check (faster)
+                    if ((currentValue.WeightInsideIsPositive * neighborWeight) < 0)
+                    {
+                        hasDifferentSign = true;
+                        break; // No need to check further
+                    }
+                }
             }
 
+            //Debug.Log($"{currentValue.WeightInsideIsPositive}, {currentData[x+1, y+1, z+1].WeightInsideIsPositive}, {hasDifferentSign}"); 
+
+            // Ignore non-bordering voxels
+            if (!hasDifferentSign) return currentValue;
+
+            string output = "";
+
+            foreach(float weight in weights)
+            {
+                output += weight + " ";
+            }
+
+            // Calculate noise
             Vector3 worldPos = voxelOrigin + new Vector3(x, y, z) * voxelSize;
 
             // Pseudo-3D Perlin Noise
