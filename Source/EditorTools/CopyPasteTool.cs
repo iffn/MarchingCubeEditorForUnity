@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static UnityEngine.ParticleSystem;
 
 public class CopyPasteTool : BaseTool
 {
@@ -12,8 +11,7 @@ public class CopyPasteTool : BaseTool
 
     MarchingCubesModel previewModelWithOldData;
 
-    Vector3 originalPosition;
-    Vector3 newPosition;
+    Matrix4x4 initialTransform;
 
     public override string DisplayName => "Copy paste tool";
 
@@ -47,19 +45,22 @@ public class CopyPasteTool : BaseTool
 
         base.HandleSceneUpdate(currentEvent);
 
-        if(newPosition != selectedShape.transform.position)
+        Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
+
+        if (initialTransform != newTransform)
         {
-            newPosition = selectedShape.transform.position;
-            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(-selectedShape.transform.position + originalPosition));
+            Matrix4x4 deltaTransform = newTransform * initialTransform.inverse;
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(deltaTransform));
         }
     }
 
     void Copy()
     {
         copied = true;
-        
-        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(Vector3Int.zero));
-        originalPosition = selectedShape.transform.position;
+
+        Matrix4x4 initialTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
+
+        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity));
     }
 
     void Paste()

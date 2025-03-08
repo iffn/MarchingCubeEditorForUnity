@@ -12,11 +12,11 @@ public class BaseModificationTools
 
     public class CopyModifier : IVoxelModifier
     {
-        Vector3 offset;
+        private Matrix4x4 transformationMatrix;
 
-        public CopyModifier(Vector3 offset)
+        public CopyModifier(Matrix4x4 transformationMatrix)
         {
-            this.offset = offset;
+            this.transformationMatrix = transformationMatrix;
         }
 
         public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
@@ -25,17 +25,26 @@ public class BaseModificationTools
 
             if (distanceOutsideIsPositive > 0) return currentValue;
 
-            int newX = x + Mathf.RoundToInt(offset.x);
-            int newY = y + Mathf.RoundToInt(offset.y);
-            int newZ = z + Mathf.RoundToInt(offset.z);
+            // Convert voxel position to Vector3
+            Vector3 originalPosition = new Vector3(x, y, z);
 
-            if (newX < 0 || newX >= currentData.GetLength(0) - 1) return currentValue;
-            if (newY < 0 || newY >= currentData.GetLength(1) - 1) return currentValue;
-            if (newZ < 0 || newZ >= currentData.GetLength(2) - 1) return currentValue;
-            
+            // Apply transformation matrix
+            Vector3 transformedPosition = transformationMatrix.MultiplyPoint3x4(originalPosition);
+
+            // Convert back to voxel grid space
+            int newX = Mathf.RoundToInt(transformedPosition.x);
+            int newY = Mathf.RoundToInt(transformedPosition.y);
+            int newZ = Mathf.RoundToInt(transformedPosition.z);
+
+            // Ensure new voxel coordinates are within bounds
+            if (newX < 0 || newX >= currentData.GetLength(0)) return currentValue;
+            if (newY < 0 || newY >= currentData.GetLength(1)) return currentValue;
+            if (newZ < 0 || newZ >= currentData.GetLength(2)) return currentValue;
+
             return currentData[newX, newY, newZ];
         }
     }
+
 
     public class AddShapeModifier : IVoxelModifier
     {
