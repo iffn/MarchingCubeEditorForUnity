@@ -50,6 +50,7 @@ public class ModifySurface : BaseTool
         placeableByClick.DrawEditorUI();
 
         raycastActive = EditorGUILayout.Toggle("Active", raycastActive);
+        showPreview = EditorGUILayout.Toggle("Show preview", showPreview);
 
         surfaceModification = EditorGUILayout.Popup("Select Option", surfaceModification, new string[] {"Smooth", "Roughen"});
 
