@@ -10,6 +10,33 @@ public class BaseModificationTools
         VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive);
     }
 
+    public class CopyModifier : IVoxelModifier
+    {
+        Vector3 offset;
+
+        public CopyModifier(Vector3 offset)
+        {
+            this.offset = offset;
+        }
+
+        public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
+        {
+            VoxelData currentValue = currentData[x, y, z];
+
+            if (distanceOutsideIsPositive > 0) return currentValue;
+
+            int newX = x + Mathf.RoundToInt(offset.x);
+            int newY = y + Mathf.RoundToInt(offset.y);
+            int newZ = z + Mathf.RoundToInt(offset.z);
+
+            if (newX < 0 || newX >= currentData.GetLength(0) - 1) return currentValue;
+            if (newY < 0 || newY >= currentData.GetLength(1) - 1) return currentValue;
+            if (newZ < 0 || newZ >= currentData.GetLength(2) - 1) return currentValue;
+            
+            return currentData[newX, newY, newZ];
+        }
+    }
+
     public class AddShapeModifier : IVoxelModifier
     {
         public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
