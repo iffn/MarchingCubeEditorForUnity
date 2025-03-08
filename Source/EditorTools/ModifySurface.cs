@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class SmoothingTool : BaseTool
+public class ModifySurface : BaseTool
 {
     // Editor variables
     bool raycastActive = true;
@@ -23,7 +23,7 @@ public class SmoothingTool : BaseTool
     PlaceableByClickHandler placeableByClick;
 
     // Override functions
-    public override string DisplayName => "Click to smooth";
+    public override string DisplayName => "Modify surface";
 
     public override void OnEnable()
     {
