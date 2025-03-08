@@ -234,50 +234,38 @@ public class BaseModificationTools
 
             // Check 6-connected neighbors
             bool hasDifferentSign = false;
-            int[,] offsets = {
-                { 1, 0, 0 }, { -1, 0, 0 }, // X neighbors
-                { 0, 1, 0 }, { 0, -1, 0 }, // Y neighbors
-                { 0, 0, 1 }, { 0, 0, -1 }  // Z neighbors
-            };
 
-            List<float> weights = new List<float>();
+            int offset = 1;
 
-            for (int i = 0; i < 6; i++)
+            int xMin = Mathf.Max(x - offset, 0);
+            int xMax = Mathf.Min(x + offset, currentData.GetLength(0) - 1);
+            int yMin = Mathf.Max(y - offset, 0);
+            int yMax = Mathf.Min(y + offset, currentData.GetLength(1) - 1);
+            int zMin = Mathf.Max(z - offset, 0);
+            int zMax = Mathf.Min(z + offset, currentData.GetLength(2) - 1);
+
+            for(int nx = xMin; nx <= xMax; nx++)
             {
-                int nx = x + offsets[i, 0];
-                int ny = y + offsets[i, 1];
-                int nz = z + offsets[i, 2];
-
-                // Ensure the neighbor is within bounds
-                if (nx >= 0 && ny >= 0 && nz >= 0 &&
-                    nx < currentData.GetLength(0) &&
-                    ny < currentData.GetLength(1) &&
-                    nz < currentData.GetLength(2))
+                for (int ny = yMin; ny <= yMax; ny++)
                 {
-                    float neighborWeight = currentData[nx, ny, nz].WeightInsideIsPositive;
-
-                    weights.Add(neighborWeight);
-
-                    // Bitwise sign check (faster)
-                    if ((currentValue.WeightInsideIsPositive * neighborWeight) < 0)
+                    for (int nz = zMin; nz <= zMax; nz++)
                     {
-                        hasDifferentSign = true;
-                        break; // No need to check further
+                        if (nx == x && ny == y && nz == z) continue; // Skip the center voxel
+
+                        float neighborWeight = currentData[nx, ny, nz].WeightInsideIsPositive;
+
+                        // Bitwise sign check for performance (avoids branching)
+                        if ((currentValue.WeightInsideIsPositive * neighborWeight) < 0)
+                        {
+                            hasDifferentSign = true;
+                            break; // Exit early if a sign difference is found
+                        }
                     }
                 }
             }
 
-            //Debug.Log($"{currentValue.WeightInsideIsPositive}, {currentData[x+1, y+1, z+1].WeightInsideIsPositive}, {hasDifferentSign}"); 
-
             // Ignore non-bordering voxels
             if (!hasDifferentSign) return currentValue;
-
-            string output = "";
-
-            foreach(float weight in weights)
-            {
-                output += weight + " ";
-            }
 
             // Calculate noise
             Vector3 worldPos = voxelOrigin + new Vector3(x, y, z) * voxelSize;
