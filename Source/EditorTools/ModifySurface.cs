@@ -8,7 +8,10 @@ public class ModifySurface : BaseTool
 {
     // Editor variables
     bool raycastActive = true;
-    bool smooth = false;
+    bool showPreview = true;
+    double nextUpdateTime;
+    double timeBetweenUpdates = 1.0 / 60.0;
+    int surfaceModification;
 
     float smoothThreshold = 0.5f;
     int smoothRadius = 3;
@@ -41,7 +44,6 @@ public class ModifySurface : BaseTool
         roughen
     }
 
-    int surfaceModification;
 
     public override void DrawUI()
     {
@@ -118,22 +120,29 @@ public class ModifySurface : BaseTool
 
             placeableByClick.SelectedEditShape.gameObject.SetActive(true);
 
-            if (LeftClickDownEvent(e))
+            if (showPreview)
             {
-                if (smooth)
+                HandlePreviewUpdate(e);
+            }
+            else
+            {
+                if (LeftClickDownEvent(e))
                 {
-                    LinkedMarchingCubeController.ModificationManager.ModifyData(
-                        placeableByClick.SelectedEditShape,
-                        GaussianSmoothingModification());
-                }
-                else
-                {
-                    LinkedMarchingCubeController.ModificationManager.ModifyData(
-                        placeableByClick.SelectedEditShape,
-                        WorldSpaceRougheningModification());
-                }
+                    if (surfaceModification == 0)
+                    {
+                        LinkedMarchingCubeController.ModificationManager.ModifyData(
+                            placeableByClick.SelectedEditShape,
+                            GaussianSmoothingModification());
+                    }
+                    else if (surfaceModification == 1)
+                    {
+                        LinkedMarchingCubeController.ModificationManager.ModifyData(
+                            placeableByClick.SelectedEditShape,
+                            WorldSpaceRougheningModification());
+                    }
 
-                e.Use();
+                    e.Use();
+                }
             }
         }
         else
@@ -145,6 +154,35 @@ public class ModifySurface : BaseTool
         if (EscapeDownEvent(e))
         {
             raycastActive = false;
+            e.Use();
+        }
+    }
+
+    void HandlePreviewUpdate(Event e)
+    {
+        if (EditorApplication.timeSinceStartup >= nextUpdateTime) //Only update once in a while
+        {
+            if (surfaceModification == 0)
+            {
+                LinkedMarchingCubeController.ModificationManager.ShowPreviewData(
+                    placeableByClick.SelectedEditShape,
+                    GaussianSmoothingModification());
+            }
+            else if (surfaceModification == 1)
+            {
+                LinkedMarchingCubeController.ModificationManager.ShowPreviewData(
+                    placeableByClick.SelectedEditShape,
+                    WorldSpaceRougheningModification());
+            }
+
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
+
+            nextUpdateTime = EditorApplication.timeSinceStartup + timeBetweenUpdates;
+        }
+
+        if (LeftClickDownEvent(e))
+        {
+            LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
             e.Use();
         }
     }
