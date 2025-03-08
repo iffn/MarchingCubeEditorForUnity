@@ -106,15 +106,13 @@ public class BaseModificationTools
 
     public class GaussianSmoothingModifier : IVoxelModifier
     {
-        readonly VoxelData[,,] voxelData;
         float[,,] gaussianKernel;
         readonly float weightThreshold;
         readonly int radius;
         readonly float sigma;
 
-        public GaussianSmoothingModifier(VoxelData[,,] voxelData, float weightThreshold, int radius, float sigma)
+        public GaussianSmoothingModifier(float weightThreshold, int radius, float sigma)
         {
-            this.voxelData = voxelData;
             this.weightThreshold = weightThreshold;
             this.radius = radius;
             this.sigma = sigma;
@@ -131,7 +129,7 @@ public class BaseModificationTools
             if (Mathf.Abs(currentValue.WeightInsideIsPositive - weightThreshold) > sigma)
                 return currentValue;
 
-            float newWeight = ApplyKernel(x, y, z, voxelData, gaussianKernel, radius);
+            float newWeight = ApplyKernel(x, y, z, currentData, gaussianKernel, radius);
             return currentValue.WithWeightInsideIsPositive(newWeight);
         }
 
@@ -196,8 +194,6 @@ public class BaseModificationTools
 
     public class WorldSpaceRougheningModifier : IVoxelModifier
     {
-        readonly VoxelData[,,] voxelData;
-        readonly float weightThreshold;
         readonly int radius;
         readonly float intensity;
         readonly float frequency;
@@ -206,8 +202,6 @@ public class BaseModificationTools
         readonly float voxelSize;
 
         public WorldSpaceRougheningModifier(
-            VoxelData[,,] voxelData,
-            float weightThreshold,
             int radius,
             float intensity,
             float frequency,
@@ -215,8 +209,6 @@ public class BaseModificationTools
             Vector3 voxelOrigin,
             float voxelSize)
         {
-            this.voxelData = voxelData;
-            this.weightThreshold = weightThreshold;
             this.radius = radius;
             this.intensity = intensity;
             this.frequency = frequency;

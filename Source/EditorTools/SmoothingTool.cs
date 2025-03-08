@@ -14,7 +14,6 @@ public class SmoothingTool : BaseTool
     int smoothRadius = 3;
     float smoothSigma = 2f;
 
-    float roughenWeightThreshold = 0.5f;
     int roughenRadius = 10;
     float roughenIntensity = 0.2f;
     float roughenFrequency = 0.1f;
@@ -52,7 +51,6 @@ public class SmoothingTool : BaseTool
         }
         else
         {
-            roughenWeightThreshold = EditorGUILayout.FloatField("Weight threshold", roughenWeightThreshold);
             roughenRadius = EditorGUILayout.IntField("Radius", roughenRadius);
             roughenIntensity = EditorGUILayout.FloatField("Intensity", roughenIntensity);
             roughenFrequency = EditorGUILayout.FloatField("Frequency", roughenFrequency);
@@ -75,7 +73,6 @@ public class SmoothingTool : BaseTool
     BaseModificationTools.IVoxelModifier GaussianSmoothingModification()
     {
         return new BaseModificationTools.GaussianSmoothingModifier(
-            LinkedMarchingCubeController.VoxelDataReference,
             smoothThreshold,
             smoothRadius,
             smoothSigma
@@ -85,8 +82,6 @@ public class SmoothingTool : BaseTool
     BaseModificationTools.IVoxelModifier WorldSpaceRougheningModification()
     {
         return new BaseModificationTools.WorldSpaceRougheningModifier(
-            LinkedMarchingCubeController.VoxelDataReference,
-            roughenWeightThreshold,
             roughenRadius,
             roughenIntensity,
             roughenFrequency,
