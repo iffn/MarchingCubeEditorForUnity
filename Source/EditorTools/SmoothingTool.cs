@@ -14,11 +14,11 @@ public class SmoothingTool : BaseTool
     int smoothRadius = 3;
     float smoothSigma = 2f;
 
-    float weightThreshold = 0.5f;
-    int radius = 10;
-    float intensity = 0.2f;
-    float frequency = 0.1f;
-    float falloffSharpness = 2f;
+    float roughenWeightThreshold = 0.5f;
+    int roughenRadius = 10;
+    float roughenIntensity = 0.2f;
+    float roughenFrequency = 0.1f;
+    float roughenFalloffSharpness = 2f;
 
     // Internal variables
     PlaceableByClickHandler placeableByClick;
@@ -52,11 +52,11 @@ public class SmoothingTool : BaseTool
         }
         else
         {
-            weightThreshold = EditorGUILayout.FloatField("Weight threshold", weightThreshold);
-            radius = EditorGUILayout.IntField("Radius", smoothRadius);
-            intensity = EditorGUILayout.FloatField("Intensity", intensity);
-            frequency = EditorGUILayout.FloatField("Frequency", frequency);
-            falloffSharpness = EditorGUILayout.FloatField("FalloffSharpness", falloffSharpness);
+            roughenWeightThreshold = EditorGUILayout.FloatField("Weight threshold", roughenWeightThreshold);
+            roughenRadius = EditorGUILayout.IntField("Radius", roughenRadius);
+            roughenIntensity = EditorGUILayout.FloatField("Intensity", roughenIntensity);
+            roughenFrequency = EditorGUILayout.FloatField("Frequency", roughenFrequency);
+            roughenFalloffSharpness = EditorGUILayout.FloatField("FalloffSharpness", roughenFalloffSharpness);
         }
 
         if (raycastActive)
@@ -86,11 +86,11 @@ public class SmoothingTool : BaseTool
     {
         return new BaseModificationTools.WorldSpaceRougheningModifier(
             LinkedMarchingCubeController.VoxelDataReference,
-            weightThreshold,
-            radius,
-            intensity,
-            frequency,
-            falloffSharpness,
+            roughenWeightThreshold,
+            roughenRadius,
+            roughenIntensity,
+            roughenFrequency,
+            roughenFalloffSharpness,
             LinkedMarchingCubeController.transform.position,
             LinkedMarchingCubeController.transform.lossyScale.x
             );
