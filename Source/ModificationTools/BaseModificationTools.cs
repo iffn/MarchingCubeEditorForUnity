@@ -45,7 +45,6 @@ public class BaseModificationTools
         }
     }
 
-
     public class AddShapeModifier : IVoxelModifier
     {
         public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)

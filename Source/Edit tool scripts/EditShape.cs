@@ -69,6 +69,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         {
             shortcutHandlers.Clear();
             SetupShortcutHandlers();
+            gameObject.SetActive(true);
         }
 
         protected virtual void SetupShortcutHandlers()

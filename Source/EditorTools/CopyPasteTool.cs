@@ -26,6 +26,7 @@ public class CopyPasteTool : BaseTool
 
         if (newSelectedShape && newSelectedShape != selectedShape)
         {
+            if(selectedShape) selectedShape.gameObject.SetActive(false);
             selectedShape = newSelectedShape;
             newSelectedShape.Initialize();
         }
@@ -47,18 +48,34 @@ public class CopyPasteTool : BaseTool
 
         Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
 
-        if (initialTransform != newTransform)
+        if (!MatricesAreEqual(initialTransform, newTransform, 0.0001f))
         {
             Matrix4x4 deltaTransform = newTransform * initialTransform.inverse;
             LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(deltaTransform));
+
+            initialTransform = newTransform;
         }
+    }
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        if (selectedShape) selectedShape.gameObject.SetActive(true);
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+
+        if (selectedShape) selectedShape.gameObject.SetActive(false);
     }
 
     void Copy()
     {
         copied = true;
 
-        Matrix4x4 initialTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
+        initialTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
 
         LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity));
     }
@@ -66,5 +83,14 @@ public class CopyPasteTool : BaseTool
     void Paste()
     {
         LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
+    }
+
+    private bool MatricesAreEqual(Matrix4x4 m1, Matrix4x4 m2, float tolerance)
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            if (Mathf.Abs(m1[i] - m2[i]) > tolerance) return false;
+        }
+        return true;
     }
 }
