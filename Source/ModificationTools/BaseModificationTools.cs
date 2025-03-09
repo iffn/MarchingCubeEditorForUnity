@@ -12,11 +12,13 @@ public class BaseModificationTools
 
     public class CopyModifier : IVoxelModifier
     {
-        private Matrix4x4 transformationMatrix;
+        private Matrix4x4 originalTransform;
+        private Matrix4x4 newTransform;
 
-        public CopyModifier(Matrix4x4 transformationMatrix)
+        public CopyModifier(Matrix4x4 originalTransform, Matrix4x4 newTransform)
         {
-            this.transformationMatrix = transformationMatrix;
+            this.originalTransform = originalTransform;
+            this.newTransform = newTransform;
         }
 
         public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
@@ -29,7 +31,7 @@ public class BaseModificationTools
             Vector3 originalPosition = new Vector3(x, y, z);
 
             // Apply transformation matrix
-            Vector3 transformedPosition = transformationMatrix.MultiplyPoint3x4(originalPosition);
+            Vector3 transformedPosition = TransformBetweenLocalSpaces(originalPosition, originalTransform, newTransform);
 
             // Convert back to voxel grid space
             int newX = Mathf.RoundToInt(transformedPosition.x);
@@ -43,6 +45,18 @@ public class BaseModificationTools
 
             return currentData[newX, newY, newZ];
         }
+
+        Vector3 TransformBetweenLocalSpaces(Vector3 worldPosition, Matrix4x4 A_old, Matrix4x4 A_new)
+        {
+            // Convert world position to local space of A_new
+            Vector3 localPositionInAnew = A_new.MultiplyPoint3x4(worldPosition);
+
+            // Convert local position (A_new) back to world position using A_old
+            Vector3 transformedWorldPosition = A_old.inverse.MultiplyPoint3x4(localPositionInAnew);
+
+            return transformedWorldPosition;
+        }
+
     }
 
     public class AddShapeModifier : IVoxelModifier

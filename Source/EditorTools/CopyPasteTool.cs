@@ -12,6 +12,7 @@ public class CopyPasteTool : BaseTool
     MarchingCubesModel previewModelWithOldData;
 
     Matrix4x4 initialTransform;
+    Matrix4x4 previousTransform;
 
     public override string DisplayName => "Copy paste tool";
 
@@ -46,14 +47,14 @@ public class CopyPasteTool : BaseTool
 
         base.HandleSceneUpdate(currentEvent);
 
-        Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
+        //Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
+        Matrix4x4 newTransform = selectedShape.transform.worldToLocalMatrix;
 
-        if (!MatricesAreEqual(initialTransform, newTransform, 0.0001f))
+        if (!MatricesAreEqual(previousTransform, newTransform, 0.0001f))
         {
-            Matrix4x4 deltaTransform = newTransform * initialTransform.inverse;
-            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(deltaTransform));
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(initialTransform, newTransform));
 
-            initialTransform = newTransform;
+            previousTransform = newTransform;
         }
     }
 
@@ -75,9 +76,9 @@ public class CopyPasteTool : BaseTool
     {
         copied = true;
 
-        initialTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
+        initialTransform = selectedShape.transform.worldToLocalMatrix;
 
-        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity));
+        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity, Matrix4x4.identity));
     }
 
     void Paste()
