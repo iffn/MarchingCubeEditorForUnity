@@ -7,9 +7,7 @@ using UnityEngine;
 
 public class CopyPasteTool : BaseTool
 {
-    EditShape selectedShape;
-
-    MarchingCubesModel previewModelWithOldData;
+    PlaceableByClickHandler currentEditShapeHandler;
 
     Matrix4x4 initialTransform;
     Matrix4x4 previousTransform;
@@ -20,25 +18,15 @@ public class CopyPasteTool : BaseTool
 
     public override void DrawUI()
     {
-        EditShape newSelectedShape = EditorGUILayout.ObjectField(
-            selectedShape,
-            typeof(EditShape),
-            true) as EditShape;
+        if (currentEditShapeHandler == null) return;
+        currentEditShapeHandler.DrawEditorUI();
 
-        if (newSelectedShape && newSelectedShape != selectedShape)
-        {
-            if(selectedShape) selectedShape.gameObject.SetActive(false);
-            selectedShape = newSelectedShape;
-            newSelectedShape.Initialize();
-        }
+        EditorGUILayout.HelpBox("Note: The idea is that you lock the inspector using the lock symbol on top and them move the shape around.", MessageType.Info);
 
-        if (selectedShape)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button($"Copy")) Copy();
-            if (GUILayout.Button($"Paste")) Paste();
-            EditorGUILayout.EndHorizontal();
-        }
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button($"Copy")) Copy();
+        if (GUILayout.Button($"Paste")) Paste();
+        EditorGUILayout.EndHorizontal();
     }
 
     public override void HandleSceneUpdate(Event currentEvent)
@@ -48,11 +36,11 @@ public class CopyPasteTool : BaseTool
         base.HandleSceneUpdate(currentEvent);
 
         //Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
-        Matrix4x4 newTransform = selectedShape.transform.worldToLocalMatrix;
+        Matrix4x4 newTransform = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
 
         if (!MatricesAreEqual(previousTransform, newTransform, 0.0001f))
         {
-            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(initialTransform, newTransform));
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(initialTransform, newTransform));
 
             previousTransform = newTransform;
         }
@@ -61,24 +49,25 @@ public class CopyPasteTool : BaseTool
     public override void OnEnable()
     {
         base.OnEnable();
-
-        if (selectedShape) selectedShape.gameObject.SetActive(true);
+        if (currentEditShapeHandler == null)
+            currentEditShapeHandler = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
     public override void OnDisable()
     {
         base.OnDisable();
 
-        if (selectedShape) selectedShape.gameObject.SetActive(false);
+        if(currentEditShapeHandler != null)
+            currentEditShapeHandler.SelectedEditShape.gameObject.SetActive(false);
     }
 
     void Copy()
     {
         copied = true;
 
-        initialTransform = selectedShape.transform.worldToLocalMatrix;
+        initialTransform = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
 
-        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(selectedShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity, Matrix4x4.identity));
+        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity, Matrix4x4.identity));
     }
 
     void Paste()

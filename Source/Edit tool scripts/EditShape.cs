@@ -170,6 +170,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
                 if (shape is IPlaceableByClick clickableShape)
                 {
                     EditShapes.Add(clickableShape);
+                    shape.gameObject.SetActive(false);
                 }
             }
 
