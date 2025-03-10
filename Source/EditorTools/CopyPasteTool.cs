@@ -58,7 +58,7 @@ public class CopyPasteTool : BaseTool
         }
 
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button($"Copy")) Copy();
+        if (GUILayout.Button($"Mark copy location")) MarkCopyLocation();
         if (GUILayout.Button($"Paste")) Paste();
         EditorGUILayout.EndHorizontal();
     }
@@ -95,7 +95,7 @@ public class CopyPasteTool : BaseTool
             currentEditShapeHandler.SelectedEditShape.gameObject.SetActive(false);
     }
 
-    void Copy()
+    void MarkCopyLocation()
     {
         copied = true;
 
@@ -106,6 +106,8 @@ public class CopyPasteTool : BaseTool
 
     void Paste()
     {
+        if (!copied) return;
+
         LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
     }
 
@@ -115,6 +117,7 @@ public class CopyPasteTool : BaseTool
         {
             if (Mathf.Abs(m1[i] - m2[i]) > tolerance) return false;
         }
+
         return true;
     }
 }
