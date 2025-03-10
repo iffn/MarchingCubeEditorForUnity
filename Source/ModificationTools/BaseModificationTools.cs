@@ -33,17 +33,50 @@ public class BaseModificationTools
             // Apply transformation matrix
             Vector3 transformedPosition = TransformBetweenLocalSpaces(originalPosition, originalTransform, newTransform);
 
-            // Convert back to voxel grid space
-            int newX = Mathf.RoundToInt(transformedPosition.x);
-            int newY = Mathf.RoundToInt(transformedPosition.y);
-            int newZ = Mathf.RoundToInt(transformedPosition.z);
+            // Get the integer floor and ceiling of the transformed position
+            int x0 = Mathf.FloorToInt(transformedPosition.x);
+            int x1 = Mathf.CeilToInt(transformedPosition.x);
+            int y0 = Mathf.FloorToInt(transformedPosition.y);
+            int y1 = Mathf.CeilToInt(transformedPosition.y);
+            int z0 = Mathf.FloorToInt(transformedPosition.z);
+            int z1 = Mathf.CeilToInt(transformedPosition.z);
 
-            // Ensure new voxel coordinates are within bounds
-            if (newX < 0 || newX >= currentData.GetLength(0)) return currentValue;
-            if (newY < 0 || newY >= currentData.GetLength(1)) return currentValue;
-            if (newZ < 0 || newZ >= currentData.GetLength(2)) return currentValue;
+            // Clamp indices to stay within bounds
+            x0 = Mathf.Clamp(x0, 0, currentData.GetLength(0) - 1);
+            x1 = Mathf.Clamp(x1, 0, currentData.GetLength(0) - 1);
+            y0 = Mathf.Clamp(y0, 0, currentData.GetLength(1) - 1);
+            y1 = Mathf.Clamp(y1, 0, currentData.GetLength(1) - 1);
+            z0 = Mathf.Clamp(z0, 0, currentData.GetLength(2) - 1);
+            z1 = Mathf.Clamp(z1, 0, currentData.GetLength(2) - 1);
 
-            return currentData[newX, newY, newZ];
+            // Get fractional parts for interpolation
+            float xd = Mathf.Clamp01(transformedPosition.x - x0);
+            float yd = Mathf.Clamp01(transformedPosition.y - y0);
+            float zd = Mathf.Clamp01(transformedPosition.z - z0);
+
+            // Retrieve voxel values at 8 surrounding points
+            float c000 = currentData[x0, y0, z0].WeightInsideIsPositive;
+            float c100 = currentData[x1, y0, z0].WeightInsideIsPositive;
+            float c010 = currentData[x0, y1, z0].WeightInsideIsPositive;
+            float c110 = currentData[x1, y1, z0].WeightInsideIsPositive;
+            float c001 = currentData[x0, y0, z1].WeightInsideIsPositive;
+            float c101 = currentData[x1, y0, z1].WeightInsideIsPositive;
+            float c011 = currentData[x0, y1, z1].WeightInsideIsPositive;
+            float c111 = currentData[x1, y1, z1].WeightInsideIsPositive;
+
+            // Perform trilinear interpolation
+            float c00 = Mathf.Lerp(c000, c100, xd);
+            float c01 = Mathf.Lerp(c001, c101, xd);
+            float c10 = Mathf.Lerp(c010, c110, xd);
+            float c11 = Mathf.Lerp(c011, c111, xd);
+
+            float c0 = Mathf.Lerp(c00, c10, yd);
+            float c1 = Mathf.Lerp(c01, c11, yd);
+
+            float interpolatedWeight = Mathf.Lerp(c0, c1, zd);
+
+            // Return the interpolated voxel value
+            return currentValue.WithWeightInsideIsPositive(interpolatedWeight);
         }
 
         Vector3 TransformBetweenLocalSpaces(Vector3 worldPosition, Matrix4x4 A_old, Matrix4x4 A_new)
