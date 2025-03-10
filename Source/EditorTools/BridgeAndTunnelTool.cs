@@ -62,7 +62,7 @@ public class BridgeAndTunnelTool : BaseTool
 
                     endPointSet = (result != RayHitResult.None);
                     endPointWorld = result.point;
-                    Vector3 endPointLocal = LinkedMarchingCubeController.transform.InverseTransformPoint(endPointWorld);
+                    endPointLocal = LinkedMarchingCubeController.transform.InverseTransformPoint(endPointWorld);
 
                     if (showPreviewBeforeApplying)
                     {
