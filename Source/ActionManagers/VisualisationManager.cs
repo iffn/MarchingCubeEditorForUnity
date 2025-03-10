@@ -38,6 +38,7 @@ public class VisualisationManager : MonoBehaviour
         if (ShowGridOutline)
         {
             Vector3 outlineSize = new Vector3(linkedController.GridResolutionX - 1, linkedController.GridResolutionY - 1, linkedController.GridResolutionZ - 1);
+            outlineSize = new Vector3(outlineSize.x * linkedController.transform.localScale.x, outlineSize.y * linkedController.transform.localScale.y, outlineSize.z * linkedController.transform.localScale.z);
             Gizmos.color = Color.cyan;
             Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, outlineSize);
             Gizmos.DrawWireCube(Vector3.one / 2f, Vector3.one);
