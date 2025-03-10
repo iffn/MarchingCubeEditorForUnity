@@ -6,8 +6,11 @@ using UnityEngine;
 
 public class BridgeAndTunnelTool : BaseTool
 {
-    Vector3 startPoint;
-    Vector3 endPoint;
+    //Vector3 startPointWorld;
+    Vector3 startPointWorld;
+    Vector3 startPointLocal;
+    Vector3 endPointWorld;
+    Vector3 endPointLocal;
     bool startPointSet = false;
     bool endPointSet = false;
     bool previewingTunnel = false;
@@ -58,14 +61,15 @@ public class BridgeAndTunnelTool : BaseTool
                     RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
                     endPointSet = (result != RayHitResult.None);
-                    endPoint = result.point;
+                    endPointWorld = result.point;
+                    Vector3 endPointLocal = LinkedMarchingCubeController.transform.InverseTransformPoint(endPointWorld);
 
                     if (showPreviewBeforeApplying)
                     {
                         if (ControlIsHeld(e))
-                            PreviewTunnel(startPoint, endPoint);
+                            PreviewTunnel(startPointLocal, endPointLocal);
                         else
-                            PreviewBridge(startPoint, endPoint);
+                            PreviewBridge(startPointLocal, endPointLocal);
                     }
 
                     ShowPreviewCheck();
@@ -78,16 +82,17 @@ public class BridgeAndTunnelTool : BaseTool
                 RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
                 endPointSet = (result != RayHitResult.None);
-                endPoint = result.point;
+                endPointWorld = result.point;
+                endPointLocal = LinkedMarchingCubeController.transform.InverseTransformPoint(endPointWorld);
 
                 if (endPointSet)
                 {
                     if (showPreviewBeforeApplying)
                     {
                         if (ControlIsHeld(e))
-                            PreviewTunnel(startPoint, endPoint);
+                            PreviewTunnel(startPointLocal, endPointLocal);
                         else
-                            PreviewBridge(startPoint, endPoint);
+                            PreviewBridge(startPointLocal, endPointLocal);
                     }
 
                     if (LeftClickDownEvent(e))
@@ -95,14 +100,18 @@ public class BridgeAndTunnelTool : BaseTool
                         if (showPreviewBeforeApplying)
                         {
                             ApplyPreviewChanges();
-                            if(continueWithEndPoint) startPoint = endPoint;
+                            if (continueWithEndPoint)
+                            {
+                                startPointWorld = endPointWorld;
+                                startPointLocal = endPointLocal;
+                            }
                         }
                         else
                         {
                             if (ControlIsHeld(e))
-                                CreateTunnel(startPoint, endPoint);
+                                CreateTunnel(startPointLocal, endPointLocal);
                             else
-                                CreateBridge(startPoint, endPoint);
+                                CreateBridge(startPointLocal, endPointLocal);
                         }
 
                         e.Use();
@@ -127,7 +136,8 @@ public class BridgeAndTunnelTool : BaseTool
 
                 if (result == RayHitResult.None) return;
 
-                startPoint = result.point;
+                startPointWorld = result.point;
+                startPointLocal = LinkedMarchingCubeController.transform.InverseTransformPoint(startPointWorld);
                 startPointSet = true;
                 e.Use();
             }
@@ -161,9 +171,9 @@ public class BridgeAndTunnelTool : BaseTool
                 if(showPreviewBeforeApplying && startPointSet && endPointSet)
                 {
                     if(previewingTunnel)
-                        PreviewTunnel(startPoint, endPoint);
+                        PreviewTunnel(startPointWorld, endPointWorld);
                     else
-                        PreviewBridge(startPoint, endPoint);
+                        PreviewBridge(startPointWorld, endPointWorld);
                 }
             }
         }
@@ -188,7 +198,7 @@ public class BridgeAndTunnelTool : BaseTool
                 {
                     if (GUILayout.Button($"Switch to bridge"))
                     {
-                        PreviewBridge(startPoint, endPoint);
+                        PreviewBridge(startPointLocal, endPointLocal);
                         previewingTunnel = false;
                     }
 
@@ -202,7 +212,7 @@ public class BridgeAndTunnelTool : BaseTool
 
                     if (GUILayout.Button($"Switch to tunnel"))
                     {
-                        PreviewTunnel(startPoint, endPoint);
+                        PreviewTunnel(startPointLocal, endPointLocal);
                         previewingTunnel = true;
                     }
                 }
@@ -210,9 +220,9 @@ public class BridgeAndTunnelTool : BaseTool
             else
             {
                 if (GUILayout.Button($"Create bridge"))
-                    CreateBridge(startPoint, endPoint);
+                    CreateBridge(startPointLocal, endPointLocal);
                 if (GUILayout.Button($"Create tunnel"))
-                    CreateTunnel(startPoint, endPoint);
+                    CreateTunnel(startPointLocal, endPointLocal);
             }
         }
     }
@@ -221,17 +231,17 @@ public class BridgeAndTunnelTool : BaseTool
     {
         if(startPointSet && endPointSet)
         {
-            Gizmos.DrawLine(startPoint, endPoint);
+            Gizmos.DrawLine(startPointWorld, endPointWorld);
 
-            LinkedMarchingCubeController.VisualisationManager.DrawCircle(endPoint, bridgeOrTunnelShape.radius, 12, startPoint - endPoint);
+            LinkedMarchingCubeController.VisualisationManager.DrawCircle(endPointWorld, bridgeOrTunnelShape.radius, 12, startPointWorld - endPointWorld);
         }
 
         if (startPointSet)
         {
             if (endPointSet)
-                LinkedMarchingCubeController.VisualisationManager.DrawCircle(startPoint, bridgeOrTunnelShape.radius, 12, startPoint - endPoint);
+                LinkedMarchingCubeController.VisualisationManager.DrawCircle(startPointWorld, bridgeOrTunnelShape.radius, 12, startPointWorld - endPointWorld);
             else
-                LinkedMarchingCubeController.VisualisationManager.DrawCircle(startPoint, bridgeOrTunnelShape.radius, 12, Vector3.up);
+                LinkedMarchingCubeController.VisualisationManager.DrawCircle(startPointWorld, bridgeOrTunnelShape.radius, 12, Vector3.up);
         }
     }
 
