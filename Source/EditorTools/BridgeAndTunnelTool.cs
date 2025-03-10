@@ -170,10 +170,12 @@ public class BridgeAndTunnelTool : BaseTool
 
                 if(showPreviewBeforeApplying && startPointSet && endPointSet)
                 {
+                    Debug.Log("Update");
+
                     if(previewingTunnel)
-                        PreviewTunnel(startPointWorld, endPointWorld);
+                        PreviewTunnel(startPointLocal, endPointLocal);
                     else
-                        PreviewBridge(startPointWorld, endPointWorld);
+                        PreviewBridge(startPointLocal, endPointLocal);
                 }
             }
         }
