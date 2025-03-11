@@ -15,9 +15,12 @@
   - [x] Basic implementation
   - [ ] Stop mostly removing material with GaussianSmoothingModifier
   - [ ] Implement other smoothing modifiers if needed
-  - [ ] Add roughen tool option
+  - [x] Add basic roughen tool option
+  - [ ] Add 3D voronoi roughen option
 - [ ] Normal expansion
-- [ ] Copy paste tool
+- Copy paste tool
+  - [x] Basic implementation
+  - [ ] Different boolean options
 - [ ] Let tool GameObjects have their own UI
 
 ## Editor options
@@ -25,6 +28,7 @@
 - [x] Link save file to prefab
 - [x] Integrate into inspector
 - [x] Expand voxel field
+- [ ] Add material selection
 
 ## Result visualization
 - Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
