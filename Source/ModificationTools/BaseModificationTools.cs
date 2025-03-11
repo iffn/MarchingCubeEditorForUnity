@@ -12,13 +12,15 @@ public class BaseModificationTools
 
     public class CopyModifier : IVoxelModifier
     {
-        private Matrix4x4 originalTransform;
-        private Matrix4x4 newTransform;
+        private Matrix4x4 originalTransformWTL;
+        private Matrix4x4 newTransformWTL;
+        private Matrix4x4 controllerTransformWTL;
 
-        public CopyModifier(Matrix4x4 originalTransform, Matrix4x4 newTransform)
+        public CopyModifier(Matrix4x4 originalTransformWTL, Matrix4x4 newTransformWTL, Matrix4x4 controllerTransformWTL)
         {
-            this.originalTransform = originalTransform;
-            this.newTransform = newTransform;
+            this.originalTransformWTL = originalTransformWTL;
+            this.newTransformWTL = newTransformWTL;
+            this.controllerTransformWTL = controllerTransformWTL;
         }
 
         public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
@@ -29,9 +31,12 @@ public class BaseModificationTools
 
             // Convert voxel position to Vector3
             Vector3 originalPosition = new Vector3(x, y, z);
+            originalPosition = controllerTransformWTL.inverse.MultiplyPoint3x4(originalPosition);
 
             // Apply transformation matrix
-            Vector3 transformedPosition = TransformBetweenLocalSpaces(originalPosition, originalTransform, newTransform);
+            Vector3 transformedPosition = TransformBetweenLocalSpaces(originalPosition, originalTransformWTL, newTransformWTL);
+
+            transformedPosition = controllerTransformWTL.MultiplyPoint3x4(transformedPosition);
 
             // Get the integer floor and ceiling of the transformed position
             int x0 = Mathf.FloorToInt(transformedPosition.x);
@@ -363,7 +368,6 @@ public class BaseModificationTools
         }
 
     }
-
 
     public class ChangeColorModifier : IVoxelModifier
     {

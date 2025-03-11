@@ -9,8 +9,8 @@ public class CopyPasteTool : BaseTool
 {
     PlaceableByClickHandler currentEditShapeHandler;
 
-    Matrix4x4 initialTransform;
-    Matrix4x4 previousTransform;
+    Matrix4x4 initialTransformWTL;
+    Matrix4x4 previousTransformWTL;
 
     public override string DisplayName => "Copy paste tool";
 
@@ -70,13 +70,15 @@ public class CopyPasteTool : BaseTool
         base.HandleSceneUpdate(currentEvent);
 
         //Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
-        Matrix4x4 newTransform = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
+        Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
 
-        if (!MatricesAreEqual(previousTransform, newTransform, 0.0001f))
+        if (!MatricesAreEqual(previousTransformWTL, newTransformWTL, 0.0001f))
         {
-            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(initialTransform, newTransform));
+            Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
 
-            previousTransform = newTransform;
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(initialTransformWTL, newTransformWTL, controllerTransformWTL));
+
+            previousTransformWTL = newTransformWTL;
         }
     }
 
@@ -99,9 +101,9 @@ public class CopyPasteTool : BaseTool
     {
         copied = true;
 
-        initialTransform = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
+        initialTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
 
-        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity, Matrix4x4.identity));
+        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity));
     }
 
     void Paste()
