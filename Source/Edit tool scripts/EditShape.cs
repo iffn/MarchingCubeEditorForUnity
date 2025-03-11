@@ -85,7 +85,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
                 foreach (ShortcutHandler handler in shortcutHandlers)
                 {
-                    helpText += "\n" + handler.ShortcutText;
+                    helpText += "\n• " + handler.ShortcutText;
                 }
 
                 return helpText;

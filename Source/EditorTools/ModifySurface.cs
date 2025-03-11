@@ -73,8 +73,7 @@ public class ModifySurface : BaseTool
 
         if (raycastActive)
         {
-            string helpText = "Controls:\n" +
-                    "Note that the scene has to be active for some of these to work.\n";
+            string helpText = base.helpText;
 
             helpText += placeableByClick.SelectedEditShape.HelpText;
 

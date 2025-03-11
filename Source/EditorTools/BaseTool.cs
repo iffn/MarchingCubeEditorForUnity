@@ -22,6 +22,9 @@ public abstract class BaseTool
     public virtual void OnEnable() {}
     public virtual void OnDisable() {}
 
+    protected string helpText = "Controls:\n" +
+                    "Note that the scene has to be active for some of these to work. Right clicking into the scene view works well for this.\n";
+
     // Search for all Classes inheriting from BaseTool. We do this here so
     // that we only need to search once.
     public static readonly IEnumerable<Type> Tools = AppDomain.CurrentDomain

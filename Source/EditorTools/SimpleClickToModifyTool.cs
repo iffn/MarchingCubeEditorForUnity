@@ -81,11 +81,10 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (raycastActive)
         {
-            string helpText = "Controls:\n" +
-                    "Note that the scene has to be active for some of these to work.\n" +
-                    "Click to add\n" +
-                    "Ctrl Click to subtract\n" +
-                    $"Hold {offsetKey} and scroll to change the offset. Currently: {currentOffset.ToString("F1")}"; // "F1" keeps one decimal place
+            string helpText = base.helpText +
+                    "• Click to add\n" +
+                    "• Ctrl Click to subtract\n" +
+                    $"• Hold {offsetKey} and scroll to change the offset. Currently: {currentOffset.ToString("F1")}"; // "F1" keeps one decimal place
 
             helpText += placeableByClick.SelectedEditShape.HelpText;
 

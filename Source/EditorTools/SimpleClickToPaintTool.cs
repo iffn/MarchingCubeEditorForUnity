@@ -50,9 +50,8 @@ public class SimpleClickToPaintTool : BaseTool
 
         if (raycastActive)
         {
-            string helpText = "Controls:\n" +
-                    "Note that the scene has to be active for some of these to work.\n" +
-                    "Click to paint\n";
+            string helpText = base.helpText +
+                    "• Click to paint";
 
             helpText += placeableByClick.SelectedEditShape.HelpText;
 
