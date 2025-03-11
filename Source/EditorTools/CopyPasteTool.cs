@@ -11,6 +11,7 @@ public class CopyPasteTool : BaseTool
 
     Matrix4x4 initialTransformWTL;
     Matrix4x4 previousTransformWTL;
+    Matrix4x4 gizmosMatrix;
 
     public override string DisplayName => "Copy paste tool";
 
@@ -63,6 +64,17 @@ public class CopyPasteTool : BaseTool
         EditorGUILayout.EndHorizontal();
     }
 
+    public override void DrawGizmos()
+    {
+        base.DrawGizmos();
+        
+        Gizmos.matrix = gizmosMatrix;
+
+        // Draw Wire Cube
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawWireCube(Vector3.zero, Vector3.one); // Cube centered at origin
+    }
+
     public override void HandleSceneUpdate(Event currentEvent)
     {
         if (!copied) return;
@@ -104,6 +116,18 @@ public class CopyPasteTool : BaseTool
         initialTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
 
         LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity));
+
+        Matrix4x4 initialTransformLTW = initialTransformWTL.inverse;
+
+        // Extract position, rotation, and scale
+        Vector3 position = initialTransformLTW.GetColumn(3); // Extract position
+        Quaternion rotation = Quaternion.LookRotation(initialTransformLTW.GetColumn(2), initialTransformLTW.GetColumn(1)); // Extract rotation
+        Vector3 scale = new Vector3(initialTransformLTW.GetColumn(0).magnitude,
+                                     initialTransformLTW.GetColumn(1).magnitude,
+                                     initialTransformLTW.GetColumn(2).magnitude); // Extract scale
+
+        // Apply transformation
+        gizmosMatrix = Matrix4x4.TRS(position, rotation, scale);
     }
 
     void Paste()
