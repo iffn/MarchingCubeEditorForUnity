@@ -378,11 +378,13 @@ public class BaseModificationTools
             this.curve = curve;
         }
 
-        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distance)
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData[,,] currentData, float distanceOutsideIsPositive)
         {
             VoxelData currentValue = currentData[x, y, z];
 
-            Color32 newColor = Color.Lerp(color, currentValue.Color, curve.Evaluate(distance));
+            if (distanceOutsideIsPositive > 0) return currentValue;
+
+            Color32 newColor = Color.Lerp(color, currentValue.Color, curve.Evaluate(distanceOutsideIsPositive));
 
             return currentValue.WithColor(newColor);
         }

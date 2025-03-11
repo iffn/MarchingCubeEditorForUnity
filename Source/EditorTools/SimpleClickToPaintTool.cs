@@ -8,7 +8,7 @@ public class SimpleClickToPaintTool : BaseTool
 {
     // Editor variabels
     bool raycastActive = true;
-    Color32 brushColor;
+    Color32 brushColor = Color.white;
     AnimationCurve brushCurve = AnimationCurve.Linear(0, 0, 1, 1);
     PlaceableByClickHandler placeableByClick;
 
