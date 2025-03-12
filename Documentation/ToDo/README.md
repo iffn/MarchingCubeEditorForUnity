@@ -4,7 +4,11 @@
 - Heightmap addition
   - [x] Implement
   - [ ] Fix wrong addition when world origin of heightmap not (0,0,0)
-- [x] Limit height to cursor (Reimplement)
+- Terrain conversion
+  - [ ] Basic implementation
+- Limit height to cursor
+  - [x] Reimplement
+  - [ ] Fix when prefab has offset
 - Tunnel
   - [x] Basic implementation
   - [x] Preview with options
