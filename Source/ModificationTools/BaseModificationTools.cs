@@ -12,14 +12,14 @@ public class BaseModificationTools
 
     public class CopyModifier : IVoxelModifier
     {
-        VoxelData[,,] currentData;
+        VoxelData[,,] currentDataCopy;
         private Matrix4x4 originalTransformWTL;
         private Matrix4x4 newTransformWTL;
         private Matrix4x4 controllerTransformWTL;
 
-        public CopyModifier(VoxelData[,,] currentData, Matrix4x4 originalTransformWTL, Matrix4x4 newTransformWTL, Matrix4x4 controllerTransformWTL)
+        public CopyModifier(VoxelData[,,] currentDataCopy, Matrix4x4 originalTransformWTL, Matrix4x4 newTransformWTL, Matrix4x4 controllerTransformWTL)
         {
-            this.currentData = currentData;
+            this.currentDataCopy = currentDataCopy;
             this.originalTransformWTL = originalTransformWTL;
             this.newTransformWTL = newTransformWTL;
             this.controllerTransformWTL = controllerTransformWTL;
@@ -47,12 +47,12 @@ public class BaseModificationTools
             int z1 = Mathf.CeilToInt(transformedPosition.z);
 
             // Clamp indices to stay within bounds
-            x0 = Mathf.Clamp(x0, 0, currentData.GetLength(0) - 1);
-            x1 = Mathf.Clamp(x1, 0, currentData.GetLength(0) - 1);
-            y0 = Mathf.Clamp(y0, 0, currentData.GetLength(1) - 1);
-            y1 = Mathf.Clamp(y1, 0, currentData.GetLength(1) - 1);
-            z0 = Mathf.Clamp(z0, 0, currentData.GetLength(2) - 1);
-            z1 = Mathf.Clamp(z1, 0, currentData.GetLength(2) - 1);
+            x0 = Mathf.Clamp(x0, 0, currentDataCopy.GetLength(0) - 1);
+            x1 = Mathf.Clamp(x1, 0, currentDataCopy.GetLength(0) - 1);
+            y0 = Mathf.Clamp(y0, 0, currentDataCopy.GetLength(1) - 1);
+            y1 = Mathf.Clamp(y1, 0, currentDataCopy.GetLength(1) - 1);
+            z0 = Mathf.Clamp(z0, 0, currentDataCopy.GetLength(2) - 1);
+            z1 = Mathf.Clamp(z1, 0, currentDataCopy.GetLength(2) - 1);
 
             // Get fractional parts for interpolation
             float xd = Mathf.Clamp01(transformedPosition.x - x0);
@@ -60,14 +60,14 @@ public class BaseModificationTools
             float zd = Mathf.Clamp01(transformedPosition.z - z0);
 
             // Retrieve voxel values at 8 surrounding points
-            float c000 = currentData[x0, y0, z0].WeightInsideIsPositive;
-            float c100 = currentData[x1, y0, z0].WeightInsideIsPositive;
-            float c010 = currentData[x0, y1, z0].WeightInsideIsPositive;
-            float c110 = currentData[x1, y1, z0].WeightInsideIsPositive;
-            float c001 = currentData[x0, y0, z1].WeightInsideIsPositive;
-            float c101 = currentData[x1, y0, z1].WeightInsideIsPositive;
-            float c011 = currentData[x0, y1, z1].WeightInsideIsPositive;
-            float c111 = currentData[x1, y1, z1].WeightInsideIsPositive;
+            float c000 = currentDataCopy[x0, y0, z0].WeightInsideIsPositive;
+            float c100 = currentDataCopy[x1, y0, z0].WeightInsideIsPositive;
+            float c010 = currentDataCopy[x0, y1, z0].WeightInsideIsPositive;
+            float c110 = currentDataCopy[x1, y1, z0].WeightInsideIsPositive;
+            float c001 = currentDataCopy[x0, y0, z1].WeightInsideIsPositive;
+            float c101 = currentDataCopy[x1, y0, z1].WeightInsideIsPositive;
+            float c011 = currentDataCopy[x0, y1, z1].WeightInsideIsPositive;
+            float c111 = currentDataCopy[x1, y1, z1].WeightInsideIsPositive;
 
             // Perform trilinear interpolation
             float c00 = Mathf.Lerp(c000, c100, xd);
@@ -185,15 +185,15 @@ public class BaseModificationTools
 
     public class GaussianSmoothingModifier : IVoxelModifier
     {
-        VoxelData[,,] currentData;
+        VoxelData[,,] currentDataCopy;
         float[,,] gaussianKernel;
         readonly float weightThreshold;
         readonly int radius;
         readonly float sigma;
 
-        public GaussianSmoothingModifier(VoxelData[,,] currentData, float weightThreshold, int radius, float sigma)
+        public GaussianSmoothingModifier(VoxelData[,,] currentDataCopy, float weightThreshold, int radius, float sigma)
         {
-            this.currentData = currentData;
+            this.currentDataCopy = currentDataCopy;
             this.weightThreshold = weightThreshold;
             this.radius = radius;
             this.sigma = sigma;
@@ -208,7 +208,7 @@ public class BaseModificationTools
             if (Mathf.Abs(currentValue.WeightInsideIsPositive - weightThreshold) > sigma)
                 return currentValue;
 
-            float newWeight = ApplyKernel(x, y, z, currentData, gaussianKernel, radius);
+            float newWeight = ApplyKernel(x, y, z, currentDataCopy, gaussianKernel, radius);
             return currentValue.WithWeightInsideIsPositive(newWeight);
         }
 
@@ -273,7 +273,7 @@ public class BaseModificationTools
 
     public class WorldSpaceRougheningModifier : IVoxelModifier
     {
-        VoxelData[,,] currentData;
+        VoxelData[,,] currentDataCopy;
         readonly int radius;
         readonly float intensity;
         readonly float frequency;
@@ -282,7 +282,7 @@ public class BaseModificationTools
         readonly float voxelSize;
 
         public WorldSpaceRougheningModifier(
-            VoxelData[,,] currentData,
+            VoxelData[,,] currentDataCopy,
             int radius,
             float intensity,
             float frequency,
@@ -290,7 +290,7 @@ public class BaseModificationTools
             Vector3 voxelOrigin,
             float voxelSize)
         {
-            this.currentData = currentData;
+            this.currentDataCopy = currentDataCopy;
             this.radius = radius;
             this.intensity = intensity;
             this.frequency = frequency;
@@ -310,11 +310,11 @@ public class BaseModificationTools
             int offset = 1;
 
             int xMin = Mathf.Max(x - offset, 0);
-            int xMax = Mathf.Min(x + offset, currentData.GetLength(0) - 1);
+            int xMax = Mathf.Min(x + offset, currentDataCopy.GetLength(0) - 1);
             int yMin = Mathf.Max(y - offset, 0);
-            int yMax = Mathf.Min(y + offset, currentData.GetLength(1) - 1);
+            int yMax = Mathf.Min(y + offset, currentDataCopy.GetLength(1) - 1);
             int zMin = Mathf.Max(z - offset, 0);
-            int zMax = Mathf.Min(z + offset, currentData.GetLength(2) - 1);
+            int zMax = Mathf.Min(z + offset, currentDataCopy.GetLength(2) - 1);
 
             for(int nx = xMin; nx <= xMax; nx++)
             {
@@ -324,7 +324,7 @@ public class BaseModificationTools
                     {
                         if (nx == x && ny == y && nz == z) continue; // Skip the center voxel
 
-                        float neighborWeight = currentData[nx, ny, nz].WeightInsideIsPositive;
+                        float neighborWeight = currentDataCopy[nx, ny, nz].WeightInsideIsPositive;
 
                         // Bitwise sign check for performance (avoids branching)
                         if ((currentValue.WeightInsideIsPositive * neighborWeight) < 0)
