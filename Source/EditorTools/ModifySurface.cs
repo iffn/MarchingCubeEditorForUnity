@@ -1,3 +1,4 @@
+using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
@@ -85,7 +86,10 @@ public class ModifySurface : BaseTool
 
     BaseModificationTools.IVoxelModifier GaussianSmoothingModification()
     {
+        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
+
         return new BaseModificationTools.GaussianSmoothingModifier(
+            currentDataCopy,
             smoothThreshold,
             smoothRadius,
             smoothSigma
@@ -94,7 +98,10 @@ public class ModifySurface : BaseTool
 
     BaseModificationTools.IVoxelModifier WorldSpaceRougheningModification()
     {
+        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
+
         return new BaseModificationTools.WorldSpaceRougheningModifier(
+            currentDataCopy,
             roughenRadius,
             roughenIntensity,
             roughenFrequency,

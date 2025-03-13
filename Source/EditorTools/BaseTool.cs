@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using UnityEditor;
@@ -60,6 +61,28 @@ public abstract class BaseTool
     public void RefreshUI()
     {
         LinkedMarchingCubeEditor.RefreshUI();
+    }
+
+    protected VoxelData[,,] GenerateVoxelDataCopy()
+    {
+        VoxelData[,,] oldData = new VoxelData[
+            LinkedMarchingCubeController.VoxelDataReference.GetLength(0),
+            LinkedMarchingCubeController.VoxelDataReference.GetLength(1),
+            LinkedMarchingCubeController.VoxelDataReference.GetLength(2)
+        ];
+
+        Parallel.For(0, oldData.GetLength(0), x =>
+        {
+            for (int y = 0; y < oldData.GetLength(1); y++)
+            {
+                for (int z = 0; z < oldData.GetLength(2); z++)
+                {
+                    oldData[x, y, z] = LinkedMarchingCubeController.VoxelDataReference[x, y, z];
+                }
+            }
+        });
+
+        return oldData;
     }
 }
 

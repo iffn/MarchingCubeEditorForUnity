@@ -17,6 +17,8 @@ public class CopyPasteTool : BaseTool
     Quaternion originalRotationLocal;
     Vector3 originalScaleLocal;
 
+    VoxelData[,,] currentDataCopy;
+
     public override string DisplayName => "Copy paste tool";
 
     bool copied = false;
@@ -66,7 +68,7 @@ public class CopyPasteTool : BaseTool
             ResetLocation();
 
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button($"Mark copy location"))
+        if (GUILayout.Button($"Copy"))
             MarkCopyLocation();
         if (GUILayout.Button($"Paste"))
             Paste();
@@ -97,7 +99,7 @@ public class CopyPasteTool : BaseTool
         {
             Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
 
-            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(initialTransformWTL, newTransformWTL, controllerTransformWTL));
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(currentDataCopy, initialTransformWTL, newTransformWTL, controllerTransformWTL));
 
             previousTransformWTL = newTransformWTL;
         }
@@ -122,11 +124,13 @@ public class CopyPasteTool : BaseTool
     {
         copied = true;
 
+        currentDataCopy = GenerateVoxelDataCopy();
+
         Transform shapeTransform = currentEditShapeHandler.SelectedEditShape.transform;
 
         initialTransformWTL = shapeTransform.worldToLocalMatrix;
 
-        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity));
+        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(currentDataCopy, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity));
 
         // Extract position, rotation, and scale
         originalPositionLocal = shapeTransform.localPosition;
