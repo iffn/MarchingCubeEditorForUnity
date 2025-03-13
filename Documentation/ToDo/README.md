@@ -53,7 +53,7 @@
 
 ## Performance improvements
 - [ ] Faster save and load
-- [ ] Only copy voxel data when needed
+- [x] Only copy voxel data when needed
 - [ ] Measure current mesh processing time
 - [ ] Implement elemements (Like the preview) as a geometry shader (Low prio)
 
