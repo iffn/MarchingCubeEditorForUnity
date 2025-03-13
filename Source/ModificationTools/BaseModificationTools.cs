@@ -10,6 +10,36 @@ public class BaseModificationTools
         VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive);
     }
 
+    public class TerrainConverter : IVoxelModifier
+    {
+        Terrain linkedTerrain;
+        Matrix4x4 controllerTransformWTL;
+        Matrix4x4 controllerTransformLTW;
+
+        public TerrainConverter(Terrain linkedTerrain, Matrix4x4 controllerTransformWTL)
+        {
+            this.linkedTerrain = linkedTerrain;
+            this.controllerTransformWTL = controllerTransformWTL;
+            controllerTransformLTW = controllerTransformWTL.inverse;
+        }
+
+        public VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
+        {
+            Vector3 samplePositionLocal = new Vector3(x, y, z);
+            Vector3 samplePositionWorld = controllerTransformLTW.MultiplyPoint3x4(samplePositionLocal);
+
+            float heightWorld = linkedTerrain.SampleHeight(samplePositionWorld);
+
+            Vector3 heightPositionWorld = new Vector3(samplePositionWorld.x, heightWorld, samplePositionWorld.z);
+
+            Vector3 heightPositionLocal = controllerTransformWTL.MultiplyPoint3x4(heightPositionWorld);
+
+            float heihgtLocal = heightPositionLocal.y;
+
+            return currentValue.WithWeightInsideIsPositive(heihgtLocal - samplePositionLocal.y);
+        }
+    }
+
     public class CopyModifier : IVoxelModifier
     {
         VoxelData[,,] currentDataCopy;
