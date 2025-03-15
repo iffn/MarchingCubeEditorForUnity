@@ -25,12 +25,15 @@ public class BaseModificationTools
 
             float height = heightLookup[x, z];
 
-            float newValue = height - y;
+            float newValueInsideIsPositive = height - y;
 
-            if(currentValue.WeightInsideIsPositive > 0) // ToDo: Fix: With if statement: Smooth terrain, blocky shape. Without, Blocky terrain, smooth shape.
-                newValue = Mathf.Max(newValue, currentValue.WeightInsideIsPositive);
-            
-            return currentValue.WithWeightInsideIsPositive(newValue);
+            if (currentValue.WeightInsideIsPositive > 0)
+                return currentValue;
+
+            if(newValueInsideIsPositive < -1)
+                return currentValue;
+
+            return currentValue.WithWeightInsideIsPositive(newValueInsideIsPositive);
         }
     }
 
