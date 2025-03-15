@@ -48,7 +48,7 @@ public class TerrainConverter : BaseTool
 
         Matrix4x4 controllerTransformLTW = controllerTransformWTL.inverse;
 
-        float[,] heights = new float[LinkedMarchingCubeController.VoxelDataReference.GetLength(0), LinkedMarchingCubeController.VoxelDataReference.GetLength(1)];
+        float[,] heights = new float[LinkedMarchingCubeController.VoxelDataReference.GetLength(0), LinkedMarchingCubeController.VoxelDataReference.GetLength(2)];
 
         (Vector3Int minGrid, Vector3Int maxGrid) = LinkedMarchingCubeController.ModificationManager.CalculateGridBoundsClamped(currentEditShapeHandler.SelectedEditShape);
 
