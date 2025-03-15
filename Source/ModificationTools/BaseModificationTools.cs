@@ -27,8 +27,9 @@ public class BaseModificationTools
 
             float newValue = height - y;
 
-            if (newValue < distanceOutsideIsPositive) return currentValue;
-
+            if(currentValue.WeightInsideIsPositive > 0) // ToDo: Fix: With if statement: Smooth terrain, blocky shape. Without, Blocky terrain, smooth shape.
+                newValue = Mathf.Max(newValue, currentValue.WeightInsideIsPositive);
+            
             return currentValue.WithWeightInsideIsPositive(newValue);
         }
     }
