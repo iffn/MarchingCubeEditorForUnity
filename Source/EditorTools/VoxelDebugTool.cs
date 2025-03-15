@@ -56,19 +56,23 @@ public class VoxelDebugTool : BaseTool
     {
         Vector3 coordinate = new Vector3(coordinateX, coordinateY, coordinateZ);
 
-        float lineLenght = LinkedMarchingCubeController.transform.localScale.x;
+        Transform controllerTransform = LinkedMarchingCubeController.transform;
+
+        coordinate = controllerTransform.TransformPoint(coordinate); 
+
+        float lineLength = LinkedMarchingCubeController.transform.localScale.x;
 
         Gizmos.DrawLine(
-            coordinate + lineLenght * Vector3.right,
-            coordinate + lineLenght * Vector3.left);
+            coordinate + lineLength * controllerTransform.right,
+            coordinate + lineLength * -controllerTransform.right);
 
         Gizmos.DrawLine(
-            coordinate + lineLenght * Vector3.up,
-            coordinate + lineLenght * Vector3.down);
+            coordinate + lineLength * controllerTransform.up,
+            coordinate + lineLength * -controllerTransform.up);
 
         Gizmos.DrawLine(
-            coordinate + lineLenght * Vector3.forward,
-            coordinate + lineLenght * Vector3.back);
+            coordinate + lineLength * controllerTransform.forward,
+            coordinate + lineLength * -controllerTransform.forward);
     }
 
     public override void HandleSceneUpdate(Event currentEvent)
