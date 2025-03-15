@@ -57,7 +57,7 @@ public class ModificationManager
         linkedController.ApplyPreviewChanges(); //Takes care of setting stuff to dirty
     }
 
-    private (Vector3Int minGrid, Vector3Int maxGrid) CalculateGridBoundsClamped(EditShape shape)
+    public (Vector3Int minGrid, Vector3Int maxGrid) CalculateGridBoundsClamped(EditShape shape)
     {
         // Precompute transformation matrices
         Matrix4x4 worldToGrid = linkedControllerTransform.worldToLocalMatrix; // Transform world space to grid space

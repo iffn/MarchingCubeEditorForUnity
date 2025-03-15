@@ -1,7 +1,6 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor;
 using UnityEngine;
 
@@ -47,7 +46,30 @@ public class TerrainConverter : BaseTool
     {
         Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
 
-        BaseModificationTools.TerrainConverter converter = new BaseModificationTools.TerrainConverter(selectedTerrain, controllerTransformWTL);
+        Matrix4x4 controllerTransformLTW = controllerTransformWTL.inverse;
+
+        float[,] heights = new float[LinkedMarchingCubeController.VoxelDataReference.GetLength(0), LinkedMarchingCubeController.VoxelDataReference.GetLength(1)];
+
+        (Vector3Int minGrid, Vector3Int maxGrid) = LinkedMarchingCubeController.ModificationManager.CalculateGridBoundsClamped(currentEditShapeHandler.SelectedEditShape);
+
+        for(int x = minGrid.x; x < maxGrid.x; x++)
+        {
+            for(int z = minGrid.z; z < maxGrid.z; z++)
+            {
+                Vector3 samplePositionLocal = new Vector3(x, 0, z);
+                Vector3 samplePositionWorld = controllerTransformLTW.MultiplyPoint3x4(samplePositionLocal);
+
+                float heightWorld = selectedTerrain.SampleHeight(samplePositionWorld); // Can only be called on the main thread
+
+                Vector3 heightPositionWorld = new Vector3(samplePositionWorld.x, heightWorld, samplePositionWorld.z);
+
+                Vector3 heightPositionLocal = controllerTransformWTL.MultiplyPoint3x4(heightPositionWorld);
+
+                heights[x, z] = heightPositionLocal.y;
+            }
+        }
+
+        BaseModificationTools.TerrainConverter converter = new BaseModificationTools.TerrainConverter(heights);
 
         LinkedMarchingCubeController.ModificationManager.ModifyData(currentEditShapeHandler.SelectedEditShape, converter);
     }
