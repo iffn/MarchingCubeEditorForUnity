@@ -1,7 +1,8 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 using UnityEngine;
 
 public class MarchingCubesPreview : MarchingCubesView
@@ -33,3 +34,5 @@ public class MarchingCubesPreview : MarchingCubesView
         }
     }
 }
+
+#endif

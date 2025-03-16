@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
@@ -93,3 +95,5 @@ public class BridgeOrTunnelShape : EditShape
         }
     }
 }
+
+#endif

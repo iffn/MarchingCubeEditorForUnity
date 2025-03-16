@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
@@ -303,3 +305,5 @@ public class BridgeAndTunnelTool : BaseTool
         LinkedMarchingCubeController.ModificationManager.ModifyData(bridgeOrTunnelShape, new BaseModificationTools.SubtractShapeModifier());
     }
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
@@ -74,3 +76,5 @@ public class TerrainConverter : BaseTool
         LinkedMarchingCubeController.ModificationManager.ModifyData(currentEditShapeHandler.SelectedEditShape, converter);
     }
 }
+
+#endif

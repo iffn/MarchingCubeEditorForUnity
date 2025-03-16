@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
@@ -85,3 +87,5 @@ public class ExpansionEditorElement : EditorElement
         moveTransformWhenExpanding = EditorGUILayout.Toggle("Move transform to keep position", moveTransformWhenExpanding);
     }
 }
+
+#endif

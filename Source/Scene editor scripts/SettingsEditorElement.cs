@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,3 +23,5 @@ public class SettingsEditorElement : EditorElement
         linkedController.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", linkedController.InvertAllNormals);
     }
 }
+
+#endif

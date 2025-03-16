@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections;
 using System.Collections.Generic;
@@ -90,3 +92,5 @@ public class VoxelDebugTool : BaseTool
         
     }
 }
+
+#endif

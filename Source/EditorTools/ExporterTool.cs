@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections.Generic;
 using System.IO;
@@ -107,3 +109,5 @@ public class ExporterTool : BaseTool
         return objStringBuilder.ToString();
     }
 }
+
+#endif
