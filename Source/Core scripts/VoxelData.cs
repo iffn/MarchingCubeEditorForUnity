@@ -36,23 +36,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             dst[dstOffset + 6] = Color.b;
             dst[dstOffset + 7] = Color.a;
         }
-
-        public void Deserialize(byte[] src, int srcOffset) 
-        {
-            WeightInsideIsPositive = BitConverter.ToSingle(src, srcOffset);
-            Color = new Color32(src[srcOffset + 4], src[srcOffset + 5], src[srcOffset + 6], src[srcOffset + 7]);
-        }
-
-        public byte[] SerializeCompressed()
-        {
-            byte[] data = new byte[5]; // 1 byte weight, 4 bytes color
-            data[0] = (byte)((WeightInsideIsPositive + 1f) * 127.5f); // Convert -1...1 to 0-255
-            data[1] = Color.r;
-            data[2] = Color.g;
-            data[3] = Color.b;
-            data[4] = Color.a;
-            return data;
-        }
     }
 }
 

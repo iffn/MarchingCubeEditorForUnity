@@ -1,3 +1,4 @@
+#pragma warning disable IDE0090 // Use 'new(...)'
 #if UNITY_EDITOR
 using System;
 using UnityEngine;
@@ -14,7 +15,7 @@ public class ScriptableObjectSaveData : ScriptableObject
     public int version = 0;
     [HideInInspector] public string packedData; // Base64-encoded grid data
 
-    public static int currentVersion = 1;
+    public static int currentVersion = -1;
 
     //ToDo: Most data points are likely 1 or -1. So optimizing for those cases might help a lot.
 
@@ -30,41 +31,30 @@ public class ScriptableObjectSaveData : ScriptableObject
         resolutionY = voxelValues.GetLength(1);
         resolutionZ = voxelValues.GetLength(2);
 
-        List<byte> compressedData = new List<byte>();
-
         int totalValues = resolutionX * resolutionY * resolutionZ;
 
-        VoxelData prevVoxel = voxelValues[0, 0, 0];
-        int runLength = 1;
+        float[] WeightInsideIsPositive = new float[totalValues];
+        Color32[] colors = new Color32[totalValues];
 
-        for (int i = 1; i < totalValues; i++)
+        int counter = 0;
+
+        for (int x = 0; x < resolutionX; x++)
         {
-            int x = i % resolutionX;
-            int y = (i / resolutionX) % resolutionY;
-            int z = i / (resolutionX * resolutionY);
-            VoxelData currentVoxel = voxelValues[x, y, z];
-
-            if (currentVoxel.Equals(prevVoxel) && runLength < 255)
+            for(int y = 0; y < resolutionY; y++)
             {
-                runLength++;
-            }
-            else
-            {
-                // Store (value + run-length)
-                compressedData.AddRange(prevVoxel.SerializeCompressed());
-                compressedData.Add((byte)runLength);
-
-                prevVoxel = currentVoxel;
-                runLength = 1;
+                for(int z = 0; z < resolutionZ; z++)
+                {
+                    WeightInsideIsPositive[counter] = voxelValues[x, y, z].WeightInsideIsPositive;
+                    colors[counter] = voxelValues[x, y, z].Color;
+                    counter++;
+                }
             }
         }
 
-        // Store last run
-        compressedData.AddRange(prevVoxel.SerializeCompressed());
-        compressedData.Add((byte)runLength);
+        byte[] serializedData = SerializeDataV2(WeightInsideIsPositive, colors);
 
         // Convert to Base64 string
-        packedData = Convert.ToBase64String(compressedData.ToArray());
+        packedData = Convert.ToBase64String(serializedData);
     }
 
     /// <summary>
@@ -80,106 +70,217 @@ public class ScriptableObjectSaveData : ScriptableObject
         }
 
         // Declare data:
-        int index = 0;
         int totalVoxels = resolutionX * resolutionY * resolutionZ;
-        int voxelIndex = 0;
         VoxelData[,,] voxelValues = new VoxelData[resolutionX, resolutionY, resolutionZ];
-        int expectedSize;
 
         // Get the data
         byte[] compressedData = Convert.FromBase64String(packedData);
 
-        // Upgrade the data if needed
-        switch (version)
-        {
-            case 0:
-                // Sanity check
-                expectedSize = resolutionX * resolutionY * resolutionZ * (4 + 32);
-                if (compressedData.Length != expectedSize)
-                {
-                    Debug.LogWarning($"V0 Voxel data size mismatch! Expected {expectedSize} bytes, but got {compressedData.Length} bytes.");
-                    return voxelValues;
-                }
+        int currentDataVersion = version;
 
-                compressedData = ConvertV0ToV1(compressedData);
-                break;
-            case 1:
-                //Current version
-                break;
-            default:
-                break;
+        // Check version and upgrade if necessary.
+        // Note: Implementing the upgrade to the next version means that they will still work with newer versions. Otherwise, V5 would need to care about V0 instead of doing V0 -> V2 -> V3...
+        if (currentDataVersion == 0)
+        {
+            // Convert from V0 to V2
+            ConvertV0ToV2(compressedData, totalVoxels);
+            currentDataVersion = currentVersion; //ToDo: Change to 2 when done
         }
 
-        // Decode the data:
-        while (voxelIndex < totalVoxels)
+        if (currentDataVersion == 1)
         {
-            // Decode weight (1 byte)
-            float decodedWeight = (compressedData[index] / 127.5f) - 1f;
-            index++;
+            Debug.LogWarning("V1 was an intermediate version and cannot be converted at this time. Loading failed.");
+            return voxelValues;
+        }
 
-            // Decode color (4 bytes)
-            Color32 decodedColor = new Color32(compressedData[index], compressedData[index + 1], compressedData[index + 2], compressedData[index + 3]);
-            index += 4;
+        // Current version = actual implementation
+        if (currentDataVersion == currentVersion)
+        {
+            // Assign data
+            (float[] weightInsideIsPositive, Color32[] colors) = DeserializeDataV2(compressedData, totalVoxels);
 
-            // Decode run-length (1 byte)
-            int runLength = compressedData[index];
-            index++;
-
-            // Apply the decoded voxel to multiple locations
-            for (int i = 0; i < runLength; i++)
+            int counter = 0;
+            for (int x = 0; x < resolutionX; x++)
             {
-                int x = voxelIndex % resolutionX;
-                int y = (voxelIndex / resolutionX) % resolutionY;
-                int z = voxelIndex / (resolutionX * resolutionY);
-
-                voxelValues[x, y, z] = new VoxelData(decodedWeight, decodedColor);
-                voxelIndex++;
+                for (int y = 0; y < resolutionY; y++)
+                {
+                    for (int z = 0; z < resolutionZ; z++)
+                    {
+                        voxelValues[x, y, z] = new VoxelData(weightInsideIsPositive[counter], colors[counter]);
+                        counter++;
+                    }
+                }
             }
         }
 
         return voxelValues;
     }
 
-    void LoadDataV0()
+    static byte[] SerializeDataV2(float[] weightInsideIsPositive, Color32[] colors)
     {
-        (float WeightInsideIsPositive, Color color) DeserializeVoxel(byte[] src, int srcOffset)
-        {
-            float WeightInsideIsPositive = BitConverter.ToSingle(src, srcOffset);
-            Color color = new Color32(src[srcOffset + 4], src[srcOffset + 5], src[srcOffset + 6], src[srcOffset + 7]);
+        List<byte> returnValue = new List<byte>();
 
-            return (WeightInsideIsPositive, color);
+        // Run-Length Encoding for weights
+        short prevValue = ConvertCenterFloatToShort(weightInsideIsPositive[0]);
+
+        returnValue.Add(0); // Start run-length at 0. It can never have a length of 0, so 0 means 1
+
+        byte[] bytes = ConvertShortToByteArray(prevValue);
+        foreach (byte b in bytes)
+        {
+            returnValue.Add(b);
+        }
+
+        foreach (float weight in weightInsideIsPositive)
+        {
+            short scaledValue = ConvertCenterFloatToShort(weight); // Scale float to short
+
+            if (scaledValue == prevValue && returnValue[returnValue.Count - 3] < 254)
+            {
+                // returnValue[^3]++; // ToDo: Test if this compiles with the old Unity version
+                returnValue[returnValue.Count - 3]++;
+            }
+            else
+            {
+                returnValue.Add(0); // Start run-length at 0. It can never have a length of 0, so 0 means 1
+                bytes = ConvertShortToByteArray(scaledValue);
+                foreach (byte b in bytes)
+                {
+                    returnValue.Add(b);
+                }
+
+                prevValue = scaledValue;
+            }
+        }
+
+        // Run-Length Encoding for Colors
+        Color32 prevColor = colors[0];
+        returnValue.Add(0); // Start run-length at 0. It can never have a length of 0, so 0 means 1
+
+        returnValue.Add(prevColor.r);
+        returnValue.Add(prevColor.g);
+        returnValue.Add(prevColor.b);
+        returnValue.Add(prevColor.a);
+
+        for (int i = 0; i < colors.Length; i++)
+        {
+            Color32 currentColor = colors[i];
+
+            if (currentColor.r == prevColor.r &&
+                currentColor.g == prevColor.g &&
+                currentColor.b == prevColor.b &&
+                currentColor.a == prevColor.a &&
+                returnValue[returnValue.Count - 5] < 254)
+            {
+                returnValue[returnValue.Count - 5]++; // Increment run-length count for colors
+            }
+            else
+            {
+                returnValue.Add(0); // Start run-length at 0. It can never have a length of 0, so 0 means 1
+
+                returnValue.Add(currentColor.r);
+                returnValue.Add(currentColor.g);
+                returnValue.Add(currentColor.b);
+                returnValue.Add(currentColor.a);
+
+                prevColor = currentColor; // Update previous color
+            }
+        }
+
+        return returnValue.ToArray();
+
+        short ConvertCenterFloatToShort(float value)
+        {
+            return (short)(value * 32767);
+        }
+
+        byte[] ConvertShortToByteArray(short value)
+        {
+            return BitConverter.GetBytes(value);
         }
     }
 
-    private static byte[] ConvertV0ToV1(byte[] v0Data)
+    (float[] weightInsideIsPositive, Color32[] colors) DeserializeDataV2(byte[] data, int totalVoxels)
     {
-        int voxelCount = v0Data.Length / (4 + 32); // Old voxel size = 36 bytes (4 weight + 32 color)
-        List<byte> v1Data = new List<byte>();
+        List<float> weightList = new List<float>();
+        List<Color32> colorList = new List<Color32>();
 
-        int readIndex = 0;
+        int index = 0;
 
-        for (int i = 0; i < voxelCount; i++)
+        // ---- Decode Weights ----
+        while (weightList.Count < totalVoxels) // Use provided length
         {
-            VoxelData voxel = ReadV0Voxel(v0Data, ref readIndex);
-            v1Data.AddRange(voxel.SerializeCompressed()); // Store in V1 format
+            byte runLength = data[index++];
+            runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
+
+            short weightShort = BitConverter.ToInt16(data, index);
+
+            index += 2;
+
+            float weight = ConvertShortToFloat(weightShort);
+
+            for (int i = 0; i < runLength; i++) // Expand run-length
+            {
+                weightList.Add(weight);
+            }
         }
 
-        return v1Data.ToArray();
-
-        VoxelData ReadV0Voxel(byte[] v0Data, ref int index)
+        // ---- Decode Colors ----
+        while (colorList.Count < totalVoxels)
         {
-            // Read weight (4 bytes)
-            float weight = BitConverter.ToSingle(v0Data, index);
+            if (index >= data.Length)
+            {
+                Debug.LogError($"Unexpected end of color data at index {index}. Expected {totalVoxels} voxels.");
+            }
+
+            byte runLength = data[index++];
+            runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
+
+            Color32 color = new Color32(data[index], data[index + 1], data[index + 2], data[index + 3]);
+
             index += 4;
 
-            // Read color (RGBA, 4 bytes)
-            Color32 color = new Color32(v0Data[index], v0Data[index + 1], v0Data[index + 2], v0Data[index + 3]);
-            index += 4;
+            for (int i = 0; i < runLength; i++) // Expand run-length
+            {
+                colorList.Add(color);
+            }
+        }
 
-            // Skip the unused 28 bytes from V0
-            index += 28;
+        if (weightList.Count != totalVoxels || colorList.Count != totalVoxels)
+        {
+            Debug.LogError($"Mismatch! Weights: {weightList.Count}, Colors: {colorList.Count}, Expected: {totalVoxels}");
+        }
 
-            return new VoxelData(weight, color);
+        return (weightList.ToArray(), colorList.ToArray());
+
+        static float ConvertShortToFloat(short value)
+        {
+            return value / 32767f;
+        }
+    }
+
+    private static byte[] ConvertV0ToV2(byte[] v0Data, int totalVoxels)
+    {
+        (float[] weightInsideIsPositive, Color32[] colors) = DeserializeDataV0(v0Data, totalVoxels);
+
+        return SerializeDataV2(weightInsideIsPositive, colors);
+
+        static (float[] weightInsideIsPositive, Color32[] colors) DeserializeDataV0(byte[] data, int totalVoxels)
+        {
+            float[] weightInsideIsPositive = new float[totalVoxels];
+            Color32[] colors = new Color32[totalVoxels];
+
+            int byteIndex = 0;
+
+            for (int i = 0; i < totalVoxels; i++)
+            {
+                weightInsideIsPositive[i] = BitConverter.ToSingle(data, byteIndex);
+                colors[i] = new Color32(data[byteIndex + 4], data[byteIndex + 5], data[byteIndex + 6], data[byteIndex + 7]);
+
+                byteIndex += 36; // Skip 4+32 bytes per voxel
+            }
+
+            return(weightInsideIsPositive, colors);
         }
     }
 }
