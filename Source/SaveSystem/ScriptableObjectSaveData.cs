@@ -31,10 +31,10 @@ public class ScriptableObjectSaveData : ScriptableObject
         resolutionY = voxelValues.GetLength(1);
         resolutionZ = voxelValues.GetLength(2);
 
-        int totalValues = resolutionX * resolutionY * resolutionZ;
+        int totalVoxels = resolutionX * resolutionY * resolutionZ;
 
-        float[] WeightInsideIsPositive = new float[totalValues];
-        Color32[] colors = new Color32[totalValues];
+        float[] weightInsideIsPositive = new float[totalVoxels];
+        Color32[] colors = new Color32[totalVoxels];
 
         int counter = 0;
 
@@ -44,14 +44,15 @@ public class ScriptableObjectSaveData : ScriptableObject
             {
                 for(int z = 0; z < resolutionZ; z++)
                 {
-                    WeightInsideIsPositive[counter] = voxelValues[x, y, z].WeightInsideIsPositive;
+                    weightInsideIsPositive[counter] = voxelValues[x, y, z].WeightInsideIsPositive;
                     colors[counter] = voxelValues[x, y, z].Color;
                     counter++;
                 }
             }
         }
 
-        byte[] serializedData = SerializeDataV2(WeightInsideIsPositive, colors);
+        byte[] serializedData = SerializeDataV2(weightInsideIsPositive, colors);
+
 
         // Convert to Base64 string
         packedData = Convert.ToBase64String(serializedData);
@@ -131,14 +132,17 @@ public class ScriptableObjectSaveData : ScriptableObject
             returnValue.Add(b);
         }
 
-        foreach (float weight in weightInsideIsPositive)
+        for(int i = 1; i<weightInsideIsPositive.Length; i++)
         {
+            float weight = weightInsideIsPositive[i];
+
             short scaledValue = ConvertCenterFloatToShort(weight); // Scale float to short
 
             if (scaledValue == prevValue && returnValue[returnValue.Count - 3] < 254)
             {
                 // returnValue[^3]++; // ToDo: Test if this compiles with the old Unity version
                 returnValue[returnValue.Count - 3]++;
+                
             }
             else
             {
@@ -150,6 +154,7 @@ public class ScriptableObjectSaveData : ScriptableObject
                 }
 
                 prevValue = scaledValue;
+                
             }
         }
 
@@ -162,7 +167,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         returnValue.Add(prevColor.b);
         returnValue.Add(prevColor.a);
 
-        for (int i = 0; i < colors.Length; i++)
+        for (int i = 1; i < colors.Length; i++)
         {
             Color32 currentColor = colors[i];
 
@@ -210,8 +215,8 @@ public class ScriptableObjectSaveData : ScriptableObject
         // ---- Decode Weights ----
         while (weightList.Count < totalVoxels) // Use provided length
         {
-            byte runLength = data[index++];
-            runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
+            int runLength = data[index++] + 1;
+            //runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
 
             short weightShort = BitConverter.ToInt16(data, index);
 
@@ -225,6 +230,11 @@ public class ScriptableObjectSaveData : ScriptableObject
             }
         }
 
+        if (weightList.Count != totalVoxels)
+        {
+            Debug.LogWarning($"Mismatch! Weights: {weightList.Count}, Expected: {totalVoxels}");
+        }
+
         // ---- Decode Colors ----
         while (colorList.Count < totalVoxels)
         {
@@ -233,8 +243,8 @@ public class ScriptableObjectSaveData : ScriptableObject
                 Debug.LogError($"Unexpected end of color data at index {index}. Expected {totalVoxels} voxels.");
             }
 
-            byte runLength = data[index++];
-            runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
+            int runLength = data[index++] + 1;
+            //runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
 
             Color32 color = new Color32(data[index], data[index + 1], data[index + 2], data[index + 3]);
 
@@ -246,9 +256,9 @@ public class ScriptableObjectSaveData : ScriptableObject
             }
         }
 
-        if (weightList.Count != totalVoxels || colorList.Count != totalVoxels)
+        if (colorList.Count != totalVoxels)
         {
-            Debug.LogError($"Mismatch! Weights: {weightList.Count}, Colors: {colorList.Count}, Expected: {totalVoxels}");
+            Debug.LogWarning($"Mismatch! Colors: {colorList.Count}, Expected: {totalVoxels}");
         }
 
         return (weightList.ToArray(), colorList.ToArray());
