@@ -15,7 +15,7 @@ public class ScriptableObjectSaveData : ScriptableObject
     public int version = 0;
     [HideInInspector] public string packedData; // Base64-encoded grid data
 
-    public static int currentVersion = -1;
+    public static int currentVersion = 2;
 
     //ToDo: Most data points are likely 1 or -1. So optimizing for those cases might help a lot.
 
@@ -85,7 +85,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         {
             // Convert from V0 to V2
             byteData = ConvertV0ToV2(byteData, totalVoxels);
-            currentDataVersion = currentVersion; //ToDo: Change to 2 when done
+            currentDataVersion = 2;
         }
 
         if (currentDataVersion == 1)
