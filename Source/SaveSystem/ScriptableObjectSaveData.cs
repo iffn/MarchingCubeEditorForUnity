@@ -75,7 +75,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         VoxelData[,,] voxelValues = new VoxelData[resolutionX, resolutionY, resolutionZ];
 
         // Get the data
-        byte[] compressedData = Convert.FromBase64String(packedData);
+        byte[] byteData = Convert.FromBase64String(packedData);
 
         int currentDataVersion = version;
 
@@ -84,7 +84,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         if (currentDataVersion == 0)
         {
             // Convert from V0 to V2
-            ConvertV0ToV2(compressedData, totalVoxels);
+            byteData = ConvertV0ToV2(byteData, totalVoxels);
             currentDataVersion = currentVersion; //ToDo: Change to 2 when done
         }
 
@@ -98,7 +98,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         if (currentDataVersion == currentVersion)
         {
             // Assign data
-            (float[] weightInsideIsPositive, Color32[] colors) = DeserializeDataV2(compressedData, totalVoxels);
+            (float[] weightInsideIsPositive, Color32[] colors) = DeserializeDataV2(byteData, totalVoxels);
 
             int counter = 0;
             for (int x = 0; x < resolutionX; x++)
@@ -154,7 +154,6 @@ public class ScriptableObjectSaveData : ScriptableObject
                 }
 
                 prevValue = scaledValue;
-                
             }
         }
 
@@ -215,8 +214,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         // ---- Decode Weights ----
         while (weightList.Count < totalVoxels) // Use provided length
         {
-            int runLength = data[index++] + 1;
-            //runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
+            int runLength = data[index++] + 1; // Add one to the run length. It can never have a length of 0, so 0 means 1.
 
             short weightShort = BitConverter.ToInt16(data, index);
 
@@ -238,13 +236,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         // ---- Decode Colors ----
         while (colorList.Count < totalVoxels)
         {
-            if (index >= data.Length)
-            {
-                Debug.LogError($"Unexpected end of color data at index {index}. Expected {totalVoxels} voxels.");
-            }
-
-            int runLength = data[index++] + 1;
-            //runLength++; // Add one to the run length. It can never have a length of 0, so 0 means 1.
+            int runLength = data[index++] + 1; // Add one to the run length. It can never have a length of 0, so 0 means 1.
 
             Color32 color = new Color32(data[index], data[index + 1], data[index + 2], data[index + 3]);
 
@@ -254,11 +246,6 @@ public class ScriptableObjectSaveData : ScriptableObject
             {
                 colorList.Add(color);
             }
-        }
-
-        if (colorList.Count != totalVoxels)
-        {
-            Debug.LogWarning($"Mismatch! Colors: {colorList.Count}, Expected: {totalVoxels}");
         }
 
         return (weightList.ToArray(), colorList.ToArray());
