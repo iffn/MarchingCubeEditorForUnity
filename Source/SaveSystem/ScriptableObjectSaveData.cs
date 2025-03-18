@@ -256,7 +256,7 @@ public class ScriptableObjectSaveData : ScriptableObject
         }
     }
 
-    private static byte[] ConvertV0ToV2(byte[] v0Data, int totalVoxels)
+    public static byte[] ConvertV0ToV2(byte[] v0Data, int totalVoxels)
     {
         (float[] weightInsideIsPositive, Color32[] colors) = DeserializeDataV0(v0Data, totalVoxels);
 
