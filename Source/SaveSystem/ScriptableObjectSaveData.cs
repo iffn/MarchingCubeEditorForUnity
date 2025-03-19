@@ -250,7 +250,7 @@ public class ScriptableObjectSaveData : ScriptableObject
 
         return (weightList.ToArray(), colorList.ToArray());
 
-        static float ConvertShortToFloat(short value)
+        float ConvertShortToFloat(short value)
         {
             return value / 32767f;
         }
@@ -262,7 +262,7 @@ public class ScriptableObjectSaveData : ScriptableObject
 
         return SerializeDataV2(weightInsideIsPositive, colors);
 
-        static (float[] weightInsideIsPositive, Color32[] colors) DeserializeDataV0(byte[] data, int totalVoxels)
+        (float[] weightInsideIsPositive, Color32[] colors) DeserializeDataV0(byte[] data, int totalVoxels)
         {
             float[] weightInsideIsPositive = new float[totalVoxels];
             Color32[] colors = new Color32[totalVoxels];
