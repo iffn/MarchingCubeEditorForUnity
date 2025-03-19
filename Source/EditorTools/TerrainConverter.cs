@@ -61,7 +61,7 @@ public class TerrainConverter : BaseTool
                 Vector3 samplePositionLocal = new Vector3(x, 0, z);
                 Vector3 samplePositionWorld = controllerTransformLTW.MultiplyPoint3x4(samplePositionLocal);
 
-                float heightWorld = selectedTerrain.SampleHeight(samplePositionWorld); // Can only be called on the main thread
+                float heightWorld = selectedTerrain.SampleHeight(samplePositionWorld) + selectedTerrain.transform.position.y; // Can only be called on the main thread
 
                 Vector3 heightPositionWorld = new Vector3(samplePositionWorld.x, heightWorld, samplePositionWorld.z);
 
