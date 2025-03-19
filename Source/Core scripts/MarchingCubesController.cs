@@ -31,6 +31,27 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
 
+        public Material CurrentMaterial
+        {
+            get
+            {
+                if(chunkViews == null || chunkViews.Count == 0)
+                    return null;
+
+                return chunkViews[0].CurrentMaterial;
+            }
+            set
+            {
+                if (chunkViews == null)
+                    return;
+
+                foreach(MarchingCubesView view in chunkViews)
+                {
+                    view.CurrentMaterial = value;
+                }
+            }
+        }
+
         [HideInInspector, SerializeField] bool forceColliderOn = false;
         public bool ForceColliderOn
         {

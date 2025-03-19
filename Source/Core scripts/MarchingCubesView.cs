@@ -22,8 +22,27 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public static double ElapsedPostProcessingTimeSeconds => PostProcessingStopwatch.Elapsed.TotalSeconds;
 
-        private MeshFilter meshFilter;
-        private MeshCollider meshCollider;
+        private MeshFilter linkedMeshFilter;
+        private MeshCollider linkedMeshCollider;
+        private MeshRenderer linkedMeshRenderer;
+
+        public Material CurrentMaterial
+        {
+            get
+            {
+                if(linkedMeshRenderer == null)
+                    return null;
+                else
+                    return linkedMeshRenderer.sharedMaterial;
+            }
+            set
+            {
+                if (linkedMeshRenderer == null)
+                    return;
+                else
+                    linkedMeshRenderer.sharedMaterial = value;
+            }
+        }
 
         Vector3Int gridBoundsMin;
         Vector3Int gridBoundsMax;
@@ -34,7 +53,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public Vector3Int GridBoundsMin => gridBoundsMin;
         public Vector3Int GridBoundsMax => gridBoundsMax;
 
-        public Mesh SharedMesh => meshFilter.sharedMesh;
+        public Mesh SharedMesh => linkedMeshFilter.sharedMesh;
 
         public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)
         {
@@ -43,21 +62,22 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             transform.localPosition = new Vector3(gridBoundsMin.x, gridBoundsMin.y, gridBoundsMin.z);
             
-            meshFilter = GetComponent<MeshFilter>();
-            meshCollider = GetComponent<MeshCollider>();
+            linkedMeshFilter = GetComponent<MeshFilter>();
+            linkedMeshCollider = GetComponent<MeshCollider>();
+            linkedMeshRenderer = GetComponent<MeshRenderer>();
 
-            if (meshFilter.sharedMesh == null)
+            if (linkedMeshFilter.sharedMesh == null)
             {
-                meshFilter.mesh = new Mesh();
+                linkedMeshFilter.mesh = new Mesh();
             }
             else
             {
-                meshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
+                linkedMeshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
             }
 
-            meshCollider.enabled = colliderEnabled;
+            linkedMeshCollider.enabled = colliderEnabled;
 
-            meshCollider.sharedMesh = meshFilter.sharedMesh;
+            linkedMeshCollider.sharedMesh = linkedMeshFilter.sharedMesh;
 
             isDirty = true; // Mark the chunk as dirty upon initialization
         }
@@ -73,15 +93,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private void OnDestroy()
         {
             // Safely destroy the dynamically created mesh
-            if (meshFilter != null && meshFilter.sharedMesh != null)
+            if (linkedMeshFilter != null && linkedMeshFilter.sharedMesh != null)
             {
-                Destroy(meshFilter.sharedMesh);
+                Destroy(linkedMeshFilter.sharedMesh);
             }
 
             // Optionally clear the collider's mesh reference
-            if (meshCollider != null)
+            if (linkedMeshCollider != null)
             {
-                meshCollider.sharedMesh = null;
+                linkedMeshCollider.sharedMesh = null;
             }
         }
 
@@ -130,7 +150,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void UpdateMesh(List<Vector3> vertices, List<int> triangles, List<Color32> colors)
         {
-            Mesh mesh = meshFilter.sharedMesh;
+            Mesh mesh = linkedMeshFilter.sharedMesh;
             mesh.Clear();
 
             mesh.SetVertices(vertices);
@@ -142,13 +162,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void UpdateCollider()
         {
-            meshCollider.sharedMesh = null;
+            linkedMeshCollider.sharedMesh = null;
 
-            Mesh mesh = meshFilter.sharedMesh;
+            Mesh mesh = linkedMeshFilter.sharedMesh;
 
             if (mesh.vertexCount == 0 || mesh.triangles.Length == 0) return; // Prevent invalid mesh assignment
 
-            meshCollider.sharedMesh = mesh;
+            linkedMeshCollider.sharedMesh = mesh;
         }
 
         public bool InvertedNormals
@@ -164,7 +184,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void InvertMeshTriangles()
         {         
-            Mesh mesh = meshFilter.sharedMesh;
+            Mesh mesh = linkedMeshFilter.sharedMesh;
 
             // Get the current triangles from the mesh
             int[] triangles = mesh.triangles;
@@ -186,13 +206,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             get
             {
-                return meshCollider.enabled;
+                return linkedMeshCollider.enabled;
             }
             set
             {
                 if (!ColliderEnabled && value) UpdateCollider();
 
-                meshCollider.enabled = value;
+                linkedMeshCollider.enabled = value;
             }
         }
 
@@ -211,7 +231,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (currentPostProcessingOptions.mergeTriangles)
             {
                 MeshUtilityFunctions.RemoveDegenerateTriangles(
-                    meshFilter.sharedMesh, 
+                    linkedMeshFilter.sharedMesh, 
                     PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds, 
                     out int removedVertices, out int modifiedElements, 
                     currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
@@ -224,10 +244,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (currentPostProcessingOptions.smoothNormals)
             {
-                meshFilter.sharedMesh.RecalculateNormals();
-                SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
+                linkedMeshFilter.sharedMesh.RecalculateNormals();
+                SmoothNormalsWithDistanceBias(linkedMeshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
 
-                meshFilter.sharedMesh.RecalculateTangents();
+                linkedMeshFilter.sharedMesh.RecalculateTangents();
                 //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
                 if (ColliderEnabled) UpdateCollider();
             }
@@ -237,8 +257,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void FinishMesh()
         {
-            meshFilter.sharedMesh.RecalculateNormals();
-            meshFilter.sharedMesh.RecalculateTangents();
+            linkedMeshFilter.sharedMesh.RecalculateNormals();
+            linkedMeshFilter.sharedMesh.RecalculateTangents();
             //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
             if (ColliderEnabled) UpdateCollider();
         }
