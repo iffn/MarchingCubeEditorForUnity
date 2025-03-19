@@ -31,7 +31,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             get
             {
                 if(linkedMeshRenderer == null)
-                    return null;
+                {
+                    linkedMeshRenderer = GetComponent<MeshRenderer>();
+
+                    if (linkedMeshRenderer == null)
+                        return null;
+                    else
+                        return linkedMeshRenderer.sharedMaterial;
+                }
                 else
                     return linkedMeshRenderer.sharedMaterial;
             }
@@ -54,6 +61,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public Vector3Int GridBoundsMax => gridBoundsMax;
 
         public Mesh SharedMesh => linkedMeshFilter.sharedMesh;
+
+        public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled, Material material)
+        {
+            Initialize(gridBoundsMin, gridBoundsMax, colliderEnabled);
+
+            if(material != null)
+                linkedMeshRenderer.sharedMaterial = material;
+        }
 
         public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)
         {

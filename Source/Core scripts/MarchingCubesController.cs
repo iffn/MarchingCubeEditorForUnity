@@ -17,6 +17,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] Transform chunkHolder;
         [SerializeField] Transform shapeHolder;
         [SerializeField] VisualisationManager linkedVisualisationManager;
+        [SerializeField] Material currentMaterial;
         
         public ScriptableObjectSaveData linkedSaveData;
         public bool showGridOutline = false; // Toggle controlled by the editor tool
@@ -35,13 +36,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             get
             {
-                if(chunkViews == null || chunkViews.Count == 0)
-                    return null;
-
-                return chunkViews[0].CurrentMaterial;
+                return currentMaterial;
             }
             set
             {
+                currentMaterial = value;
+
                 if (chunkViews == null)
                     return;
 
@@ -211,6 +211,16 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             int resolutionY = mainModel.ResolutionY;
             int resolutionZ = mainModel.ResolutionZ;
 
+            if(currentMaterial == null)
+            {
+                MarchingCubesView view = chunkPrefab.GetComponent<MarchingCubesView>();
+
+                if(view != null)
+                {
+                    currentMaterial = view.CurrentMaterial;
+                }
+            }
+
             for (int x = 0; x < resolutionX; x += chunkSize.x)
             {
                 for (int y = 0; y < resolutionY; y += chunkSize.y)
@@ -224,7 +234,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                         MarchingCubesView chunkView = Instantiate(chunkPrefab, chunkHolder).GetComponent<MarchingCubesView>();
                         chunkViews.Add(chunkView);
-                        chunkView.Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders);
+                        chunkView.Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, currentMaterial);
                     }
                 }
             }
