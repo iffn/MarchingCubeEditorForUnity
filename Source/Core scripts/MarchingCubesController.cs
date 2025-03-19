@@ -18,7 +18,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] Transform shapeHolder;
         [SerializeField] VisualisationManager linkedVisualisationManager;
         [SerializeField] Material currentMaterial;
-        
+
         public ScriptableObjectSaveData linkedSaveData;
         public bool showGridOutline = false; // Toggle controlled by the editor tool
 
@@ -45,7 +45,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 if (chunkViews == null)
                     return;
 
-                foreach(MarchingCubesView view in chunkViews)
+                foreach (MarchingCubesView view in chunkViews)
                 {
                     view.CurrentMaterial = value;
                 }
@@ -169,11 +169,27 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void GenerateViewChunks(bool directPostProcessCall)
         {
+            int totalChunks;
+
             int resolutionX = mainModel.ResolutionX;
             int resolutionY = mainModel.ResolutionY;
             int resolutionZ = mainModel.ResolutionZ;
-            int totalChunks = resolutionX + resolutionY + resolutionZ;
 
+            // Decide on chunk size and count
+            if ((directPostProcessCall || currentPostProcessingOptions.postProcessWhileEditing) && currentPostProcessingOptions.createOneChunk)
+            {
+                chunkSize = new Vector3Int(mainModel.ResolutionX, mainModel.ResolutionY, mainModel.ResolutionZ);
+                totalChunks = 1;
+            }
+            else
+            {
+                chunkSize = defaultChunkSize;
+
+
+                totalChunks = resolutionX + resolutionY + resolutionZ;
+            }
+
+            // Check number of views in holder
             if (totalChunks != chunkViews.Count)
             {
                 chunkViews.Clear();
@@ -194,6 +210,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
+            // Remove and generate new ones
             if (totalChunks != chunkViews.Count)
             {
                 // Decide on chunk size
@@ -234,8 +251,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 chunkViews.Clear();
 
                 // Create and setup chunks
-
-
                 if (currentMaterial == null)
                 {
                     MarchingCubesView view = chunkPrefab.GetComponent<MarchingCubesView>();
@@ -246,40 +261,56 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     }
                 }
 
-                for (int x = 0; x < resolutionX; x += chunkSize.x)
+                if (totalChunks == 1)
                 {
-                    for (int y = 0; y < resolutionY; y += chunkSize.y)
+                    MarchingCubesView chunkView = Instantiate(chunkPrefab, chunkHolder).GetComponent<MarchingCubesView>();
+                    chunkViews.Add(chunkView);
+                    chunkView.Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, currentMaterial);
+                }
+                else
+                {
+                    for (int x = 0; x < resolutionX; x += chunkSize.x)
                     {
-                        for (int z = 0; z < resolutionZ; z += chunkSize.z)
+                        for (int y = 0; y < resolutionY; y += chunkSize.y)
                         {
-                            // Define chunk bounds
-                            Vector3Int gridBoundsMin = new Vector3Int(x, y, z);
+                            for (int z = 0; z < resolutionZ; z += chunkSize.z)
+                            {
+                                // Define chunk bounds
+                                Vector3Int gridBoundsMin = new Vector3Int(x, y, z);
 
-                            Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
+                                Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            MarchingCubesView chunkView = Instantiate(chunkPrefab, chunkHolder).GetComponent<MarchingCubesView>();
-                            chunkViews.Add(chunkView);
-                            chunkView.Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, currentMaterial);
+                                MarchingCubesView chunkView = Instantiate(chunkPrefab, chunkHolder).GetComponent<MarchingCubesView>();
+                                chunkViews.Add(chunkView);
+                                chunkView.Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, currentMaterial);
+                            }
                         }
                     }
                 }
             }
-            else
+            else // Update existing chunks
             {
                 int counter = 0;
 
-                for (int x = 0; x < resolutionX; x += chunkSize.x)
+                if (totalChunks == 1)
                 {
-                    for (int y = 0; y < resolutionY; y += chunkSize.y)
+                    chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders);
+                }
+                else
+                {
+                    for (int x = 0; x < resolutionX; x += chunkSize.x)
                     {
-                        for (int z = 0; z < resolutionZ; z += chunkSize.z)
+                        for (int y = 0; y < resolutionY; y += chunkSize.y)
                         {
-                            // Define chunk bounds
-                            Vector3Int gridBoundsMin = new Vector3Int(x, y, z);
+                            for (int z = 0; z < resolutionZ; z += chunkSize.z)
+                            {
+                                // Define chunk bounds
+                                Vector3Int gridBoundsMin = new Vector3Int(x, y, z);
 
-                            Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
+                                Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders);
+                                chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders);
+                            }
                         }
                     }
                 }
