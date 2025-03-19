@@ -8,7 +8,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     public struct VoxelData
     {
         public readonly static VoxelData Empty = new VoxelData(-1.0f, new Color32(255, 255, 255, 255));
-        public readonly static int Size = 8;
 
         public VoxelData(float weight, Color32 color)
         {
