@@ -8,7 +8,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     public struct VoxelData
     {
         public readonly static VoxelData Empty = new VoxelData(-1.0f, new Color32(255, 255, 255, 255));
-        public readonly static int Size = 4 + 32;
 
         public VoxelData(float weight, Color32 color)
         {
@@ -35,12 +34,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             dst[dstOffset + 5] = Color.g;
             dst[dstOffset + 6] = Color.b;
             dst[dstOffset + 7] = Color.a;
-        }
-
-        public void Deserialize(byte[] src, int srcOffset) 
-        {
-            WeightInsideIsPositive = BitConverter.ToSingle(src, srcOffset);
-            Color = new Color32(src[srcOffset + 4], src[srcOffset + 5], src[srcOffset + 6], src[srcOffset + 7]);
         }
     }
 }
