@@ -33,7 +33,7 @@
 - [x] Link save file to prefab
 - [x] Integrate into inspector
 - [x] Expand voxel field
-- [ ] Add material selection
+- [x] Add material selection
 
 ## Result visualization
 - Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
