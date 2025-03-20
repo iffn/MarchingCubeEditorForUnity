@@ -188,16 +188,19 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (limitHeightToCursor)
         {
+            float localHeihgt = LinkedMarchingCubeController.transform.InverseTransformPoint(
+                placeableByClick.SelectedEditShape.transform.position).y;
+
             if (subtract)
             {
                 modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        placeableByClick.SelectedEditShape.transform.position.y,
+                        localHeihgt,
                         BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.SubtractOnly);
             }
             else
             {
                 modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        placeableByClick.SelectedEditShape.transform.position.y,
+                        localHeihgt,
                         BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly);
             }
         }
