@@ -11,7 +11,7 @@ public class ModifySurface : BaseTool
 {
     // Editor variables
     bool raycastActive = true;
-    bool showPreview = true;
+    bool showPreview = false;
     double nextUpdateTime;
     double timeBetweenUpdates = 1.0 / 60.0;
     int surfaceModification;
