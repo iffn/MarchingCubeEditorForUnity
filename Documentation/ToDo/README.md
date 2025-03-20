@@ -5,7 +5,7 @@
   - [x] Implement
   - [ ] Fix wrong addition when world origin of heightmap not (0,0,0)
 - Terrain conversion
-  - [ ] Basic implementation
+  - [x] Basic implementation
 - Limit height to cursor
   - [x] Reimplement
   - [ ] Fix when prefab has offset
@@ -13,6 +13,7 @@
   - [x] Basic implementation
   - [x] Preview with options
   - [ ] Better gizmos shape
+  - [ ] Add and remove at the same time
   - [ ] Different tunnel cross sections
 - [x] Path
 - Surface modifications
@@ -61,6 +62,10 @@
 - [x] Chunks
 - [x] Coloring with weight and vertex colors
 - [x] Improve the GameObject sorting inside the MarchingCube prefab
+- Improve save file storage
+	[x] Implement Run lenght encoding
+	[x] Implement version system and upgrader
+	[ ] Reset weights to -1 or 1 if not bordering
 - [ ] Create testing concept (Low prio)
 
 ## Branch merge checklist
