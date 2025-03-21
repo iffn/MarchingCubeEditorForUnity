@@ -77,6 +77,7 @@ public class SimpleSceneModifyTool : BaseTool
                 {
                     Transform hitObject = hit.transform;
                     placeableByClick.SelectedEditShape.transform.SetPositionAndRotation(hitObject.position, hitObject.rotation);
+                    currentEvent.Use();
                 }
             }
         }
