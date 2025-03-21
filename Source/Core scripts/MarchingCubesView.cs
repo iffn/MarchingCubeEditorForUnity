@@ -30,7 +30,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             get
             {
-                if(linkedMeshRenderer == null)
+                if (linkedMeshRenderer == null)
                 {
                     linkedMeshRenderer = GetComponent<MeshRenderer>();
 
@@ -66,7 +66,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             Initialize(gridBoundsMin, gridBoundsMax, colliderEnabled);
 
-            if(material != null)
+            if (material != null)
                 linkedMeshRenderer.sharedMaterial = material;
         }
 
@@ -76,7 +76,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             this.gridBoundsMax = gridBoundsMax;
 
             transform.localPosition = new Vector3(gridBoundsMin.x, gridBoundsMin.y, gridBoundsMin.z);
-            
+
             linkedMeshFilter = GetComponent<MeshFilter>();
             linkedMeshCollider = GetComponent<MeshCollider>();
             linkedMeshRenderer = GetComponent<MeshRenderer>();
@@ -168,6 +168,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             Mesh mesh = linkedMeshFilter.sharedMesh;
             mesh.Clear();
 
+            mesh.indexFormat = (vertices.Count > 65535) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
+
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
             mesh.SetColors(colors);
@@ -192,13 +194,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 if (invertedNormals != value)
                     InvertMeshTriangles();
-                
+
                 invertedNormals = value;
             }
         }
 
         void InvertMeshTriangles()
-        {         
+        {
             Mesh mesh = linkedMeshFilter.sharedMesh;
 
             // Get the current triangles from the mesh
@@ -246,9 +248,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (currentPostProcessingOptions.mergeTriangles)
             {
                 MeshUtilityFunctions.RemoveDegenerateTriangles(
-                    linkedMeshFilter.sharedMesh, 
-                    PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds, 
-                    out int removedVertices, out int modifiedElements, 
+                    linkedMeshFilter.sharedMesh,
+                    PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds,
+                    out int removedVertices, out int modifiedElements,
                     currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
 
                 ModifiedElements += modifiedElements;
@@ -285,7 +287,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 Debug.LogWarning("Did not start normal smoothing because time already ran out.");
                 return;
             }
-            
+
             // Step 1: Recalculate initial normals
             mesh.RecalculateNormals();
             Vector3[] vertices = mesh.vertices;
