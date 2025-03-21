@@ -19,11 +19,6 @@ public class ExpansionEditorElement : EditorElement
     int gridCExpandSize = 0;
     bool moveTransformWhenExpanding = true;
 
-    void UpdateGridResolutionFromController()
-    {
-        // ToDo
-    }
-
     public override void DrawUI()
     {
         gridCExpandSize = EditorGUILayout.IntField("Expansion size", gridCExpandSize);
@@ -33,19 +28,16 @@ public class ExpansionEditorElement : EditorElement
         if (GUILayout.Button("Expand +X"))
         {
             linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XPos);
-            UpdateGridResolutionFromController();
         }
 
         if (GUILayout.Button("Expand +Y"))
         {
             linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YPos);
-            UpdateGridResolutionFromController();
         }
 
         if (GUILayout.Button("Expand +Z"))
         {
             linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZPos);
-            UpdateGridResolutionFromController();
         }
 
         EditorGUILayout.EndHorizontal();
@@ -58,8 +50,6 @@ public class ExpansionEditorElement : EditorElement
 
             if (moveTransformWhenExpanding)
                 linkedController.transform.localPosition -= gridCExpandSize * linkedController.transform.localScale.x * Vector3.right;
-
-            UpdateGridResolutionFromController();
         }
 
         if (GUILayout.Button("Expand -Y"))
@@ -68,8 +58,6 @@ public class ExpansionEditorElement : EditorElement
 
             if (moveTransformWhenExpanding)
                 linkedController.transform.localPosition -= gridCExpandSize * linkedController.transform.localScale.y * Vector3.up;
-
-            UpdateGridResolutionFromController();
         }
 
         if (GUILayout.Button("Expand -Z"))
@@ -78,8 +66,6 @@ public class ExpansionEditorElement : EditorElement
 
             if (moveTransformWhenExpanding)
                 linkedController.transform.localPosition -= gridCExpandSize * linkedController.transform.localScale.z * Vector3.forward;
-
-            UpdateGridResolutionFromController();
         }
 
         EditorGUILayout.EndHorizontal();

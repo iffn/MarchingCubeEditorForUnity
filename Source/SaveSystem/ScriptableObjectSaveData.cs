@@ -250,7 +250,7 @@ public class ScriptableObjectSaveData : ScriptableObject
 
         return (weightList.ToArray(), colorList.ToArray());
 
-        static float ConvertShortToFloat(short value)
+        float ConvertShortToFloat(short value)
         {
             return value / 32767f;
         }
@@ -262,22 +262,23 @@ public class ScriptableObjectSaveData : ScriptableObject
 
         return SerializeDataV2(weightInsideIsPositive, colors);
 
-        static (float[] weightInsideIsPositive, Color32[] colors) DeserializeDataV0(byte[] data, int totalVoxels)
+        (float[] weightInsideIsPositive, Color32[] colors) DeserializeDataV0(byte[] data, int totalVoxels2)
+            //error CS0136: A local or parameter named 'totalVoxels' cannot be declared in this scope because that name is used in an enclosing local scope to define a local or parameter
         {
-            float[] weightInsideIsPositive = new float[totalVoxels];
-            Color32[] colors = new Color32[totalVoxels];
+            float[] weightInsideIsPositive2 = new float[totalVoxels2];
+            Color32[] colors2 = new Color32[totalVoxels2];
 
             int byteIndex = 0;
 
-            for (int i = 0; i < totalVoxels; i++)
+            for (int i = 0; i < totalVoxels2; i++)
             {
-                weightInsideIsPositive[i] = BitConverter.ToSingle(data, byteIndex);
-                colors[i] = new Color32(data[byteIndex + 4], data[byteIndex + 5], data[byteIndex + 6], data[byteIndex + 7]);
+                weightInsideIsPositive2[i] = BitConverter.ToSingle(data, byteIndex);
+                colors2[i] = new Color32(data[byteIndex + 4], data[byteIndex + 5], data[byteIndex + 6], data[byteIndex + 7]);
 
                 byteIndex += 36; // Skip 4+32 bytes per voxel
             }
 
-            return(weightInsideIsPositive, colors);
+            return(weightInsideIsPositive2, colors2);
         }
     }
 }

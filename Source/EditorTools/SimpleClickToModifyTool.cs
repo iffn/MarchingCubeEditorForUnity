@@ -3,7 +3,9 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using static UnityEditor.Progress;
 
@@ -78,6 +80,9 @@ public class SimpleClickToModifyTool : BaseTool
         }
 
         limitHeightToCursor = EditorGUILayout.Toggle("Limit height to cursor", limitHeightToCursor);
+
+        if (GUILayout.Button("Reset offset"))
+            currentOffset = 0;
 
         if (raycastActive)
         {
@@ -183,16 +188,19 @@ public class SimpleClickToModifyTool : BaseTool
 
         if (limitHeightToCursor)
         {
+            float localHeihgt = LinkedMarchingCubeController.transform.InverseTransformPoint(
+                placeableByClick.SelectedEditShape.transform.position).y;
+
             if (subtract)
             {
                 modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        placeableByClick.SelectedEditShape.transform.position.y,
+                        localHeihgt,
                         BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.SubtractOnly);
             }
             else
             {
                 modifier = new BaseModificationTools.ModifyShapeWithMaxHeightModifier(
-                        placeableByClick.SelectedEditShape.transform.position.y,
+                        localHeihgt,
                         BaseModificationTools.ModifyShapeWithMaxHeightModifier.BooleanType.AddOnly);
             }
         }
