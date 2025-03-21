@@ -8,30 +8,27 @@ using UnityEngine;
 
 public class SimpleSceneModifyTool : BaseTool
 {
-    EditShape selectedShape;
-
     public override string DisplayName => "Modify using scene object";
+
+    PlaceableByClickHandler placeableByClick;
+
+    public override void OnEnable()
+    {
+        if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+    }
 
     public override void DrawUI()
     {
-        EditShape newSelectedShape = EditorGUILayout.ObjectField(
-            selectedShape,
-            typeof(EditShape),
-            true) as EditShape;
+        if (placeableByClick == null) return;
 
-        if (newSelectedShape && newSelectedShape != selectedShape)
-        {
-            selectedShape = newSelectedShape;
-            newSelectedShape.Initialize();
-        }
+        placeableByClick.DrawEditorUI();
 
-        if (selectedShape)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button($"Add {selectedShape.transform.name}")) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-            if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-            EditorGUILayout.EndHorizontal();
-        }
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button($"Add {placeableByClick.SelectedEditShape.transform.name}"))
+            LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick.SelectedEditShape, new BaseModificationTools.AddShapeModifier());
+        if (GUILayout.Button($"Subtract {placeableByClick.SelectedEditShape.transform.name}"))
+            LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick.SelectedEditShape, new BaseModificationTools.SubtractShapeModifier());
+        EditorGUILayout.EndHorizontal();
     }
 }
 #endif
