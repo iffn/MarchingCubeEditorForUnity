@@ -53,7 +53,8 @@ public class SimpleClickToPaintTool : BaseTool
         if (raycastActive)
         {
             string helpText = base.helpText +
-                    "• Click to paint";
+                    "• Click to paint" + System.Environment.NewLine +
+                    "• Ctrl click to get color";
 
             helpText += placeableByClick.SelectedEditShape.HelpText;
 
@@ -101,13 +102,9 @@ public class SimpleClickToPaintTool : BaseTool
         {
             if (LeftClickDownEvent(e))
             {
-                Vector3 localPoint = LinkedMarchingCubeController.transform.InverseTransformPoint(result.point);
+                SetColorFromRaycast(result);
 
-                VoxelData data = LinkedMarchingCubeController.GetVoxelWithClamp(localPoint.x, localPoint.y, localPoint.z);
-
-                brushColor = data.Color;
                 e.Use();
-                RefreshUI();
             }
 
             if (EscapeDownEvent(e))
@@ -121,10 +118,27 @@ public class SimpleClickToPaintTool : BaseTool
         {
             if (result != RayHitResult.None)
             {
-                placeableByClick.SelectedEditShape.gameObject.SetActive(true);
-                placeableByClick.SelectedEditShape.transform.position = result.point;
+                // Left-click event
+                if (LeftClickDownEvent(e))
+                {
+                    if (ControlIsHeld(e))
+                    {
+                        SetColorFromRaycast(result);
+                    }
+                    else
+                    {
+                        placeableByClick.SelectedEditShape.gameObject.SetActive(true);
+                        placeableByClick.SelectedEditShape.transform.position = result.point;
 
-                HandleDirectUpdate(e);
+                        LinkedMarchingCubeController.ModificationManager.ModifyData(
+                            placeableByClick.SelectedEditShape,
+                            new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve)
+                        );
+                    }
+                    
+                    e.Use();
+                    return;
+                }
             }
             else
             {
@@ -141,21 +155,16 @@ public class SimpleClickToPaintTool : BaseTool
                 return;
             }
         }
-    }
 
-    void HandleDirectUpdate(Event e)
-    {
-        placeableByClick.SelectedEditShape.gameObject.SetActive(true);
-
-        // Left-click event
-        if (LeftClickDownEvent(e))
+        void SetColorFromRaycast(RayHitResult result)
         {
-            LinkedMarchingCubeController.ModificationManager.ModifyData(
-                placeableByClick.SelectedEditShape, 
-                new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve)
-            );
-            e.Use();
-            return;
+            Vector3 localPoint = LinkedMarchingCubeController.transform.InverseTransformPoint(result.point);
+
+            VoxelData data = LinkedMarchingCubeController.GetVoxelWithClamp(localPoint.x, localPoint.y, localPoint.z);
+
+            brushColor = data.Color;
+
+            RefreshUI();
         }
     }
 }
