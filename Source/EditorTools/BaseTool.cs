@@ -21,7 +21,10 @@ public abstract class BaseTool
     public virtual void HandleSceneUpdate(Event currentEvent) {}
     public virtual void DrawGizmos() {}
     public virtual void OnEnable() {}
-    public virtual void OnDisable() {}
+    public virtual void OnDisable()
+    {
+        LinkedMarchingCubeController.DisplayPreviewShape = false;
+    }
 
     protected string helpText = "Controls:\n" +
                     "Note that the scene has to be active for some of these to work. Right clicking into the scene view works well for this.\n";

@@ -8,29 +8,78 @@ using UnityEngine;
 
 public class SimpleSceneModifyTool : BaseTool
 {
-    EditShape selectedShape;
-
     public override string DisplayName => "Modify using scene object";
+
+    PlaceableByClickHandler placeableByClick;
+
+    bool movingActive = false;
+
+    static readonly Color highlightColor = new Color(0.7f, 0.7f, 1f); //ToDo: Improve highlight color
+
+    public override void OnEnable()
+    {
+        if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+    }
 
     public override void DrawUI()
     {
-        EditShape newSelectedShape = EditorGUILayout.ObjectField(
-            selectedShape,
-            typeof(EditShape),
-            true) as EditShape;
+        if (placeableByClick == null) return;
 
-        if (newSelectedShape && newSelectedShape != selectedShape)
+        placeableByClick.DrawEditorUI();
+
+        // Store original colors
+        Color originalBackground = GUI.backgroundColor;
+        Color originalContentColor = GUI.contentColor;
+
+        if (movingActive)
         {
-            selectedShape = newSelectedShape;
-            newSelectedShape.Initialize();
+            // Set custom colors for the selected tool
+            GUI.backgroundColor = highlightColor;
+            GUI.contentColor = Color.white; // Text color
+
+            ShowClickToMoveToOriginButton();
+
+            // Restore original colors
+            GUI.backgroundColor = originalBackground;
+            GUI.contentColor = originalContentColor;
+        }
+        else
+        {
+            ShowClickToMoveToOriginButton();
         }
 
-        if (selectedShape)
+        // Show add and remove options
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button($"Add {placeableByClick.SelectedEditShape.transform.name}"))
+            LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick.SelectedEditShape, new BaseModificationTools.AddShapeModifier());
+        if (GUILayout.Button($"Subtract {placeableByClick.SelectedEditShape.transform.name}"))
+            LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick.SelectedEditShape, new BaseModificationTools.SubtractShapeModifier());
+        EditorGUILayout.EndHorizontal();
+
+        void ShowClickToMoveToOriginButton()
         {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button($"Add {selectedShape.transform.name}")) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.AddShapeModifier());
-            if (GUILayout.Button($"Subtract {selectedShape.transform.name}")) LinkedMarchingCubeController.ModificationManager.ModifyData(selectedShape, new BaseModificationTools.SubtractShapeModifier());
-            EditorGUILayout.EndHorizontal();
+            if (GUILayout.Button($"Move to origin of click on object"))
+                movingActive = !movingActive;
+        }
+    }
+
+    public override void HandleSceneUpdate(Event currentEvent)
+    {
+        base.HandleSceneUpdate(currentEvent);
+
+        if(movingActive)
+        {
+            if (LeftClickDownEvent(currentEvent))
+            {
+                Ray ray = HandleUtility.GUIPointToWorldRay(currentEvent.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit))
+                {
+                    Transform hitObject = hit.transform;
+                    placeableByClick.SelectedEditShape.transform.SetPositionAndRotation(hitObject.position, hitObject.rotation);
+                    currentEvent.Use();
+                }
+            }
         }
     }
 }
