@@ -56,9 +56,27 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             VoxelData[x, y, z] = Mathf.Min(VoxelData[x, y, z], value);
         }*/
 
-        public VoxelData GetVoxel(int x, int y, int z)
+        public VoxelData GetVoxelWithoutClamp(int x, int y, int z)
         {
             return VoxelDataGrid[x, y, z];
+        }
+
+        public VoxelData GetVoxelWithClamp(int x, int y, int z)
+        {
+            x = Mathf.Clamp(x, 0, MaxGrid.x);
+            y = Mathf.Clamp(y, 0, MaxGrid.y);
+            z = Mathf.Clamp(z, 0, MaxGrid.z);
+
+            return GetVoxelWithoutClamp(x, y, z);
+        }
+
+        public VoxelData GetVoxelWithClamp(float x, float y, float z)
+        {
+            int xi = Mathf.RoundToInt(x);
+            int yi = Mathf.RoundToInt(y);
+            int zi = Mathf.RoundToInt(z);
+
+            return GetVoxelWithClamp(xi, yi, zi); // A bit dangerous, since the a loop is called if int is paresed to a float
         }
 
         public VoxelData[,,] GetVoxelData()
@@ -165,7 +183,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 {
                     for (int z = minGrid.z; z <= maxGrid.z; z++)
                     {
-                        VoxelDataGrid[x, y, z] = source.GetVoxel(x, y, z);
+                        VoxelDataGrid[x, y, z] = source.GetVoxelWithoutClamp(x, y, z);
                     }
                 }
             }

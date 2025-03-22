@@ -26,7 +26,7 @@ public class ModificationManager
         (Vector3Int minGrid, Vector3Int maxGrid) = CalculateGridBoundsClamped(shape);
 
         // Modify model
-        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetDataPoint, linkedController.SetDataPointWithoutSettingItToDirty); // Warning: In this case, get has access to the new data
+        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetVoxelWithoutClamp, linkedController.SetDataPointWithoutSettingItToDirty); // Warning: In this case, get has access to the new data
 
         // Mark affected chunks as dirty
         linkedController.MarkRegionDirty(minGrid, maxGrid);
@@ -47,7 +47,7 @@ public class ModificationManager
         linkedController.SetupPreviewZone(minGrid, maxGrid);
 
         //Modify the model
-        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetDataPoint, linkedController.SetPreviewDataPoint); // Warning: In this case, get has access to the old data
+        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetVoxelWithoutClamp, linkedController.SetPreviewDataPoint); // Warning: In this case, get has access to the old data
 
         linkedController.UpdatePreviewShape();
     }

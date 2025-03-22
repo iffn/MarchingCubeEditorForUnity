@@ -14,8 +14,6 @@ public class SimpleSceneModifyTool : BaseTool
 
     bool movingActive = false;
 
-    static readonly Color highlightColor = new Color(0.7f, 0.7f, 1f); //ToDo: Improve highlight color
-
     public override void OnEnable()
     {
         if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
@@ -27,14 +25,16 @@ public class SimpleSceneModifyTool : BaseTool
 
         placeableByClick.DrawEditorUI();
 
-        // Store original colors
-        Color originalBackground = GUI.backgroundColor;
-        Color originalContentColor = GUI.contentColor;
+        
 
         if (movingActive)
         {
+            // Store original colors
+            Color originalBackground = GUI.backgroundColor;
+            Color originalContentColor = GUI.contentColor;
+
             // Set custom colors for the selected tool
-            GUI.backgroundColor = highlightColor;
+            GUI.backgroundColor = highlightBackgroundColor;
             GUI.contentColor = Color.white; // Text color
 
             ShowClickToMoveToOriginButton();

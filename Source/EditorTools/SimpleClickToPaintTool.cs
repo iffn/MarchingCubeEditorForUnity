@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using UnityEditor;
 using UnityEngine;
@@ -11,6 +12,7 @@ public class SimpleClickToPaintTool : BaseTool
     Color32 brushColor = Color.white;
     AnimationCurve brushCurve = AnimationCurve.Linear(0, 0, 1, 1);
     PlaceableByClickHandler placeableByClick;
+    bool getColorActive = false;
 
     // Internal values
     public override string DisplayName => "Click to paint tool";
@@ -59,34 +61,85 @@ public class SimpleClickToPaintTool : BaseTool
 
             placeableByClick.SelectedEditShape.DrawUI();
         }
+
+
+        if (getColorActive)
+        {
+            // Store original colors
+            Color originalBackground = GUI.backgroundColor;
+            Color originalContentColor = GUI.contentColor;
+
+            // Set custom colors for the selected tool
+            GUI.backgroundColor = highlightBackgroundColor;
+            GUI.contentColor = Color.white; // Text color
+
+            ShowClickGotGetColorButton();
+
+            // Restore original colors
+            GUI.backgroundColor = originalBackground;
+            GUI.contentColor = originalContentColor;
+        }
+        else
+        {
+            ShowClickGotGetColorButton();
+        }
+
+        void ShowClickGotGetColorButton()
+        {
+            if (GUILayout.Button($"Get color"))
+                getColorActive = !getColorActive;
+        }
     }
 
     public override void HandleSceneUpdate(Event e)
     {
-        if (!raycastActive) return;
-
+        if (!raycastActive && !getColorActive) return;
+        
         RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
 
-        if(result != RayHitResult.None)
+        if (getColorActive)
         {
-            placeableByClick.SelectedEditShape.gameObject.SetActive(true);
-            placeableByClick.SelectedEditShape.transform.position = result.point;
+            if (LeftClickDownEvent(e))
+            {
+                Vector3 localPoint = LinkedMarchingCubeController.transform.InverseTransformPoint(result.point);
 
-            HandleDirectUpdate(e);
+                VoxelData data = LinkedMarchingCubeController.GetVoxelWithClamp(localPoint.x, localPoint.y, localPoint.z);
+
+                brushColor = data.Color;
+                e.Use();
+                RefreshUI();
+            }
+
+            if (EscapeDownEvent(e))
+            {
+                getColorActive = false;
+                e.Use();
+                return;
+            }
         }
         else
         {
-            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
-            LinkedMarchingCubeController.DisplayPreviewShape = false;
-        }
+            if (result != RayHitResult.None)
+            {
+                placeableByClick.SelectedEditShape.gameObject.SetActive(true);
+                placeableByClick.SelectedEditShape.transform.position = result.point;
 
-        if (placeableByClick.SelectedShape != null) placeableByClick.SelectedEditShape.HandleSceneUpdate(e);
+                HandleDirectUpdate(e);
+            }
+            else
+            {
+                placeableByClick.SelectedEditShape.gameObject.SetActive(false);
+                LinkedMarchingCubeController.DisplayPreviewShape = false;
+            }
 
-        if (EscapeDownEvent(e))
-        {
-            raycastActive = false;
-            e.Use();
-            return;
+            if (placeableByClick.SelectedShape != null) placeableByClick.SelectedEditShape.HandleSceneUpdate(e);
+
+            if (EscapeDownEvent(e))
+            {
+                raycastActive = false;
+                e.Use();
+                return;
+            }
         }
     }
 

@@ -488,9 +488,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// <param name="y">The y-coordinate of the voxel.</param>
         /// <param name="z">The z-coordinate of the voxel.</param>
         /// <returns>The value of the voxel.</returns>
-        public VoxelData GetDataPoint(int x, int y, int z)
+        public VoxelData GetVoxelWithoutClamp(int x, int y, int z)
         {
-            return mainModel.GetVoxel(x, y, z);
+            return mainModel.GetVoxelWithoutClamp(x, y, z);
+        }
+
+        public VoxelData GetVoxelWithClamp(int x, int y, int z)
+        {
+            return mainModel.GetVoxelWithClamp(x, y, z);
+        }
+
+        public VoxelData GetVoxelWithClamp(float x, float y, float z)
+        {
+            return mainModel.GetVoxelWithClamp(x, y, z);
         }
 
         /// <summary>

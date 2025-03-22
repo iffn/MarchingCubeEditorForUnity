@@ -17,6 +17,8 @@ public abstract class BaseTool
     public abstract string DisplayName { get; }
     public virtual Texture DisplayIcon => null;
 
+    public static readonly Color highlightBackgroundColor = new Color(0.7f, 0.7f, 1f); //ToDo: Improve highlight color
+
     public virtual void DrawUI() {}
     public virtual void HandleSceneUpdate(Event currentEvent) {}
     public virtual void DrawGizmos() {}
