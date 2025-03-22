@@ -53,7 +53,7 @@ public class SimpleClickToModifyTool : BaseTool
 
     public override void OnDisable()
     {
-        
+        placeableByClick.SelectedEditShape.gameObject.SetActive(false);
     }
 
     public override void DrawUI()
