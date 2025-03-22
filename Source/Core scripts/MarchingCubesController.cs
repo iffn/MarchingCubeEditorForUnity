@@ -417,6 +417,17 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        public void MarkRegionDirty(Vector3Int gridPoint)
+        {
+            foreach (var chunkView in chunkViews) // ToDo: Optimize doing a for instead of a foreach loop
+            {
+                if (chunkView.IsWithinBounds(gridPoint))
+                {
+                    chunkView.MarkDirty();
+                }
+            }
+        }
+
         /// <summary>
         /// Updates all dirty chunks.
         /// </summary>
@@ -492,7 +503,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void SetDataPointWithSettingItToDirty(int x, int y, int z, VoxelData value)
         {
             SetDataPointWithoutSettingItToDirty(x, y, z, value);
-            MarkRegionDirty(new Vector3Int(x, y, z), new Vector3Int(x + 1, y + 1, z + 1)); // ToDo: Optimize my only passing one element
+            MarkRegionDirty(new Vector3Int(x, y, z));
         }
 
         public void SetDataPointWithoutSettingItToDirty(int x, int y, int z, VoxelData value)

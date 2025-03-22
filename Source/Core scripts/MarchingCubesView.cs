@@ -239,6 +239,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                      gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
         }
 
+        public bool IsWithinBounds(Vector3Int point)
+        {
+            // Check for overlap between the chunk and the affected region
+            return !(gridBoundsMax.x <= point.x || gridBoundsMin.x >= point.x ||
+                     gridBoundsMax.y <= point.y || gridBoundsMin.y >= point.y ||
+                     gridBoundsMax.z <= point.z || gridBoundsMin.z >= point.z);
+        }
+
         public void PostProcessMesh(PostProcessingOptions currentPostProcessingOptions)
         {
             PostProcessingStopwatch.Start();
