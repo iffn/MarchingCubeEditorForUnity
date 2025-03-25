@@ -7,7 +7,6 @@ using UnityEngine;
 
 public class MarchingCubesPreview : MarchingCubesView
 {
-    [SerializeField] MeshRenderer linkedMeshRenderer;
     [SerializeField] Material AdditionPreviewMaterial;
     [SerializeField] Material SubtractionPreviewMaterial;
 
@@ -19,15 +18,13 @@ public class MarchingCubesPreview : MarchingCubesView
 
     public void SetPreviewDisplayState(PreviewDisplayStates state)
     {
-        Material previewMaterial = AdditionPreviewMaterial;
-
         switch (state)
         {
             case PreviewDisplayStates.addition:
-                linkedMeshRenderer.sharedMaterial = AdditionPreviewMaterial;
+                CurrentMaterial = AdditionPreviewMaterial;
                 break;
             case PreviewDisplayStates.subtraction:
-                linkedMeshRenderer.sharedMaterial = SubtractionPreviewMaterial;
+                CurrentMaterial = SubtractionPreviewMaterial;
                 break;
             default:
                 break;
