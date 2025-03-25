@@ -64,6 +64,8 @@ public class SimpleSceneModifyTool : BaseTool
             if (GUILayout.Button($"Move to origin of click on object"))
                 movingActive = !movingActive;
         }
+
+        EditorGUILayout.HelpBox("Note: The idea is that you lock the inspector using the lock symbol on top and them move the shape around.", MessageType.Info);
     }
 
     public override void HandleSceneUpdate(Event currentEvent)
