@@ -25,8 +25,27 @@ public class CopyPasteTool : BaseTool
 
     bool copied = false;
 
+    // Base class functions
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        if (currentEditShapeHandler == null)
+            currentEditShapeHandler = new PlaceableByClickHandler(LinkedMarchingCubeController);
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+
+        if (currentEditShapeHandler != null)
+            currentEditShapeHandler.SelectedEditShape.gameObject.SetActive(false);
+    }
+
     public override void DrawUI()
     {
+        base.DrawUI();
+
         if (currentEditShapeHandler == null) return;
         currentEditShapeHandler.DrawEditorUI();
 
@@ -77,22 +96,11 @@ public class CopyPasteTool : BaseTool
         EditorGUILayout.EndHorizontal();
     }
 
-    public override void DrawGizmos()
-    {
-        base.DrawGizmos();
-
-        Gizmos.matrix = gizmosMatrix;
-
-        // Draw Wire Cube
-        Gizmos.color = new Color(1f, 0.5f, 0f);
-        Gizmos.DrawWireCube(Vector3.zero, Vector3.one); // Cube centered at origin
-    }
-
     public override void HandleSceneUpdate(Event currentEvent)
     {
-        if (!copied) return;
-
         base.HandleSceneUpdate(currentEvent);
+
+        if (!copied) return;
 
         //Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
         Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
@@ -107,22 +115,18 @@ public class CopyPasteTool : BaseTool
         }
     }
 
-    public override void OnEnable()
+    public override void DrawGizmos()
     {
-        base.OnEnable();
+        base.DrawGizmos();
 
-        if (currentEditShapeHandler == null)
-            currentEditShapeHandler = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        Gizmos.matrix = gizmosMatrix;
+
+        // Draw Wire Cube
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawWireCube(Vector3.zero, Vector3.one); // Cube centered at origin
     }
 
-    public override void OnDisable()
-    {
-        base.OnDisable();
-
-        if (currentEditShapeHandler != null)
-            currentEditShapeHandler.SelectedEditShape.gameObject.SetActive(false);
-    }
-
+    // Internal functions
     void MarkCopyLocation()
     {
         copied = true;

@@ -31,6 +31,13 @@ public class ModifySurface : BaseTool
     // Override functions
     public override string DisplayName => "Modify surface";
 
+    enum SurfaceOptions
+    {
+        smooth,
+        roughen
+    }
+
+    // Base class functions
     public override void OnEnable()
     {
         base.OnEnable();
@@ -42,13 +49,6 @@ public class ModifySurface : BaseTool
     {
         base.OnDisable();
     }
-
-    enum SurfaceOptions
-    {
-        smooth,
-        roughen
-    }
-
 
     public override void DrawUI()
     {
@@ -88,33 +88,6 @@ public class ModifySurface : BaseTool
 
             placeableByClick.SelectedEditShape.DrawUI();
         }
-    }
-
-    BaseModificationTools.IVoxelModifier GaussianSmoothingModification()
-    {
-        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
-
-        return new BaseModificationTools.GaussianSmoothingModifier(
-            currentDataCopy,
-            smoothThreshold,
-            smoothRadius,
-            smoothSigma
-            );
-    }
-
-    BaseModificationTools.IVoxelModifier WorldSpaceRougheningModification()
-    {
-        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
-
-        return new BaseModificationTools.WorldSpaceRougheningModifier(
-            currentDataCopy,
-            roughenRadius,
-            roughenIntensity,
-            roughenFrequency,
-            roughenFalloffSharpness,
-            LinkedMarchingCubeController.transform.position,
-            LinkedMarchingCubeController.transform.lossyScale.x
-            );
     }
 
     public override void HandleSceneUpdate(Event e)
@@ -171,6 +144,34 @@ public class ModifySurface : BaseTool
             raycastActive = false;
             e.Use();
         }
+    }
+
+    // Internal functions
+    BaseModificationTools.IVoxelModifier GaussianSmoothingModification()
+    {
+        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
+
+        return new BaseModificationTools.GaussianSmoothingModifier(
+            currentDataCopy,
+            smoothThreshold,
+            smoothRadius,
+            smoothSigma
+            );
+    }
+
+    BaseModificationTools.IVoxelModifier WorldSpaceRougheningModification()
+    {
+        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
+
+        return new BaseModificationTools.WorldSpaceRougheningModifier(
+            currentDataCopy,
+            roughenRadius,
+            roughenIntensity,
+            roughenFrequency,
+            roughenFalloffSharpness,
+            LinkedMarchingCubeController.transform.position,
+            LinkedMarchingCubeController.transform.lossyScale.x
+            );
     }
 
     void HandlePreviewUpdate(Event e)

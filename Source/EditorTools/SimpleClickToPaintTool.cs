@@ -17,6 +17,7 @@ public class SimpleClickToPaintTool : BaseTool
     // Internal values
     public override string DisplayName => "Click to paint tool";
 
+    // Base class functions
     public override void OnEnable()
     {
         base.OnEnable();
@@ -98,6 +99,8 @@ public class SimpleClickToPaintTool : BaseTool
 
     public override void HandleSceneUpdate(Event e)
     {
+        base.HandleSceneUpdate(e);
+
         if (!raycastActive && !getColorActive) return;
         
         RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);

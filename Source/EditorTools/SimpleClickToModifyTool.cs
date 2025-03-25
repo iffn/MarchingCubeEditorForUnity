@@ -44,7 +44,7 @@ public class SimpleClickToModifyTool : BaseTool
         return ControlIsHeld(e);
     }
 
-    // Override functions
+    // Base class functions
     public override void OnEnable()
     {
         base.OnEnable();
@@ -107,6 +107,8 @@ public class SimpleClickToModifyTool : BaseTool
 
     public override void HandleSceneUpdate(Event e)
     {
+        base.HandleSceneUpdate(e);
+
         if (!raycastActive) return;
 
         RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);

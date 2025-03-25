@@ -10,6 +10,7 @@ public class ExporterTool : BaseTool
 {
     public override string DisplayName => "Exporter";
 
+    // Base class functions
     public override void DrawUI()
     {
         base.DrawUI();
@@ -18,35 +19,7 @@ public class ExporterTool : BaseTool
             ExportAsObj();
     }
 
-    void ExportAsObj()
-    {
-        // Setup
-        List<MarchingCubesView> views = LinkedMarchingCubeController.ChunkViews;
-
-        StringBuilder objStringBuilder = new StringBuilder();
-
-        // Combiue obj stsring
-        int vertexOffset = 0;
-        for(int i = 0; i < views.Count; i++)
-        {
-            MarchingCubesView view = views[i];
-
-            if(EmptyMesh(view.SharedMesh)) continue;
-
-            objStringBuilder.AppendLine($"o Chunk{i}");
-
-            objStringBuilder.Append(GetObjString(view.SharedMesh, view.transform.localPosition, vertexOffset));
-            objStringBuilder.AppendLine($"");
-
-            vertexOffset += view.SharedMesh.vertexCount;
-        }
-
-        // Save to asset path
-        string unixTimestampSeconds = ((int)System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()).ToString();
-
-        SaveToAssetPath($"{LinkedMarchingCubeController.transform.name}-{unixTimestampSeconds}.obj", objStringBuilder.ToString());
-    }
-
+    // Public functions
     public static void SaveToAssetPath(string nameWithFileEnding, string content)
     {
         string path = Path.Combine(Application.dataPath, nameWithFileEnding);
@@ -70,7 +43,7 @@ public class ExporterTool : BaseTool
         return vertices.Length == 0 || triangles.Length == 0;
     }
 
-    public static string GetObjString(Mesh mesh, Vector3 positionOffset , int indicesOffset)
+    public static string GetObjString(Mesh mesh, Vector3 positionOffset, int indicesOffset)
     {
         StringBuilder objStringBuilder = new StringBuilder();
 
@@ -109,6 +82,36 @@ public class ExporterTool : BaseTool
         }
 
         return objStringBuilder.ToString();
+    }
+
+    // Internal functions
+    void ExportAsObj()
+    {
+        // Setup
+        List<MarchingCubesView> views = LinkedMarchingCubeController.ChunkViews;
+
+        StringBuilder objStringBuilder = new StringBuilder();
+
+        // Combiue obj stsring
+        int vertexOffset = 0;
+        for(int i = 0; i < views.Count; i++)
+        {
+            MarchingCubesView view = views[i];
+
+            if(EmptyMesh(view.SharedMesh)) continue;
+
+            objStringBuilder.AppendLine($"o Chunk{i}");
+
+            objStringBuilder.Append(GetObjString(view.SharedMesh, view.transform.localPosition, vertexOffset));
+            objStringBuilder.AppendLine($"");
+
+            vertexOffset += view.SharedMesh.vertexCount;
+        }
+
+        // Save to asset path
+        string unixTimestampSeconds = ((int)System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()).ToString();
+
+        SaveToAssetPath($"{LinkedMarchingCubeController.transform.name}-{unixTimestampSeconds}.obj", objStringBuilder.ToString());
     }
 }
 

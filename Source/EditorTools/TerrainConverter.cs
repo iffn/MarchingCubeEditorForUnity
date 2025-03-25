@@ -13,22 +13,7 @@ public class TerrainConverter : BaseTool
 
     public override string DisplayName => "Terrain converter";
 
-    public override void DrawUI()
-    {
-        base.DrawUI();
-
-        if (currentEditShapeHandler == null) return;
-        currentEditShapeHandler.DrawEditorUI();
-
-        selectedTerrain = EditorGUILayout.ObjectField(
-               obj: selectedTerrain,
-               objType: typeof(Terrain),
-               true) as Terrain;
-
-        if (GUILayout.Button($"Apply data from terrain"))
-            ApplyDataFromTerrain();
-    }
-
+    // Base class functions
     public override void OnEnable()
     {
         base.OnEnable();
@@ -45,6 +30,23 @@ public class TerrainConverter : BaseTool
             currentEditShapeHandler.SelectedEditShape.gameObject.SetActive(false);
     }
 
+    public override void DrawUI()
+    {
+        base.DrawUI();
+
+        if (currentEditShapeHandler == null) return;
+        currentEditShapeHandler.DrawEditorUI();
+
+        selectedTerrain = EditorGUILayout.ObjectField(
+               obj: selectedTerrain,
+               objType: typeof(Terrain),
+               true) as Terrain;
+
+        if (GUILayout.Button($"Apply data from terrain"))
+            ApplyDataFromTerrain();
+    }
+
+    // Internal functions
     void ApplyDataFromTerrain()
     {
         Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;

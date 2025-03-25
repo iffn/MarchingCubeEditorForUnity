@@ -14,6 +14,7 @@ public class SimpleSceneModifyTool : BaseTool
 
     bool movingActive = false;
 
+    // Base class functions
     public override void OnEnable()
     {
         base.OnEnable();
@@ -28,8 +29,6 @@ public class SimpleSceneModifyTool : BaseTool
         if (placeableByClick == null) return;
 
         placeableByClick.DrawEditorUI();
-
-        
 
         if (movingActive)
         {

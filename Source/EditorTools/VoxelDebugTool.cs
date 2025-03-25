@@ -14,6 +14,17 @@ public class VoxelDebugTool : BaseTool
     int coordinateY = 0;
     int coordinateZ = 0;
 
+    // Base class functions
+    public override void OnEnable()
+    {
+        base.OnEnable();
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+    }
+
     public override void DrawUI()
     {
         base.DrawUI();
@@ -56,8 +67,15 @@ public class VoxelDebugTool : BaseTool
         }
     }
 
+    public override void HandleSceneUpdate(Event currentEvent)
+    {
+        base.HandleSceneUpdate(currentEvent);
+    }
+
     public override void DrawGizmos()
     {
+         base.DrawGizmos();
+
         Vector3 coordinate = new Vector3(coordinateX, coordinateY, coordinateZ);
 
         Transform controllerTransform = LinkedMarchingCubeController.transform;
@@ -77,21 +95,6 @@ public class VoxelDebugTool : BaseTool
         Gizmos.DrawLine(
             coordinate + lineLength * controllerTransform.forward,
             coordinate + lineLength * -controllerTransform.forward);
-    }
-
-    public override void HandleSceneUpdate(Event currentEvent)
-    {
-        
-    }
-
-    public override void OnEnable()
-    {
-        base.OnEnable();
-    }
-
-    public override void OnDisable()
-    {
-        base.OnDisable();
     }
 }
 
