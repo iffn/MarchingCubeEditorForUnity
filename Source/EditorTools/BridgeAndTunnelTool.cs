@@ -26,6 +26,7 @@ public class BridgeAndTunnelTool : BaseTool
     bool confirmToApply = false;
     bool continueWithEndPoint = true;
 
+    // Base class functions
     public override void OnEnable()
     {
         base.OnEnable();
@@ -50,8 +51,88 @@ public class BridgeAndTunnelTool : BaseTool
         base.OnDisable();
     }
 
+    public override void DrawUI()
+    {
+        base.DrawUI();
+
+        bridgeOrTunnelShape = EditorGUILayout.ObjectField(
+            bridgeOrTunnelShape,
+            typeof(BridgeOrTunnelShape),
+            true) as BridgeOrTunnelShape;
+
+        if (bridgeOrTunnelShape != null)
+        {
+            float newRadius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
+
+            if (newRadius != bridgeOrTunnelShape.radius)
+            {
+                bridgeOrTunnelShape.radius = newRadius;
+
+                if (showPreviewBeforeApplying && startPointSet && endPointSet)
+                {
+                    Debug.Log("Update");
+
+                    if (previewingTunnel)
+                        PreviewTunnel(startPointLocal, endPointLocal);
+                    else
+                        PreviewBridge(startPointLocal, endPointLocal);
+                }
+            }
+        }
+
+        bool newShowPreviewBeforeApplying = EditorGUILayout.Toggle("Show preview before applying", showPreviewBeforeApplying);
+        if (newShowPreviewBeforeApplying != showPreviewBeforeApplying)
+        {
+            showPreviewBeforeApplying = newShowPreviewBeforeApplying;
+
+            ShowPreviewCheck();
+        }
+
+        confirmToApply = EditorGUILayout.Toggle("Confirm to apply", confirmToApply);
+
+        continueWithEndPoint = EditorGUILayout.Toggle("Continue with end point", continueWithEndPoint);
+
+        if (confirmToApply && startPointSet && endPointSet)
+        {
+            if (showPreviewBeforeApplying)
+            {
+                if (previewingTunnel)
+                {
+                    if (GUILayout.Button($"Switch to bridge"))
+                    {
+                        PreviewBridge(startPointLocal, endPointLocal);
+                        previewingTunnel = false;
+                    }
+
+                    if (GUILayout.Button($"Apply tunnel"))
+                        ApplyPreviewChanges();
+                }
+                else
+                {
+                    if (GUILayout.Button($"Apply bridge"))
+                        ApplyPreviewChanges();
+
+                    if (GUILayout.Button($"Switch to tunnel"))
+                    {
+                        PreviewTunnel(startPointLocal, endPointLocal);
+                        previewingTunnel = true;
+                    }
+                }
+            }
+            else
+            {
+                if (GUILayout.Button($"Create bridge"))
+                    CreateBridge(startPointLocal, endPointLocal);
+                if (GUILayout.Button($"Create tunnel"))
+                    CreateTunnel(startPointLocal, endPointLocal);
+            }
+        }
+    }
+
     public override void HandleSceneUpdate(Event e)
     {
+        base.HandleSceneUpdate(e);
+
         if (startPointSet)
         {
             if (confirmToApply)
@@ -144,96 +225,11 @@ public class BridgeAndTunnelTool : BaseTool
         }
     }
 
-    void ShowPreviewCheck()
-    {
-        bool showPreview = showPreviewBeforeApplying && startPointSet && endPointSet;
-
-        LinkedMarchingCubeController.DisplayPreviewShape = showPreview;
-    }
-
-    public override void DrawUI()
-    {
-        base.DrawUI();
-
-        bridgeOrTunnelShape = EditorGUILayout.ObjectField(
-            bridgeOrTunnelShape,
-            typeof(BridgeOrTunnelShape),
-            true) as BridgeOrTunnelShape;
-
-        if(bridgeOrTunnelShape != null)
-        {
-            float newRadius = EditorGUILayout.FloatField("Radius:", bridgeOrTunnelShape.radius);
-
-            if(newRadius != bridgeOrTunnelShape.radius)
-            {
-                bridgeOrTunnelShape.radius = newRadius;
-
-                if(showPreviewBeforeApplying && startPointSet && endPointSet)
-                {
-                    Debug.Log("Update");
-
-                    if(previewingTunnel)
-                        PreviewTunnel(startPointLocal, endPointLocal);
-                    else
-                        PreviewBridge(startPointLocal, endPointLocal);
-                }
-            }
-        }
-
-        bool newShowPreviewBeforeApplying = EditorGUILayout.Toggle("Show preview before applying", showPreviewBeforeApplying);
-        if(newShowPreviewBeforeApplying != showPreviewBeforeApplying)
-        {
-            showPreviewBeforeApplying = newShowPreviewBeforeApplying;
-
-            ShowPreviewCheck();
-        }
-        
-        confirmToApply = EditorGUILayout.Toggle("Confirm to apply", confirmToApply);
-
-        continueWithEndPoint = EditorGUILayout.Toggle("Continue with end point", continueWithEndPoint);
-
-        if (confirmToApply && startPointSet && endPointSet)
-        {
-            if (showPreviewBeforeApplying)
-            {
-                if (previewingTunnel)
-                {
-                    if (GUILayout.Button($"Switch to bridge"))
-                    {
-                        PreviewBridge(startPointLocal, endPointLocal);
-                        previewingTunnel = false;
-                    }
-
-                    if (GUILayout.Button($"Apply tunnel"))
-                        ApplyPreviewChanges();
-                }
-                else
-                {
-                    if (GUILayout.Button($"Apply bridge"))
-                        ApplyPreviewChanges();
-
-                    if (GUILayout.Button($"Switch to tunnel"))
-                    {
-                        PreviewTunnel(startPointLocal, endPointLocal);
-                        previewingTunnel = true;
-                    }
-                }
-            }
-            else
-            {
-                if (GUILayout.Button($"Create bridge"))
-                    CreateBridge(startPointLocal, endPointLocal);
-                if (GUILayout.Button($"Create tunnel"))
-                    CreateTunnel(startPointLocal, endPointLocal);
-            }
-        }
-    }
-
     public override void DrawGizmos()
     {
         base.DrawGizmos();
 
-        if(startPointSet && endPointSet)
+        if (startPointSet && endPointSet)
         {
             Gizmos.DrawLine(startPointWorld, endPointWorld);
 
@@ -247,6 +243,14 @@ public class BridgeAndTunnelTool : BaseTool
             else
                 LinkedMarchingCubeController.VisualisationManager.DrawCircle(startPointWorld, bridgeOrTunnelShape.radius, 12, Vector3.up);
         }
+    }
+
+    // Internal functions
+    void ShowPreviewCheck()
+    {
+        bool showPreview = showPreviewBeforeApplying && startPointSet && endPointSet;
+
+        LinkedMarchingCubeController.DisplayPreviewShape = showPreview;
     }
 
     void PrepareBridge(Vector3 startPoint, Vector3 endPoint)

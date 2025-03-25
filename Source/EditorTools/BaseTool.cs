@@ -19,9 +19,6 @@ public abstract class BaseTool
 
     public static readonly Color highlightBackgroundColor = new Color(0.7f, 0.7f, 1f); //ToDo: Improve highlight color
 
-    public virtual void DrawUI() {}
-    public virtual void HandleSceneUpdate(Event currentEvent) {}
-    public virtual void DrawGizmos() {}
     public virtual void OnEnable()
     {
         LinkedMarchingCubeController.EnableAllColliders = true;
@@ -32,6 +29,9 @@ public abstract class BaseTool
         LinkedMarchingCubeController.EnableAllColliders = false; // Will still be on if force collider on is set
         LinkedMarchingCubeController.DisplayPreviewShape = false;
     }
+    public virtual void DrawUI() {}
+    public virtual void HandleSceneUpdate(Event currentEvent) {}
+    public virtual void DrawGizmos() {}
 
     protected string helpText = "Controls:\n" +
                     "Note that the scene has to be active for some of these to work. Right clicking into the scene view works well for this.\n";
