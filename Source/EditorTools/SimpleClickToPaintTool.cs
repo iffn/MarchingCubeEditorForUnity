@@ -117,6 +117,7 @@ public class SimpleClickToPaintTool : BaseTool
             if (EscapeDownEvent(e))
             {
                 getColorActive = false;
+                RefreshUI();
                 e.Use();
                 return;
             }
