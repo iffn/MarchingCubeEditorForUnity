@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using UnityEngine;
+using System;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
@@ -63,9 +64,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public VoxelData GetVoxelWithClamp(int x, int y, int z)
         {
-            x = Mathf.Clamp(x, 0, MaxGrid.x);
-            y = Mathf.Clamp(y, 0, MaxGrid.y);
-            z = Mathf.Clamp(z, 0, MaxGrid.z);
+            x = Math.Clamp(x, 0, MaxGrid.x);
+            y = Math.Clamp(y, 0, MaxGrid.y);
+            z = Math.Clamp(z, 0, MaxGrid.z);
 
             return GetVoxelWithoutClamp(x, y, z);
         }

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using System;
 
 public class VoxelDebugTool : BaseTool
 {
@@ -13,6 +14,7 @@ public class VoxelDebugTool : BaseTool
     int coordinateX = 0;
     int coordinateY = 0;
     int coordinateZ = 0;
+    bool clickToGetActive = true;
 
     // Base class functions
     public override void OnEnable()
@@ -65,11 +67,38 @@ public class VoxelDebugTool : BaseTool
         {
             // ToDo: Modify
         }
+
+        clickToGetActive = GUILayout.Toggle(clickToGetActive, "Click to get active");
     }
 
     public override void HandleSceneUpdate(Event currentEvent)
     {
         base.HandleSceneUpdate(currentEvent);
+
+        if (!clickToGetActive)
+            return;
+
+        if (LeftClickDownEvent(currentEvent))
+        {
+            RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(currentEvent);
+
+            if (result != RayHitResult.None)
+            {
+                Vector3 localHit = LinkedMarchingCubeController.transform.InverseTransformPoint(result.point);
+
+                int xi = Mathf.RoundToInt(localHit.x);
+                int yi = Mathf.RoundToInt(localHit.y);
+                int zi = Mathf.RoundToInt(localHit.z);
+
+                coordinateX = Math.Clamp(xi, 0, LinkedMarchingCubeController.MaxGrid.x);
+                coordinateY = Math.Clamp(yi, 0, LinkedMarchingCubeController.MaxGrid.y);
+                coordinateZ = Math.Clamp(zi, 0, LinkedMarchingCubeController.MaxGrid.z);
+
+                RefreshUI();
+            }
+
+            currentEvent.Use();
+        }
     }
 
     public override void DrawGizmos()
