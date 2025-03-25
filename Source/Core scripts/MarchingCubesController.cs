@@ -431,6 +431,18 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// <summary>
         /// Updates all dirty chunks.
         /// </summary>
+        public void UpdateAffectedChunks(Vector3Int gridPoint)
+        {
+            foreach (var chunkView in chunkViews)
+            {
+                if (chunkView.IsWithinBounds(gridPoint))
+                {
+                    chunkView.UpdateMeshIfDirty(mainModel);
+                    return;
+                }
+            }
+        }
+
         public void UpdateAffectedChunks(Vector3Int minGrid, Vector3Int maxGrid)
         {
             foreach (var chunkView in chunkViews)

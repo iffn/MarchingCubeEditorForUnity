@@ -77,6 +77,17 @@ public class ModificationManager
         return (minGrid, maxGrid);
     }
 
+    public void ModifySingleVoxel(int x, int y, int z, VoxelData newValue)
+    {
+        Vector3Int point = new Vector3Int(x, y, z);
+
+        // ToDo: Update voxel
+
+        linkedController.MarkRegionDirty(point);
+
+        linkedController.UpdateAffectedChunks(point);
+    }
+
     void ModifyModel(EditShape shape, IVoxelModifier modifier, Vector3Int minGrid, Vector3Int maxGrid, Func<int, int, int, VoxelData> getDataPoint, Action<int, int, int, VoxelData> setDataPoint)
     {
         float worldToGridScaleFactor = linkedControllerTransform.localScale.magnitude; //ToDo: Reimplement scaling
