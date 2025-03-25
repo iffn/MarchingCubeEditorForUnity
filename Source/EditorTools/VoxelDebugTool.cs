@@ -16,6 +16,8 @@ public class VoxelDebugTool : BaseTool
 
     public override void DrawUI()
     {
+        base.DrawUI();
+
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("X");
         GUILayout.Label("Y");
@@ -84,12 +86,12 @@ public class VoxelDebugTool : BaseTool
 
     public override void OnEnable()
     {
-        
+        base.OnEnable();
     }
 
     public override void OnDisable()
     {
-        
+        base.OnDisable();
     }
 }
 

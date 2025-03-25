@@ -47,17 +47,23 @@ public class SimpleClickToModifyTool : BaseTool
     // Override functions
     public override void OnEnable()
     {
+        base.OnEnable();
+
         if(placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
         currentOffset = 0;
     }
 
     public override void OnDisable()
     {
+        base.OnDisable();
+
         placeableByClick.SelectedEditShape.gameObject.SetActive(false);
     }
 
     public override void DrawUI()
     {
+        base.DrawUI();
+
         //Handle shape assignment
 
         if(placeableByClick == null) return;
@@ -174,7 +180,7 @@ public class SimpleClickToModifyTool : BaseTool
 
     public override void DrawGizmos()
     {
-
+        base.DrawGizmos();
     }
 
     // Internal functions

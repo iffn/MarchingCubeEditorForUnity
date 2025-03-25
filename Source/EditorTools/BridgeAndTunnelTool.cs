@@ -43,8 +43,6 @@ public class BridgeAndTunnelTool : BaseTool
                 }
             }
         }
-
-        LinkedMarchingCubeController.EnableAllColliders = true;
     }
 
     public override void OnDisable()
@@ -233,6 +231,8 @@ public class BridgeAndTunnelTool : BaseTool
 
     public override void DrawGizmos()
     {
+        base.DrawGizmos();
+
         if(startPointSet && endPointSet)
         {
             Gizmos.DrawLine(startPointWorld, endPointWorld);

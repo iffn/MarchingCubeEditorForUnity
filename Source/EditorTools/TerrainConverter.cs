@@ -32,6 +32,7 @@ public class TerrainConverter : BaseTool
     public override void OnEnable()
     {
         base.OnEnable();
+
         if (currentEditShapeHandler == null)
             currentEditShapeHandler = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }

@@ -16,11 +16,15 @@ public class SimpleSceneModifyTool : BaseTool
 
     public override void OnEnable()
     {
+        base.OnEnable();
+
         if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
     public override void DrawUI()
     {
+        base.DrawUI();
+
         if (placeableByClick == null) return;
 
         placeableByClick.DrawEditorUI();

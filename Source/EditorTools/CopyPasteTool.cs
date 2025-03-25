@@ -110,6 +110,7 @@ public class CopyPasteTool : BaseTool
     public override void OnEnable()
     {
         base.OnEnable();
+
         if (currentEditShapeHandler == null)
             currentEditShapeHandler = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }

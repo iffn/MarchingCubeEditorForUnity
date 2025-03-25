@@ -33,12 +33,14 @@ public class ModifySurface : BaseTool
 
     public override void OnEnable()
     {
+        base.OnEnable();
+
         if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
     public override void OnDisable()
     {
-        
+        base.OnDisable();
     }
 
     enum SurfaceOptions
@@ -50,6 +52,8 @@ public class ModifySurface : BaseTool
 
     public override void DrawUI()
     {
+        base.DrawUI();
+
         placeableByClick.DrawEditorUI();
 
         raycastActive = EditorGUILayout.Toggle("Active", raycastActive);
@@ -115,6 +119,8 @@ public class ModifySurface : BaseTool
 
     public override void HandleSceneUpdate(Event e)
     {
+        base.HandleSceneUpdate(e);
+
         if (!raycastActive) return;
 
         if(placeableByClick == null) return;

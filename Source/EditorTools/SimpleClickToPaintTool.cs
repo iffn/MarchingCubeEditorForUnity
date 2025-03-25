@@ -19,16 +19,20 @@ public class SimpleClickToPaintTool : BaseTool
 
     public override void OnEnable()
     {
+        base.OnEnable();
+
         if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
     public override void OnDisable()
     {
-        
+        base.OnDisable();
     }
 
     public override void DrawUI()
     {
+        base.DrawUI();
+
         // Handle shape assignment
         placeableByClick.DrawEditorUI();
 

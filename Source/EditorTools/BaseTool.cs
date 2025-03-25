@@ -22,9 +22,14 @@ public abstract class BaseTool
     public virtual void DrawUI() {}
     public virtual void HandleSceneUpdate(Event currentEvent) {}
     public virtual void DrawGizmos() {}
-    public virtual void OnEnable() {}
+    public virtual void OnEnable()
+    {
+        LinkedMarchingCubeController.EnableAllColliders = true;
+    }
+
     public virtual void OnDisable()
     {
+        LinkedMarchingCubeController.EnableAllColliders = false; // Will still be on if force collider on is set
         LinkedMarchingCubeController.DisplayPreviewShape = false;
     }
 

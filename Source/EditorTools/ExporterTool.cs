@@ -12,6 +12,8 @@ public class ExporterTool : BaseTool
 
     public override void DrawUI()
     {
+        base.DrawUI();
+
         if (GUILayout.Button($"Export as Obj"))
             ExportAsObj();
     }
