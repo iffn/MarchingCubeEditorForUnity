@@ -60,7 +60,6 @@ public class VoxelDebugTool : BaseTool
 
         EditorGUILayout.EndHorizontal();
 
-        // Ensure the value stays within limits
         newWeight = Mathf.Clamp(newWeight, minValue, maxValue);
 
         if(newWeight != currentData.DistanceOutsideIsPositive)
@@ -68,6 +67,16 @@ public class VoxelDebugTool : BaseTool
             LinkedMarchingCubeController.ModificationManager.ModifySingleVoxel(coordinateX, coordinateY, coordinateZ, currentData.WithWeightInsideIsPositive(newWeight));
         }
 
+        // Color
+        Color newColor = EditorGUILayout.ColorField("Color", currentData.Color);
+
+        if(newColor != currentData.Color)
+        {
+            Debug.Log("Update");
+            LinkedMarchingCubeController.ModificationManager.ModifySingleVoxel(coordinateX, coordinateY, coordinateZ, currentData.WithColor(newColor));
+        }
+
+        // Raycast toggle
         clickToGetActive = GUILayout.Toggle(clickToGetActive, "Click to get active");
     }
 
