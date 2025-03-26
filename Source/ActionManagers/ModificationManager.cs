@@ -79,9 +79,9 @@ public class ModificationManager
 
     public void ModifySingleVoxel(int x, int y, int z, VoxelData newValue)
     {
-        Vector3Int point = new Vector3Int(x, y, z);
+        linkedController.VoxelDataReference[x,y, z] = newValue;
 
-        // ToDo: Update voxel
+        Vector3Int point = new Vector3Int(x, y, z);
 
         linkedController.MarkRegionDirty(point);
 
