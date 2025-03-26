@@ -56,7 +56,7 @@ public class VoxelDebugTool : BaseTool
         float newWeight = GUILayout.HorizontalSlider(currentData.WeightInsideIsPositive, minValue, maxValue, GUILayout.Width(150));
 
         // Float Field (allows direct input)
-        newWeight = EditorGUILayout.FloatField(newWeight, GUILayout.Width(50));
+        newWeight = EditorGUILayout.FloatField(newWeight);
 
         EditorGUILayout.EndHorizontal();
 
