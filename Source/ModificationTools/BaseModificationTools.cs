@@ -395,18 +395,44 @@ public class BaseModificationTools
         private readonly AnimationCurve curve;  // Not sure if curve makes sense as there is already a shape that 
                                                 // defines the how the painting should look like. So either remove 
                                                 // the shape or the curve.
+        bool modifyRed = true;
+        bool modifyGreen = true;
+        bool modifyBlue = true;
+        bool modifyAlpha = true;
+        bool modifyAll = false;
 
-        public ChangeColorModifier(Color32 color, AnimationCurve curve) 
+        public ChangeColorModifier(Color32 color, AnimationCurve curve, bool modifyRed, bool modifyGreen, bool modifyBlue, bool modifyAlpha) 
         {
             this.color = color;
             this.curve = curve;
+
+            this.modifyRed = modifyRed;
+            this.modifyGreen = modifyGreen;
+            this.modifyBlue = modifyBlue;
+            this.modifyAlpha = modifyAlpha;
+            modifyAll = modifyRed && modifyGreen && modifyBlue && modifyAlpha;
         }
 
         public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
         {
             if (distanceOutsideIsPositive > 0) return currentValue;
 
-            Color32 newColor = Color.Lerp(color, currentValue.Color, curve.Evaluate(distanceOutsideIsPositive));
+            Color32 newColor;
+
+            if (modifyAll)
+            {
+                newColor = color;
+            }
+            else
+            {
+                byte newRed = modifyRed ? color.r : currentValue.Color.r;
+                byte newGreen = modifyGreen ? color.g : currentValue.Color.g;
+                byte newBlue = modifyBlue ? color.b : currentValue.Color.b;
+                byte newAlpha = modifyAlpha ? color.a : currentValue.Color.a;
+                newColor = new Color32(newRed, newGreen, newBlue, newAlpha);
+            }
+
+            newColor = Color.Lerp(newColor, currentValue.Color, curve.Evaluate(distanceOutsideIsPositive));
 
             return currentValue.WithColor(newColor);
         }

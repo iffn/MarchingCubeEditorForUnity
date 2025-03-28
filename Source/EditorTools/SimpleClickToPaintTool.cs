@@ -14,6 +14,11 @@ public class SimpleClickToPaintTool : BaseTool
     PlaceableByClickHandler placeableByClick;
     bool getColorActive = false;
 
+    bool modifyRed = true;
+    bool modifyGreen = true;
+    bool modifyBlue = true;
+    bool modifyAlpha = true;
+
     // Internal values
     public override string DisplayName => "Click to paint tool";
 
@@ -39,6 +44,24 @@ public class SimpleClickToPaintTool : BaseTool
 
         // Handle color assignment
         brushColor = EditorGUILayout.ColorField("Brush Color", brushColor);
+
+        GUILayout.Label("Modify individual channels and enable modification");
+
+        byte newRed = DisplayModifyColor("R", brushColor.r, ref modifyRed);
+        if (newRed != brushColor.r)
+            brushColor.r = newRed;
+
+        byte newGreen = DisplayModifyColor("G", brushColor.g, ref modifyGreen);
+        if (newGreen != brushColor.g)
+            brushColor.g = newGreen;
+
+        byte newBlue = DisplayModifyColor("B", brushColor.b, ref modifyBlue);
+        if (newBlue != brushColor.b)
+            brushColor.b = newBlue;
+
+        byte newAlpha = DisplayModifyColor("A", brushColor.a, ref modifyAlpha);
+        if (newAlpha != brushColor.a)
+            brushColor.a = newAlpha;
 
         // Handle curve assignment
         brushCurve = EditorGUILayout.CurveField("Brush Curve", brushCurve, Color.cyan, new Rect(0, 0, 1f, 1f));
@@ -68,7 +91,6 @@ public class SimpleClickToPaintTool : BaseTool
             placeableByClick.SelectedEditShape.DrawUI();
         }
 
-
         if (getColorActive)
         {
             // Store original colors
@@ -94,6 +116,16 @@ public class SimpleClickToPaintTool : BaseTool
         {
             if (GUILayout.Button($"Get color"))
                 getColorActive = !getColorActive;
+        }
+
+        byte DisplayModifyColor(string title, int currentValue, ref bool modify)
+        {
+            EditorGUILayout.BeginHorizontal(); // Align slider and input field in one row
+            GUILayout.Label(title, GUILayout.Width(20)); // Optional label
+            int newColor = EditorGUILayout.IntSlider(currentValue, 0, 255);
+            modify = EditorGUILayout.Toggle(modify, GUILayout.Width(20));
+            EditorGUILayout.EndHorizontal();
+            return (byte)newColor;
         }
     }
 
@@ -126,6 +158,9 @@ public class SimpleClickToPaintTool : BaseTool
         {
             if (result != RayHitResult.None)
             {
+                placeableByClick.SelectedEditShape.gameObject.SetActive(true);
+                placeableByClick.SelectedEditShape.transform.position = result.point;
+
                 // Left-click event
                 if (LeftClickDownEvent(e))
                 {
@@ -135,12 +170,9 @@ public class SimpleClickToPaintTool : BaseTool
                     }
                     else
                     {
-                        placeableByClick.SelectedEditShape.gameObject.SetActive(true);
-                        placeableByClick.SelectedEditShape.transform.position = result.point;
-
                         LinkedMarchingCubeController.ModificationManager.ModifyData(
                             placeableByClick.SelectedEditShape,
-                            new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve)
+                            new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve, modifyRed, modifyGreen, modifyBlue, modifyAlpha)
                         );
                     }
                     
