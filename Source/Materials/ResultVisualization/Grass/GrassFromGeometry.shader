@@ -110,7 +110,8 @@ Shader "VoxelMesh/GrassFromArea"
                 float area = 0.5 * length(cross(edge1, edge2));
 
                 // Compute how many blades to emit for this triangle
-                float expectedBlades = area * _GrassDensityPerSquareMeter;
+                float vertexAlpha = (input[0].color.a + input[1].color.a + input[2].color.a) / 3.0;
+                float expectedBlades = area * _GrassDensityPerSquareMeter * vertexAlpha;
                 int bladeCount = min((int)(expectedBlades + 0.5), _MaxBladesPerTriangle);
                 bladeCount = min(bladeCount, MAX_BLADES);
                 if (bladeCount <= 0) return;
@@ -172,7 +173,6 @@ Shader "VoxelMesh/GrassFromArea"
                     triStream.RestartStrip();
                 }
             }
-
 
             fixed4 frag(g2f i) : SV_Target
             {
