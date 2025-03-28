@@ -13,6 +13,7 @@ Shader "VoxelMesh/GrassFromArea"
         _SlopeThreshold ("Slope Threshold (Y Dot)", Range(0,1)) = 0.3
         _MaxBladesPerTriangle ("Max Blades Per Triangle", Range(1, 20)) = 6
         _ChunkPosition ("Chunk World Position", Vector) = (0,0,0,0)
+        _GrassColor ("Grass Color", Color) = (0.3, 0.7, 0.3, 1)
     }
 
     SubShader
@@ -32,6 +33,7 @@ Shader "VoxelMesh/GrassFromArea"
             #include "UnityCG.cginc"
 
             sampler2D _MainTex;
+            sampler2D _GrassTintMap;
             float _Cutoff;
             float _GrassHeight;
             float _GrassWidth;
@@ -40,8 +42,9 @@ Shader "VoxelMesh/GrassFromArea"
             float _WindStrength;
             float _CullDistance;
             float _SlopeThreshold;
-            int _MaxBladesPerTriangle;
             float4 _ChunkPosition;
+            float4 _GrassColor;
+            int _MaxBladesPerTriangle;
 
             struct appdata
             {
@@ -173,9 +176,13 @@ Shader "VoxelMesh/GrassFromArea"
 
             fixed4 frag(g2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                clip(col.a - _Cutoff);
-                return col;
+                float4 tex = tex2D(_MainTex, i.uv);
+                float grayscale = tex.r;
+
+                float3 finalColor = _GrassColor.rgb * grayscale;
+
+                clip(tex.a - _Cutoff);
+                return float4(finalColor, tex.a);
             }
 
             ENDCG
