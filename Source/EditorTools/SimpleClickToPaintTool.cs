@@ -126,6 +126,9 @@ public class SimpleClickToPaintTool : BaseTool
         {
             if (result != RayHitResult.None)
             {
+                placeableByClick.SelectedEditShape.gameObject.SetActive(true);
+                placeableByClick.SelectedEditShape.transform.position = result.point;
+
                 // Left-click event
                 if (LeftClickDownEvent(e))
                 {
@@ -135,9 +138,6 @@ public class SimpleClickToPaintTool : BaseTool
                     }
                     else
                     {
-                        placeableByClick.SelectedEditShape.gameObject.SetActive(true);
-                        placeableByClick.SelectedEditShape.transform.position = result.point;
-
                         LinkedMarchingCubeController.ModificationManager.ModifyData(
                             placeableByClick.SelectedEditShape,
                             new BaseModificationTools.ChangeColorModifier(brushColor, brushCurve)
