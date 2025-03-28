@@ -164,9 +164,9 @@ public class SimpleClickToPaintTool : BaseTool
             }
         }
 
-        void SetColorFromRaycast(RayHitResult result)
+        void SetColorFromRaycast(RayHitResult result2)
         {
-            Vector3 localPoint = LinkedMarchingCubeController.transform.InverseTransformPoint(result.point);
+            Vector3 localPoint = LinkedMarchingCubeController.transform.InverseTransformPoint(result2.point);
 
             VoxelData data = LinkedMarchingCubeController.GetVoxelWithClamp(localPoint.x, localPoint.y, localPoint.z);
 
