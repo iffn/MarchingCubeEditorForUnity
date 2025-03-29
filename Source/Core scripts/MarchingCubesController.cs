@@ -170,7 +170,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void GenerateViewChunks(bool directPostProcessCall)
         {
-            bool debug = true; //
+            bool debug = true;
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 
@@ -225,13 +225,13 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (debug)
                 Debug.Log($"Figure out: {sw.Elapsed.TotalMilliseconds}ms");
-            sw.Restart();
 
             if (requiredChunks == chunkViews.Count)
             {
-                if (debug)
-                    Debug.Log("Do nothing");
                 // No creation needed
+                if (debug)
+                    Debug.Log($"Do nothing: {sw.Elapsed.TotalMilliseconds}ms");
+                sw.Restart();
             }
             else if(requiredChunks > chunkViews.Count)
             {
@@ -245,6 +245,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     MarchingCubesView chunkView = Instantiate(chunkPrefab, chunkHolder).GetComponent<MarchingCubesView>();
                     chunkViews.Add(chunkView);
                 }
+
+                if (debug)
+                    Debug.Log($"Adding chunks: {sw.Elapsed.TotalMilliseconds}ms");
             }
             else
             {
@@ -274,11 +277,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 chunkViews.RemoveRange(requiredChunks, chunkViews.Count - requiredChunks);
 
                 if (debug)
-                    Debug.Log($"Want: {requiredChunks}, Removed  {chunksToDestroy.Count}, Remaining: {chunkViews.Count}");
+                    Debug.Log($"Removing chunks: {sw.Elapsed.TotalMilliseconds}ms");
+                
             }
 
-            if (debug)
-                Debug.Log($"Add, remove, do nothing: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
 
             if (requiredChunks == 1)
