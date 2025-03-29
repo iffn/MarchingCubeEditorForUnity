@@ -96,7 +96,6 @@ public class BaseModificationTools
             float c011 = currentDataCopy[x0, y1, z1].WeightInsideIsPositive;
             float c111 = currentDataCopy[x1, y1, z1].WeightInsideIsPositive;
 
-            // Perform trilinear interpolation
             float c00 = Mathf.Lerp(c000, c100, xd);
             float c01 = Mathf.Lerp(c001, c101, xd);
             float c10 = Mathf.Lerp(c010, c110, xd);
@@ -107,8 +106,28 @@ public class BaseModificationTools
 
             float interpolatedWeight = Mathf.Lerp(c0, c1, zd);
 
+            // --- Interpolate color ---
+            Color col000 = currentDataCopy[x0, y0, z0].Color;
+            Color col100 = currentDataCopy[x1, y0, z0].Color;
+            Color col010 = currentDataCopy[x0, y1, z0].Color;
+            Color col110 = currentDataCopy[x1, y1, z0].Color;
+            Color col001 = currentDataCopy[x0, y0, z1].Color;
+            Color col101 = currentDataCopy[x1, y0, z1].Color;
+            Color col011 = currentDataCopy[x0, y1, z1].Color;
+            Color col111 = currentDataCopy[x1, y1, z1].Color;
+
+            Color col00 = Color.Lerp(col000, col100, xd);
+            Color col10 = Color.Lerp(col010, col110, xd);
+            Color col01 = Color.Lerp(col001, col101, xd);
+            Color col11 = Color.Lerp(col011, col111, xd);
+
+            Color col0 = Color.Lerp(col00, col10, yd);
+            Color col1 = Color.Lerp(col01, col11, yd);
+
+            Color interpolatedColor = Color.Lerp(col0, col1, zd);
+
             // Return the interpolated voxel value
-            return currentValue.WithWeightInsideIsPositive(interpolatedWeight);
+            return new VoxelData(interpolatedWeight, interpolatedColor);
         }
 
         Vector3 TransformBetweenLocalSpaces(Vector3 worldPosition, Matrix4x4 A_old, Matrix4x4 A_new)
