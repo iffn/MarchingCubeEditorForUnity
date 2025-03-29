@@ -170,7 +170,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void GenerateAndUpdateViewChunks(bool directPostProcessCall)
         {
-            bool debug = true;
             bool debug = false;
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
@@ -483,7 +482,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             bool debug = false;
-            bool debug = true;
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 
@@ -502,7 +500,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             GenerateAndUpdateViewChunks(false);
 
             if (debug)
-                Debug.Log($"GenerateViewChunks: {sw.Elapsed.TotalMilliseconds}ms");
                 Debug.Log($"GenerateAndUpdateViewChunks: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
         }
