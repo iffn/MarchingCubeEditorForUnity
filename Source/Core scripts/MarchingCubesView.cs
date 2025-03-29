@@ -1,3 +1,5 @@
+//#define singleViewPerformanceOutput
+
 #if UNITY_EDITOR
 
 using System.Collections.Generic;
@@ -120,11 +122,26 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             if (!isDirty) return;
 
+#if singleViewPerformanceOutput
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+#endif
+
             // Generate mesh data for this chunk
             MarchingCubesMeshData meshData = GenerateChunkMesh(model);
 
+#if singleViewPerformanceOutput
+            Debug.Log($"GenerateChunkMesh: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+#endif
+
             // Update the view's mesh
             UpdateMesh(meshData);
+
+#if singleViewPerformanceOutput
+            Debug.Log($"UpdateMesh: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+#endif
 
             isDirty = false; // Mark as clean
         }
@@ -133,15 +150,21 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             MarchingCubesMeshData meshData = new MarchingCubesMeshData();
 
-            for (int x = gridBoundsMin.x; x < gridBoundsMax.x; x++)
+            int sizeX = gridBoundsMax.x - gridBoundsMin.x;
+            int sizeY = gridBoundsMax.y - gridBoundsMin.y;
+            int sizeZ = gridBoundsMax.z - gridBoundsMin.z;
+            
+            VoxelData[] tempWeights = new VoxelData[8];
+
+            for (int x = 0; x < sizeX; x++)
             {
-                for (int y = gridBoundsMin.y; y < gridBoundsMax.y; y++)
+                for (int y = 0; y < sizeY; y++)
                 {
-                    for (int z = gridBoundsMin.z; z < gridBoundsMax.z; z++)
+                    for (int z = 0; z < sizeZ; z++)
                     {
-                        // Directly query the model for cube weights
-                        VoxelData[] cubeData = model.GetCubeWeights(x, y, z);
-                        MarchingCubes.GenerateCubeMesh(meshData, cubeData, x - gridBoundsMin.x, y - gridBoundsMin.y, z - gridBoundsMin.z, invertedNormals);
+                        model.GetCubeWeights(x + gridBoundsMin.x, y + gridBoundsMin.y, z + gridBoundsMin.z, tempWeights);
+
+                        MarchingCubes.GenerateCubeMesh(meshData, tempWeights, x, y, z, invertedNormals);
                     }
                 }
             }

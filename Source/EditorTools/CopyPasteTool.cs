@@ -23,6 +23,8 @@ public class CopyPasteTool : BaseTool
 
     public override string DisplayName => "Copy paste tool";
 
+    bool displayPreview = false;
+
     bool copied = false;
 
     // Base class functions
@@ -85,6 +87,17 @@ public class CopyPasteTool : BaseTool
             EditorUtility.SetDirty(selectedTransform); // Ensure the change is applied
         }
 
+        bool newDisplayPreview = EditorGUILayout.Toggle("Display preview", displayPreview);
+
+        if(newDisplayPreview != displayPreview)
+        {
+            displayPreview = newDisplayPreview;
+
+            LinkedMarchingCubeController.DisplayPreviewShape = newDisplayPreview;
+
+            DisplayPreivewIfEnabled();
+        }
+
         if (copied && GUILayout.Button($"Reset location"))
             ResetLocation();
 
@@ -96,13 +109,11 @@ public class CopyPasteTool : BaseTool
         EditorGUILayout.EndHorizontal();
     }
 
-    public override void HandleSceneUpdate(Event currentEvent)
+    void DisplayPreivewIfEnabled()
     {
-        base.HandleSceneUpdate(currentEvent);
+        if (!displayPreview)
+            return;
 
-        if (!copied) return;
-
-        //Matrix4x4 newTransform = LinkedMarchingCubeController.transform.worldToLocalMatrix * selectedShape.transform.localToWorldMatrix;
         Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
 
         if (!MatricesAreEqual(previousTransformWTL, newTransformWTL, 0.0001f))
@@ -113,6 +124,15 @@ public class CopyPasteTool : BaseTool
 
             previousTransformWTL = newTransformWTL;
         }
+    }
+
+    public override void HandleSceneUpdate(Event currentEvent)
+    {
+        base.HandleSceneUpdate(currentEvent);
+
+        if (!copied) return;
+
+        DisplayPreivewIfEnabled();
     }
 
     public override void DrawGizmos()
@@ -137,7 +157,8 @@ public class CopyPasteTool : BaseTool
 
         initialTransformWTL = shapeTransform.worldToLocalMatrix;
 
-        LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(currentDataCopy, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity));
+        if (displayPreview)
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(currentDataCopy, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity));
 
         // Extract position, rotation, and scale
         originalPositionLocal = shapeTransform.localPosition;
@@ -152,7 +173,18 @@ public class CopyPasteTool : BaseTool
     {
         if (!copied) return;
 
-        LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
+        if (displayPreview)
+        {
+            LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
+        }
+            
+        else
+        {
+            Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
+            Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
+            LinkedMarchingCubeController.ModificationManager.ModifyData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(currentDataCopy, initialTransformWTL, newTransformWTL, controllerTransformWTL));
+        }
+            
     }
 
     void ResetLocation()

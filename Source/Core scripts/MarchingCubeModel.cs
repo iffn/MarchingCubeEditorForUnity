@@ -85,20 +85,16 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             return VoxelDataGrid;
         }
 
-        public VoxelData[] GetCubeWeights(int x, int y, int z)
+        public void GetCubeWeights(int x, int y, int z, Span<VoxelData> outWeights)
         {
-            VoxelData[] cubeWeights = new VoxelData[8];
-
-            cubeWeights[0] = VoxelDataGrid[x,     y,     z    ]; // {0, 0, 0}
-            cubeWeights[1] = VoxelDataGrid[x + 1, y,     z    ]; // {1, 0, 0}
-            cubeWeights[2] = VoxelDataGrid[x + 1, y + 1, z    ]; // {1, 1, 0}
-            cubeWeights[3] = VoxelDataGrid[x,     y + 1, z    ]; // {0, 1, 0}
-            cubeWeights[4] = VoxelDataGrid[x,     y,     z + 1]; // {0, 0, 1}
-            cubeWeights[5] = VoxelDataGrid[x + 1, y,     z + 1]; // {1, 0, 1}
-            cubeWeights[6] = VoxelDataGrid[x + 1, y + 1, z + 1]; // {1, 1, 1}
-            cubeWeights[7] = VoxelDataGrid[x,     y + 1, z + 1]; // {0, 1, 1}
-
-            return cubeWeights;
+            outWeights[0] = VoxelDataGrid[x,     y,     z    ]; // {0, 0, 0}
+            outWeights[1] = VoxelDataGrid[x + 1, y,     z    ]; // {1, 0, 0}
+            outWeights[2] = VoxelDataGrid[x + 1, y + 1, z    ]; // {1, 1, 0}
+            outWeights[3] = VoxelDataGrid[x,     y + 1, z    ]; // {0, 1, 0}
+            outWeights[4] = VoxelDataGrid[x,     y,     z + 1]; // {0, 0, 1}
+            outWeights[5] = VoxelDataGrid[x + 1, y,     z + 1]; // {1, 0, 1}
+            outWeights[6] = VoxelDataGrid[x + 1, y + 1, z + 1]; // {1, 1, 1}
+            outWeights[7] = VoxelDataGrid[x,     y + 1, z + 1]; // {0, 1, 1}
         }
 
         public void SetDataAndResizeIfNeeded(VoxelData[,,] newData)
