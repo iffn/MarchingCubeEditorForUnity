@@ -122,7 +122,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 currentPostProcessingOptions = value;
                 if (value.postProcessWhileEditing)
-                    GenerateViewChunks(true);
+                    GenerateAndUpdateViewChunks(true);
             }
         }
 
@@ -168,9 +168,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void GenerateViewChunks(bool directPostProcessCall)
+        void GenerateAndUpdateViewChunks(bool directPostProcessCall)
         {
             bool debug = true;
+            bool debug = false;
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 
@@ -388,7 +389,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 SetEmptyGrid(false); // Don't update model since chunks not yet generated
             }
             //Generate views
-            GenerateViewChunks(false);
+            GenerateAndUpdateViewChunks(false);
 
             // Setup preview model
             if (previewModelWithOldData == null)
@@ -482,6 +483,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             bool debug = false;
+            bool debug = true;
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 
@@ -497,16 +499,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 Debug.Log($"previewModelWithOldData.ChangeGridSizeIfNeeded: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
 
-            GenerateViewChunks(false);
+            GenerateAndUpdateViewChunks(false);
 
             if (debug)
                 Debug.Log($"GenerateViewChunks: {sw.Elapsed.TotalMilliseconds}ms");
+                Debug.Log($"GenerateAndUpdateViewChunks: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
-
-            UpdateAllChunks(false);
-
-            if (debug)
-                Debug.Log($"UpdateAllChunks: {sw.Elapsed.TotalMilliseconds}ms");
         }
 
         /// <summary>
@@ -514,7 +512,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// </summary>
         public void PostProcessMesh()
         {
-            GenerateViewChunks(true);
+            GenerateAndUpdateViewChunks(true);
         }
 
         /// <summary>
@@ -656,7 +654,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             previewModelWithOldData.ChangeGridSizeIfNeeded(resolutionX, resolutionY, resolutionZ, false); // ToDo: Check when chaning grid size
 
-            GenerateViewChunks(false);
+            GenerateAndUpdateViewChunks(false);
         }
     }
 }
