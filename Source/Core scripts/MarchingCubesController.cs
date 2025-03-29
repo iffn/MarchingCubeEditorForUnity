@@ -170,11 +170,37 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void GenerateViewChunks(bool directPostProcessCall)
         {
+            bool debug = true; //
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
             int requiredChunks;
 
             int resolutionX = mainModel.ResolutionX;
             int resolutionY = mainModel.ResolutionY;
             int resolutionZ = mainModel.ResolutionZ;
+
+            // Gather existing chunks
+            chunkViews.Clear();
+
+            foreach (Transform child in chunkHolder)
+            {
+                if (child.TryGetComponent(out MarchingCubesView view))
+                {
+                    if (view == previewView) continue;
+
+                    MarchingCubesView marchingCubeView = child.GetComponent<MarchingCubesView>();
+
+                    if (marchingCubeView == null)
+                        continue;
+
+                    chunkViews.Add(marchingCubeView);
+                }
+            }
+
+            if (debug)
+                Debug.Log($"Gather: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
 
             // Decide on chunk size and count
             if ((directPostProcessCall || currentPostProcessingOptions.postProcessWhileEditing) && currentPostProcessingOptions.createOneChunk)
@@ -197,12 +223,20 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if(requiredChunks == chunkViews.Count)
+            if (debug)
+                Debug.Log($"Figure out: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+
+            if (requiredChunks == chunkViews.Count)
             {
+                if (debug)
+                    Debug.Log("Do nothing");
                 // No creation needed
             }
             else if(requiredChunks > chunkViews.Count)
             {
+                if (debug)
+                    Debug.Log("Add");
                 // Create chunks
                 int additionalChunks = requiredChunks - chunkViews.Count;
 
@@ -216,7 +250,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 // Remove chunks
                 List<GameObject> chunksToDestroy = new List<GameObject>();
-                for(int i = requiredChunks - 1; i<chunkViews.Count; i++)
+                for(int i = requiredChunks; i < chunkViews.Count; i++)
                 {
                     chunksToDestroy.Add(chunkViews[i].gameObject);
                 }
@@ -238,7 +272,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                 // Set correct range
                 chunkViews.RemoveRange(requiredChunks, chunkViews.Count - requiredChunks);
+
+                if (debug)
+                    Debug.Log($"Want: {requiredChunks}, Removed  {chunksToDestroy.Count}, Remaining: {chunkViews.Count}");
             }
+
+            if (debug)
+                Debug.Log($"Add, remove, do nothing: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
 
             if (requiredChunks == 1)
             {
@@ -265,9 +306,21 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
+            if (debug)
+                Debug.Log($"Inits: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+
             UpdateAllChunks(directPostProcessCall);
 
+            if (debug)
+                Debug.Log($"Update mesh: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+
             UpdateColliderStates();
+
+            if (debug)
+                Debug.Log($"Update collider: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
         }
 
         void UpdateAllChunks(bool directPostProcessCall)
@@ -332,25 +385,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 SetEmptyGrid(false); // Don't update model since chunks not yet generated
             }
-
-            // Gather existing chunks
-            chunkViews.Clear();
-
-            foreach (Transform child in chunkHolder)
-            {
-                if (child.TryGetComponent(out MarchingCubesView view))
-                {
-                    if (view == previewView) continue;
-
-                    MarchingCubesView marchingCubeView = child.GetComponent<MarchingCubesView>();
-
-                    if (marchingCubeView == null)
-                        continue;
-
-                    chunkViews.Add(marchingCubeView);
-                }
-            }
-
             //Generate views
             GenerateViewChunks(false);
 
@@ -446,7 +480,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
             bool debug = false;
-
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 

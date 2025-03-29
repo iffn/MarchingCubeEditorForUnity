@@ -52,10 +52,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 			// Initialize controller
             if (!LinkedMarchingCubeController.IsInitialized)
             {
-                LinkedMarchingCubeController.Initialize(20, 20, 20, true);
-
                 if (LinkedMarchingCubeController.linkedSaveData != null)
+                {
+                    LinkedMarchingCubeController.Initialize(1, 1, 1, true);
                     LoadData();
+                }
+                else
+                {
+                    LinkedMarchingCubeController.Initialize(20, 20, 20, true);
+                }
             }
             else
             {
