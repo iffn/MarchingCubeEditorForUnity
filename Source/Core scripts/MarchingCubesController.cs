@@ -1,5 +1,6 @@
+// #define viewGenerationPeformanceOutput
+
 #if UNITY_EDITOR
-//#define DEBUG_PERFORMANCE
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
@@ -22,7 +23,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public ScriptableObjectSaveData linkedSaveData;
         public bool showGridOutline = false; // Toggle controlled by the editor tool
-
 
         MarchingCubesModel mainModel;
         MarchingCubesModel previewModelWithOldData;
@@ -170,9 +170,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void GenerateAndUpdateViewChunks(bool directPostProcessCall)
         {
-            bool debug = false;
+#if viewGenerationPeformanceOutput
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
+#endif
 
             int requiredChunks;
 
@@ -198,10 +199,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if (debug)
-                Debug.Log($"Gather: {sw.Elapsed.TotalMilliseconds}ms");
+#if viewGenerationPeformanceOutput
+            Debug.Log($"Gather: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
-
+#endif
             // Decide on chunk size and count
             if ((directPostProcessCall || currentPostProcessingOptions.postProcessWhileEditing) && currentPostProcessingOptions.createOneChunk)
             {
@@ -222,21 +223,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     return value / divisor + (value % divisor == 0 ? 0 : 1);
                 }
             }
-
-            if (debug)
-                Debug.Log($"Figure out: {sw.Elapsed.TotalMilliseconds}ms");
+#if viewGenerationPeformanceOutput
+            Debug.Log($"Figure out: {sw.Elapsed.TotalMilliseconds}ms");
+#endif
 
             if (requiredChunks == chunkViews.Count)
             {
                 // No creation needed
-                if (debug)
-                    Debug.Log($"Do nothing: {sw.Elapsed.TotalMilliseconds}ms");
-                sw.Restart();
+#if viewGenerationPeformanceOutput
+                Debug.Log($"Do nothing: {sw.Elapsed.TotalMilliseconds}ms");
+#endif
             }
             else if(requiredChunks > chunkViews.Count)
             {
-                if (debug)
-                    Debug.Log("Add");
                 // Create chunks
                 int additionalChunks = requiredChunks - chunkViews.Count;
 
@@ -246,8 +245,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     chunkViews.Add(chunkView);
                 }
 
-                if (debug)
-                    Debug.Log($"Adding chunks: {sw.Elapsed.TotalMilliseconds}ms");
+#if viewGenerationPeformanceOutput
+                Debug.Log($"Adding chunks: {sw.Elapsed.TotalMilliseconds}ms");
+#endif
             }
             else
             {
@@ -276,12 +276,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 // Set correct range
                 chunkViews.RemoveRange(requiredChunks, chunkViews.Count - requiredChunks);
 
-                if (debug)
-                    Debug.Log($"Removing chunks: {sw.Elapsed.TotalMilliseconds}ms");
+#if viewGenerationPeformanceOutput
+                Debug.Log($"Removing chunks: {sw.Elapsed.TotalMilliseconds}ms");
+#endif
                 
             }
 
+#if viewGenerationPeformanceOutput
             sw.Restart();
+#endif
 
             if (requiredChunks == 1)
             {
@@ -308,21 +311,24 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if (debug)
-                Debug.Log($"Inits: {sw.Elapsed.TotalMilliseconds}ms");
+#if viewGenerationPeformanceOutput
+            Debug.Log($"Inits: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
+#endif
 
             UpdateAllChunks(directPostProcessCall);
 
-            if (debug)
-                Debug.Log($"Update mesh: {sw.Elapsed.TotalMilliseconds}ms");
+#if viewGenerationPeformanceOutput
+            Debug.Log($"Update mesh: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
+#endif
 
             UpdateColliderStates();
 
-            if (debug)
-                Debug.Log($"Update collider: {sw.Elapsed.TotalMilliseconds}ms");
+#if viewGenerationPeformanceOutput
+            Debug.Log($"Update collider: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
+#endif
         }
 
         void UpdateAllChunks(bool directPostProcessCall)
@@ -481,27 +487,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// </summary>
         public void SetAllGridDataAndUpdateMesh(VoxelData[,,] newData)
         {
-            bool debug = false;
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-
             mainModel.SetDataAndResizeIfNeeded(newData);
-
-            if(debug)
-                Debug.Log($"mainModel.SetDataAndResizeIfNeeded: {sw.Elapsed.TotalMilliseconds}ms");
-            sw.Restart();
 
             previewModelWithOldData.ChangeGridSizeIfNeeded(GridResolutionX, GridResolutionY, GridResolutionZ, false);
 
-            if (debug)
-                Debug.Log($"previewModelWithOldData.ChangeGridSizeIfNeeded: {sw.Elapsed.TotalMilliseconds}ms");
-            sw.Restart();
-
             GenerateAndUpdateViewChunks(false);
-
-            if (debug)
-                Debug.Log($"GenerateAndUpdateViewChunks: {sw.Elapsed.TotalMilliseconds}ms");
-            sw.Restart();
         }
 
         /// <summary>

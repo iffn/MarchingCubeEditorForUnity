@@ -1,3 +1,5 @@
+//#define singleViewPerformanceOutput
+
 #if UNITY_EDITOR
 
 using System.Collections.Generic;
@@ -129,23 +131,26 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             if (!isDirty) return;
 
-            bool debug = true;
+#if singleViewPerformanceOutput
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
+#endif
 
             // Generate mesh data for this chunk
             MarchingCubesMeshData meshData = GenerateChunkMesh(model);
 
-            if (debug)
-                Debug.Log($"GenerateChunkMesh: {sw.Elapsed.TotalMilliseconds}ms");
+#if singleViewPerformanceOutput
+            Debug.Log($"GenerateChunkMesh: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
+#endif
 
             // Update the view's mesh
             UpdateMesh(meshData);
 
-            if (debug)
-                Debug.Log($"UpdateMesh: {sw.Elapsed.TotalMilliseconds}ms");
+#if singleViewPerformanceOutput
+            Debug.Log($"UpdateMesh: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
+#endif
 
             isDirty = false; // Mark as clean
         }
