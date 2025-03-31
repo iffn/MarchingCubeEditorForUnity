@@ -11,6 +11,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
     public class MarchingCubeEditor : Editor
     {
         bool defaultFoldout = false;
+        const int autoLoadMaxSize = 200 * 200 * 200;
 
         SizeAndLoaderEditorElement sizeAndLoaderEditorElement;
         ExpansionEditorElement expansionEditorElement;
@@ -54,12 +55,22 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             {
                 if (LinkedMarchingCubeController.linkedSaveData != null)
                 {
-                    LinkedMarchingCubeController.Initialize(1, 1, 1, true);
-                    LoadData();
+                    bool largeFile = LinkedMarchingCubeController.linkedSaveData.VoxelCount > autoLoadMaxSize;
+
+                    if (largeFile)
+                    {
+                        LinkedMarchingCubeController.Initialize(1, 1, 1, true, false);
+                        Debug.Log($"Note: Loading skipped during initialization since it would have {LinkedMarchingCubeController.linkedSaveData.VoxelCount} voxels. Please load manually if needed.");
+                    }
+                    else
+                    {
+                        LinkedMarchingCubeController.Initialize(1, 1, 1, true, false);
+                        LoadData();
+                    }
                 }
                 else
                 {
-                    LinkedMarchingCubeController.Initialize(20, 20, 20, true);
+                    LinkedMarchingCubeController.Initialize(20, 20, 20, true, false);
                 }
             }
             else

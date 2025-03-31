@@ -15,6 +15,7 @@ public class ScriptableObjectSaveData : ScriptableObject
     public int version = 0;
     [HideInInspector] public string packedData; // Base64-encoded grid data
 
+    public int VoxelCount => resolutionX * resolutionY * resolutionZ;
     public static int currentVersion = 2;
 
     //ToDo: Most data points are likely 1 or -1. So optimizing for those cases might help a lot.

@@ -366,7 +366,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// <summary>
         /// Initializes the controller. Can be called again.
         /// </summary>
-        public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty)
+        public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty, bool skipViewSetup)
         {
             // We don't want to initialize if we are inside a prefab
             if (gameObject.scene.name == null)
@@ -393,8 +393,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 SetEmptyGrid(false); // Don't update model since chunks not yet generated
             }
-            //Generate views
-            GenerateAndUpdateViewChunks(false);
+
+            if (!skipViewSetup)
+            {
+                //Generate views
+                GenerateAndUpdateViewChunks(false);
+            }
 
             // Setup preview model
             if (previewModelWithOldData == null)

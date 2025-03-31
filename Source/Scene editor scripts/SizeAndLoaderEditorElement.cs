@@ -47,7 +47,7 @@ public class SizeAndLoaderEditorElement : EditorElement
 
         if (GUILayout.Button("Apply and set empty"))
         {
-            linkedController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
+            linkedController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true, false);
         }
 
         // Save and load
