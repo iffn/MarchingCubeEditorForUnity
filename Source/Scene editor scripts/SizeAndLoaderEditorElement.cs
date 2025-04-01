@@ -69,6 +69,11 @@ public class SizeAndLoaderEditorElement : EditorElement
 
         if (linkedController.linkedSaveData != null)
         {
+            if (linkedController.linkedSaveData.resolutionX != linkedController.GridResolutionX
+            || linkedController.linkedSaveData.resolutionY != linkedController.GridResolutionY
+            || linkedController.linkedSaveData.resolutionZ != linkedController.GridResolutionZ)
+                EditorGUILayout.HelpBox("Note: The grid resolution is different. Make sure everything is correct before saving.", MessageType.Warning);
+
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button($"Save data")) linkedController.SaveAndLoadManager.SaveGridData(linkedController.linkedSaveData);
             if (GUILayout.Button($"Load data")) linkedEditor.LoadData();
