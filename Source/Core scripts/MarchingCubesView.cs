@@ -8,7 +8,6 @@ using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
-    [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
     public class MarchingCubesView : MonoBehaviour
     {
         static readonly System.Diagnostics.Stopwatch PostProcessingStopwatch = new System.Diagnostics.Stopwatch();
@@ -24,32 +23,26 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public static double ElapsedPostProcessingTimeSeconds => PostProcessingStopwatch.Elapsed.TotalSeconds;
 
-        private MeshFilter linkedMeshFilter;
-        private MeshCollider linkedMeshCollider;
-        private MeshRenderer linkedMeshRenderer;
+        [SerializeField] MeshFilter linkedMeshFilter;
+        [SerializeField] MeshCollider linkedMeshCollider;
+        [SerializeField] MeshRenderer mainMeshRenderer;
+        [SerializeField] MeshRenderer grassMeshRenderer;
 
         public Material CurrentMaterial
         {
             get
             {
-                if (linkedMeshRenderer == null)
-                {
-                    linkedMeshRenderer = GetComponent<MeshRenderer>();
-
-                    if (linkedMeshRenderer == null)
-                        return null;
-                    else
-                        return linkedMeshRenderer.sharedMaterial;
-                }
+                if (mainMeshRenderer == null)
+                    return null;
                 else
-                    return linkedMeshRenderer.sharedMaterial;
+                    return mainMeshRenderer.sharedMaterial;
             }
             set
             {
-                if (linkedMeshRenderer == null)
+                if (mainMeshRenderer == null)
                     return;
                 else
-                    linkedMeshRenderer.sharedMaterial = value;
+                    mainMeshRenderer.sharedMaterial = value;
             }
         }
 
@@ -69,7 +62,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             Initialize(gridBoundsMin, gridBoundsMax, colliderEnabled);
 
             if (material != null)
-                linkedMeshRenderer.sharedMaterial = material;
+                mainMeshRenderer.sharedMaterial = material;
         }
 
         public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)
@@ -79,10 +72,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             transform.localPosition = new Vector3(gridBoundsMin.x, gridBoundsMin.y, gridBoundsMin.z);
 
-            linkedMeshFilter = GetComponent<MeshFilter>();
-            linkedMeshCollider = GetComponent<MeshCollider>();
-            linkedMeshRenderer = GetComponent<MeshRenderer>();
-
             if (linkedMeshFilter.sharedMesh == null)
             {
                 linkedMeshFilter.mesh = new Mesh();
@@ -91,6 +80,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 linkedMeshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
             }
+
+            grassMeshRenderer.transform.GetComponent<MeshFilter>().sharedMesh = linkedMeshFilter.sharedMesh;
 
             linkedMeshCollider.enabled = colliderEnabled;
 
