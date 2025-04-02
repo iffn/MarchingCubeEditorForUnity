@@ -26,7 +26,24 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] MeshFilter linkedMeshFilter;
         [SerializeField] MeshCollider linkedMeshCollider;
         [SerializeField] MeshRenderer mainMeshRenderer;
+        [SerializeField] MeshFilter grassMeshFilter;
         [SerializeField] MeshRenderer grassMeshRenderer;
+
+        public bool SetupIsCorrect()
+        {
+            // Assignments
+            if(linkedMeshFilter == null) return false;
+            if(linkedMeshCollider == null) return false;
+            if(mainMeshRenderer == null) return false;
+            if(grassMeshFilter == null) return false;
+            if(grassMeshRenderer == null) return false;
+
+            // Components
+            // All done via SerializeField so far
+
+            // Return true if no problem found
+            return true;
+        }
 
         public Material CurrentMaterial
         {
@@ -81,7 +98,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 linkedMeshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
             }
 
-            grassMeshRenderer.transform.GetComponent<MeshFilter>().sharedMesh = linkedMeshFilter.sharedMesh;
+            grassMeshFilter.sharedMesh = linkedMeshFilter.sharedMesh;
 
             linkedMeshCollider.enabled = colliderEnabled;
 

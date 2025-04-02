@@ -168,20 +168,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        void GenerateAndUpdateViewChunks(bool directPostProcessCall)
+        void GatherExistingChunks()
         {
-#if viewGenerationPeformanceOutput
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-#endif
-
-            int requiredChunks;
-
-            int resolutionX = mainModel.ResolutionX;
-            int resolutionY = mainModel.ResolutionY;
-            int resolutionZ = mainModel.ResolutionZ;
-
-            // Gather existing chunks
             chunkViews.Clear();
 
             foreach (Transform child in chunkHolder)
@@ -198,6 +186,23 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     chunkViews.Add(marchingCubeView);
                 }
             }
+        }
+
+        void GenerateAndUpdateViewChunks(bool directPostProcessCall)
+        {
+#if viewGenerationPeformanceOutput
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+#endif
+
+            int requiredChunks;
+
+            int resolutionX = mainModel.ResolutionX;
+            int resolutionY = mainModel.ResolutionY;
+            int resolutionZ = mainModel.ResolutionZ;
+
+            // Gather existing chunks
+            GatherExistingChunks();
 
 #if viewGenerationPeformanceOutput
             Debug.Log($"Gather: {sw.Elapsed.TotalMilliseconds}ms");
@@ -362,6 +367,36 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
+        void ClearUpOldViews()
+        {
+            List<MarchingCubesView> chunksToDestroy = new List<MarchingCubesView>();
+
+            foreach (MarchingCubesView view in chunkViews)
+            {
+                if (!view.SetupIsCorrect())
+                {
+                    chunksToDestroy.Add(view);
+                }
+            }
+
+            if (Application.isPlaying)
+            {
+                foreach (MarchingCubesView chunk in chunksToDestroy)
+                {
+                    Destroy(chunk.gameObject); // Safe for runtime
+                    chunkViews.Remove(chunk);
+                }
+            }
+            else
+            {
+                foreach (MarchingCubesView chunk in chunksToDestroy)
+                {
+                    DestroyImmediate(chunk); // Safe for edit mode
+                    chunkViews.Remove(chunk);
+                }
+            }
+        }
+
         // External funcitons
         /// <summary>
         /// Initializes the controller. Can be called again.
@@ -393,6 +428,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 SetEmptyGrid(false); // Don't update model since chunks not yet generated
             }
+
+            GatherExistingChunks();
+
+            ClearUpOldViews();
 
             if (!skipViewSetup)
             {

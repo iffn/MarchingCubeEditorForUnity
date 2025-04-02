@@ -73,6 +73,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 8376744679379406917}
   m_SourcePrefab: {fileID: 100100000, guid: 8c7f0aa04ed2ac942b5946ffd90b44bd, type: 3}
+--- !u!33 &467164146538627852 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 5525297799318474060, guid: 8c7f0aa04ed2ac942b5946ffd90b44bd, type: 3}
+  m_PrefabInstance: {fileID: 5392636426034335296}
+  m_PrefabAsset: {fileID: 0}
 --- !u!23 &1286017881043418993 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 6561362237200494897, guid: 8c7f0aa04ed2ac942b5946ffd90b44bd, type: 3}
@@ -98,6 +103,7 @@ MonoBehaviour:
   linkedMeshFilter: {fileID: 4229208497868645458}
   linkedMeshCollider: {fileID: 9193226161480492990}
   mainMeshRenderer: {fileID: 5211291213190340089}
+  grassMeshFilter: {fileID: 467164146538627852}
   grassMeshRenderer: {fileID: 1286017881043418993}
   AdditionPreviewMaterial: {fileID: 2100000, guid: b38f22ce452c8c94e8aa461512f97e25, type: 2}
   SubtractionPreviewMaterial: {fileID: 2100000, guid: 5bd9e5f8955214343bd2b06a682b7d88, type: 2}
