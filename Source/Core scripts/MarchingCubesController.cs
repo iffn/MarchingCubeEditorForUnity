@@ -14,7 +14,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
     [SelectionBase]
     public class MarchingCubesController : MonoBehaviour
     {
-        [SerializeField] GameObject chunkPrefab; // Prefab for chunk views
+        [SerializeField] MarchingCubesView chunkPrefab; // Prefab for chunk views
         [SerializeField] MarchingCubesPreview previewView;
         [SerializeField] Transform chunkHolder;
         [SerializeField] Transform shapeHolder;
@@ -373,7 +373,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             foreach (MarchingCubesView view in chunkViews)
             {
-                if (!view.SetupIsCorrect())
+                if (!view.SetupIsCorrect(chunkPrefab))
                 {
                     chunksToDestroy.Add(view);
                 }

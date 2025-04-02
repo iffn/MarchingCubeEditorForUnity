@@ -29,7 +29,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] MeshFilter grassMeshFilter;
         [SerializeField] MeshRenderer grassMeshRenderer;
 
-        public bool SetupIsCorrect()
+        public bool SetupIsCorrect(MarchingCubesView prefabReference)
         {
             // Assignments
             if(linkedMeshFilter == null) return false;
@@ -38,8 +38,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if(grassMeshFilter == null) return false;
             if(grassMeshRenderer == null) return false;
 
-            // Components
+            // GetComponents
             // All done via SerializeField so far
+
+            // Comparison with prefeabReference
+            if(transform.childCount != prefabReference.transform.childCount) return false;
 
             // Return true if no problem found
             return true;
