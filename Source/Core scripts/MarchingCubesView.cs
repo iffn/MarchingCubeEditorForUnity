@@ -48,7 +48,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             return true;
         }
 
-        public Material CurrentMaterial
+        public Material CurrentMainMaterial
         {
             get
             {
@@ -63,6 +63,24 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     return;
                 else
                     mainMeshRenderer.sharedMaterial = value;
+            }
+        }
+
+        public Material CurrentGrassMaterial
+        {
+            get
+            {
+                if (grassMeshRenderer == null)
+                    return null;
+                else
+                    return grassMeshRenderer.sharedMaterial;
+            }
+            set
+            {
+                if (grassMeshRenderer == null)
+                    return;
+                else
+                    grassMeshRenderer.sharedMaterial = value;
             }
         }
 

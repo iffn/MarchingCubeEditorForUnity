@@ -23,15 +23,32 @@ public class SettingsEditorElement : EditorElement
         linkedController.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", linkedController.VisualisationManager.ShowGridOutline);
         linkedController.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", linkedController.InvertAllNormals);
 
-        Material currentMaterial = linkedController.CurrentMaterial;
+        Material currentnMaterial;
+        Material newMaterial;
 
-        Material newMaterial = EditorGUILayout.ObjectField(
-           currentMaterial,
+        // Main material
+        currentnMaterial = linkedController.CurrentMainMaterial;
+
+        newMaterial = EditorGUILayout.ObjectField(
+           "Grass material",
+           currentnMaterial,
            typeof(Material),
            true) as Material;
 
-        if(currentMaterial != newMaterial)
-            linkedController.CurrentMaterial = newMaterial;
+        if(currentnMaterial != newMaterial)
+            linkedController.CurrentMainMaterial = newMaterial;
+
+        // Grass material
+        currentnMaterial = linkedController.CurrentGrassMaterial;
+
+        newMaterial = EditorGUILayout.ObjectField(
+           "Grass material", 
+           currentnMaterial,
+           typeof(Material),
+           true) as Material;
+
+        if (currentnMaterial != newMaterial)
+            linkedController.CurrentGrassMaterial = newMaterial;
     }
 }
 

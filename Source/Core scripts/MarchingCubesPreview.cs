@@ -21,10 +21,10 @@ public class MarchingCubesPreview : MarchingCubesView
         switch (state)
         {
             case PreviewDisplayStates.addition:
-                CurrentMaterial = AdditionPreviewMaterial;
+                CurrentMainMaterial = AdditionPreviewMaterial;
                 break;
             case PreviewDisplayStates.subtraction:
-                CurrentMaterial = SubtractionPreviewMaterial;
+                CurrentMainMaterial = SubtractionPreviewMaterial;
                 break;
             default:
                 break;

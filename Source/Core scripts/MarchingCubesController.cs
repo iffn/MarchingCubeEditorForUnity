@@ -19,7 +19,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] Transform chunkHolder;
         [SerializeField] Transform shapeHolder;
         [SerializeField] VisualisationManager linkedVisualisationManager;
-        [SerializeField] Material currentMaterial;
+        [SerializeField] Material currentMainMaterial;
+        [SerializeField] Material currentGrassMaterial;
 
         public ScriptableObjectSaveData linkedSaveData;
         public bool showGridOutline = false; // Toggle controlled by the editor tool
@@ -33,22 +34,42 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
 
-        public Material CurrentMaterial
+        public Material CurrentMainMaterial
         {
             get
             {
-                return currentMaterial;
+                return currentMainMaterial;
             }
             set
             {
-                currentMaterial = value;
+                currentMainMaterial = value;
 
                 if (chunkViews == null)
                     return;
 
                 foreach (MarchingCubesView view in chunkViews)
                 {
-                    view.CurrentMaterial = value;
+                    view.CurrentMainMaterial = value;
+                }
+            }
+        }
+
+        public Material CurrentGrassMaterial
+        {
+            get
+            {
+                return currentGrassMaterial;
+            }
+            set
+            {
+                currentGrassMaterial = value;
+
+                if (chunkViews == null)
+                    return;
+
+                foreach (MarchingCubesView view in chunkViews)
+                {
+                    view.CurrentGrassMaterial = value;
                 }
             }
         }
@@ -293,7 +314,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (requiredChunks == 1)
             {
-                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMaterial);
+                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMainMaterial);
             }
             else
             {
@@ -310,7 +331,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                             Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMaterial);
+                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMainMaterial);
                         }
                     }
                 }
