@@ -236,7 +236,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             Mesh mesh = linkedMeshFilter.sharedMesh;
 
-            if (mesh.vertexCount == 0 || mesh.triangles.Length == 0) return; // Prevent invalid mesh assignment
+            if (mesh.vertexCount == 0 || mesh.triangles.Length == 0) // Prevent invalid mesh assignment
+                return;
 
             linkedMeshCollider.sharedMesh = mesh;
         }
@@ -280,7 +281,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
-                if (!ColliderEnabled && value) UpdateCollider();
+                if ((!ColliderEnabled || linkedMeshCollider.sharedMesh != null) && value)
+                    UpdateCollider();
 
                 linkedMeshCollider.enabled = value;
             }
