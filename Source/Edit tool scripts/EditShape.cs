@@ -74,7 +74,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
         protected virtual void SetupShortcutHandlers()
         {
-            shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
+            
         }
 
         public virtual string HelpText

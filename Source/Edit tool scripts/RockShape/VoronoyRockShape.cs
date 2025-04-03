@@ -43,6 +43,13 @@ public class VoronoyRockShape : EditShape, IPlaceableByClick
         voronoiStrength = linkedMaterial.GetFloat("_VoronoiStrength");
     }
 
+    protected override void SetupShortcutHandlers()
+    {
+        base.SetupShortcutHandlers();
+        shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
+        shortcutHandlers.Add(new HandleHorizontalRotateByHoldingDAndScrolling(transform));
+    }
+
     public override (Vector3 minOffset, Vector3 maxOffset) GetLocalBoundingBox()
     {
         return (-0.5f * Vector3.one, 0.5f * Vector3.one);

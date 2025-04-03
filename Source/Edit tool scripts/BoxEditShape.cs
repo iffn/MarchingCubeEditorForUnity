@@ -20,6 +20,13 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         {
             return (-0.5f * Vector3.one, 0.5f * Vector3.one);
         }
+
+        protected override void SetupShortcutHandlers()
+        {
+            base.SetupShortcutHandlers();
+            shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
+            shortcutHandlers.Add(new HandleHorizontalRotateByHoldingDAndScrolling(transform));
+        }
     }
 }
 
