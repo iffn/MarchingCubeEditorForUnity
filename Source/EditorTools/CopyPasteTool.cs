@@ -56,36 +56,7 @@ public class CopyPasteTool : BaseTool
         Transform selectedTransform = currentEditShapeHandler.SelectedEditShape.transform;
         if (selectedTransform == null) return;
 
-        // Draw Transform Fields
-        EditorGUI.BeginChangeCheck();
-
-        Vector3 newPosition = EditorGUILayout.Vector3Field("Position", selectedTransform.position);
-        Vector3 newRotation = EditorGUILayout.Vector3Field("Rotation", selectedTransform.eulerAngles);
-        Vector3 newScale = EditorGUILayout.Vector3Field("Scale", selectedTransform.localScale);
-
-        // Compute Average Scale
-        float avgScale = (newScale.x + newScale.y + newScale.z) / 3f;
-        float newAvgScale = EditorGUILayout.FloatField("Uniform Scale", avgScale);
-
-        if (EditorGUI.EndChangeCheck()) // If a value was changed
-        {
-            Undo.RecordObject(selectedTransform, "Transform Change"); // Register for undo
-
-            selectedTransform.position = newPosition;
-            selectedTransform.eulerAngles = newRotation;
-
-            if (!Mathf.Approximately(newAvgScale, avgScale)) // If uniform scale is changed
-            {
-                float scaleFactor = newAvgScale / avgScale;
-                selectedTransform.localScale *= scaleFactor; // Scale uniformly
-            }
-            else
-            {
-                selectedTransform.localScale = newScale; // Apply normal scaling
-            }
-
-            EditorUtility.SetDirty(selectedTransform); // Ensure the change is applied
-        }
+        DrawTransformFields(selectedTransform);
 
         bool newDisplayPreview = EditorGUILayout.Toggle("Display preview", displayPreview);
 

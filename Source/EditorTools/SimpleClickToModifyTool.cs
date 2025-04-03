@@ -87,6 +87,8 @@ public class SimpleClickToModifyTool : BaseTool
 
         limitHeightToCursor = EditorGUILayout.Toggle("Limit height to cursor", limitHeightToCursor);
 
+        DrawTransformFields(placeableByClick.SelectedEditShape.transform);
+
         if (GUILayout.Button("Reset offset"))
             currentOffset = 0;
 
@@ -131,6 +133,7 @@ public class SimpleClickToModifyTool : BaseTool
             }
 
             placeableByClick.SelectedEditShape.transform.position = result.point + currentOffset * offsetDirection;
+            RefreshUI();
 
             if (displayPreviewShape)
             {

@@ -59,6 +59,8 @@ public class SimpleSceneModifyTool : BaseTool
             LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick.SelectedEditShape, new BaseModificationTools.SubtractShapeModifier());
         EditorGUILayout.EndHorizontal();
 
+        DrawTransformFields(placeableByClick.SelectedEditShape.transform);
+
         void ShowClickToMoveToOriginButton()
         {
             if (GUILayout.Button($"Move to origin of click on object"))
