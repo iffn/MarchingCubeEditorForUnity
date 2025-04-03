@@ -6,7 +6,7 @@ using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using UnityEditor;
 using UnityEngine;
 
-public class SimpleSceneModifyTool : BaseTool
+public class SceneModifyTool : BaseTool
 {
     public override string DisplayName => "Modify using scene object";
 

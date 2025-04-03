@@ -9,7 +9,7 @@ using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using static UnityEditor.Progress;
 
-public class SimpleClickToModifyTool : BaseTool
+public class ClickToModifyTool : BaseTool
 {
     // Editor variables
     bool raycastActive = true;

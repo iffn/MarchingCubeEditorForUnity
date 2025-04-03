@@ -5,7 +5,7 @@ using iffnsStuff.MarchingCubeEditor.EditTools;
 using UnityEditor;
 using UnityEngine;
 
-public class SimpleClickToPaintTool : BaseTool
+public class ClickToPaintTool : BaseTool
 {
     // Editor variabels
     bool raycastActive = true;
