@@ -123,7 +123,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             linkedMeshCollider.enabled = colliderEnabled;
 
-            linkedMeshCollider.sharedMesh = linkedMeshFilter.sharedMesh;
+            if(linkedMeshFilter.sharedMesh != null && linkedMeshFilter.sharedMesh.vertexCount > 0)
+                linkedMeshCollider.sharedMesh = linkedMeshFilter.sharedMesh;
 
             isDirty = true; // Mark the chunk as dirty upon initialization
         }
