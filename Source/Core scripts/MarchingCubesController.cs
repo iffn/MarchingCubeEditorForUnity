@@ -412,8 +412,35 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 foreach (MarchingCubesView chunk in chunksToDestroy)
                 {
-                    DestroyImmediate(chunk); // Safe for edit mode
+                    DestroyImmediate(chunk.gameObject); // Safe for edit mode
                     chunkViews.Remove(chunk);
+                }
+            }
+
+            List<GameObject> invalidGameObjects = new List<GameObject>();
+
+            foreach (Transform element in chunkHolder)
+            {
+                element.TryGetComponent(out MarchingCubesView view);
+
+                if (view == null)
+                {
+                    invalidGameObjects.Add(element.gameObject);
+                }
+            }
+
+            if (Application.isPlaying)
+            {
+                foreach (GameObject chunk in invalidGameObjects)
+                {
+                    Destroy(chunk); // Safe for runtime
+                }
+            }
+            else
+            {
+                foreach (GameObject chunk in invalidGameObjects)
+                {
+                    DestroyImmediate(chunk); // Safe for edit mode
                 }
             }
         }
