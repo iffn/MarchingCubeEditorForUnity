@@ -314,7 +314,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (requiredChunks == 1)
             {
-                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMainMaterial);
+                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMainMaterial, CurrentGrassMaterial);
             }
             else
             {
@@ -331,7 +331,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                             Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMainMaterial);
+                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMainMaterial, CurrentGrassMaterial);
                         }
                     }
                 }
