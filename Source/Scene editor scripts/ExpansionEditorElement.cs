@@ -18,6 +18,21 @@ public class ExpansionEditorElement : EditorElement
 
     int gridCExpandSize = 0;
     bool moveTransformWhenExpanding = true;
+    float xScale = 1;
+    float yScale = 1;
+    float zScale = 1;
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        if(linkedController != null)
+        {
+            xScale = linkedController.transform.localScale.x;
+            yScale = linkedController.transform.localScale.y;
+            zScale = linkedController.transform.localScale.z;
+        }
+    }
 
     public override void DrawUI()
     {
@@ -71,6 +86,45 @@ public class ExpansionEditorElement : EditorElement
         EditorGUILayout.EndHorizontal();
 
         moveTransformWhenExpanding = EditorGUILayout.Toggle("Move transform to keep position", moveTransformWhenExpanding);
+
+        // Scale up layout
+        EditorGUILayout.LabelField("Resolution change");
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label("X");
+        GUILayout.Label("Y");
+        GUILayout.Label("Z");
+        EditorGUILayout.EndHorizontal();
+
+        Vector3 currentLocalScale = linkedController.transform.localScale;
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label($"{currentLocalScale.x}");
+        GUILayout.Label($"{currentLocalScale.y}");
+        GUILayout.Label($"{currentLocalScale.z}");
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        xScale = EditorGUILayout.FloatField(xScale);
+        yScale = EditorGUILayout.FloatField(yScale);
+        zScale = EditorGUILayout.FloatField(zScale);
+        EditorGUILayout.EndHorizontal();
+
+        float averageScale = (xScale + yScale + zScale) * 0.3333333333f;
+        float newAverageScale = EditorGUILayout.FloatField("Average", averageScale);
+
+        if(!Mathf.Approximately(averageScale, newAverageScale))
+        {
+            float multiplier = newAverageScale / averageScale;
+            xScale *= multiplier;
+            yScale *= multiplier;
+            zScale *= multiplier;
+        }
+
+        if (GUILayout.Button("Apply scale"))
+        {
+            // ToDo: Apply scale
+        }
     }
 }
 
