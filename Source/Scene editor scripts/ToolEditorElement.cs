@@ -34,6 +34,13 @@ public class ToolEditorElement : EditorElement
     {
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
+        if (!linkedController.ViewsSetUp)
+        {
+            EditorGUILayout.HelpBox("Views are not set up. Please load data first or set it to empty.", MessageType.Warning);
+            EditorGUILayout.EndVertical();
+            return;
+        }
+
         int columns = 2; // Number of buttons per row
 
         Color highlightColor = new Color(0.7f, 0.7f, 1f); //ToDo: Improve highlight color
