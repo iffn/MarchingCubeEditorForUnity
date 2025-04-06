@@ -83,6 +83,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
+                if (forceColliderOn == value) return;
+
                 if (value)
                 {
                     foreach (MarchingCubesView chunkView in chunkViews)
