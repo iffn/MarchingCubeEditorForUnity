@@ -4,8 +4,10 @@ using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using static BaseModificationTools;
 
 public class ExpansionEditorElement : EditorElement
 {
@@ -123,7 +125,41 @@ public class ExpansionEditorElement : EditorElement
 
         if (GUILayout.Button("Apply scale"))
         {
-            // ToDo: Apply scale
+            // Copy data
+            Matrix4x4 initialTransformWTL = linkedController.transform.worldToLocalMatrix;
+            VoxelData[,,] currentDataCopy = BaseTool.GenerateVoxelDataCopy(linkedController);
+
+            // Change size
+            int xSize = Mathf.RoundToInt(linkedController.GridResolutionX / xScale);
+            int ySize = Mathf.RoundToInt(linkedController.GridResolutionY / yScale);
+            int zSize = Mathf.RoundToInt(linkedController.GridResolutionZ / zScale);
+
+            linkedController.transform.localScale = new Vector3(xScale, yScale, zScale);
+
+            // Paste
+            Matrix4x4 newTransformWTL = linkedController.transform.worldToLocalMatrix;
+            CopyModifier copyModifier = new CopyModifier(currentDataCopy, initialTransformWTL, newTransformWTL, newTransformWTL); // Check for issues
+
+            VoxelData[,,] newData = new VoxelData[xSize, ySize, zSize];
+
+            Parallel.For(0, xSize, x =>
+            {
+                for (int y = 0; y < ySize; y++)
+                {
+                    for (int z = 0; z < zSize; z++)
+                    {
+                        // Transform grid position to world space
+                        Vector3 gridPoint = new Vector3(x, y, z);
+
+                        // Modify the voxel value
+                        VoxelData newValue = copyModifier.ModifyVoxel(x, y, z, newData[x, y, z], -1f);
+
+                        newData[x, y, z] = newValue;
+                    }
+                }
+            });
+            
+            linkedController.SetAllGridDataAndUpdateMesh(newData);
         }
     }
 }
