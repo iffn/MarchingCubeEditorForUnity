@@ -59,7 +59,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                     if (largeFile)
                     {
-                        LinkedMarchingCubeController.Initialize(1, 1, 1, true, false);
+                        LinkedMarchingCubeController.Initialize(1, 1, 1, true, true);
                         Debug.Log($"Note: Loading skipped during initialization since it would have {LinkedMarchingCubeController.linkedSaveData.VoxelCount} voxels. Please load manually if needed.");
                     }
                     else

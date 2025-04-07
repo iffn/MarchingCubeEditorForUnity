@@ -95,12 +95,15 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public Mesh SharedMesh => linkedMeshFilter.sharedMesh;
 
-        public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled, Material material)
+        public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled, Material mainMaterial, Material grassMaterial)
         {
             Initialize(gridBoundsMin, gridBoundsMax, colliderEnabled);
 
-            if (material != null)
-                mainMeshRenderer.sharedMaterial = material;
+            if (mainMaterial != null)
+                mainMeshRenderer.sharedMaterial = mainMaterial;
+
+            if (grassMaterial != null)
+                grassMeshRenderer.sharedMaterial = grassMaterial;
         }
 
         public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)

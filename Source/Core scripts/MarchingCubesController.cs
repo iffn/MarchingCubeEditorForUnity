@@ -29,9 +29,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         MarchingCubesModel previewModelWithOldData;
         static readonly Vector3Int defaultChunkSize = new Vector3Int(16, 16, 16);
         Vector3Int chunkSize = defaultChunkSize;
-
         readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
 
+        public bool ViewsSetUp { get; private set; } = false;
         public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
 
         public Material CurrentMainMaterial
@@ -83,6 +83,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
+                if (forceColliderOn == value) return;
+
                 if (value)
                 {
                     foreach (MarchingCubesView chunkView in chunkViews)
@@ -215,7 +217,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 #endif
-
+            ViewsSetUp = true;
             int requiredChunks;
 
             int resolutionX = mainModel.ResolutionX;
@@ -314,7 +316,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (requiredChunks == 1)
             {
-                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMainMaterial);
+                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMainMaterial, CurrentGrassMaterial);
             }
             else
             {
@@ -331,7 +333,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                             Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMainMaterial);
+                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMainMaterial, CurrentGrassMaterial);
                         }
                     }
                 }
@@ -442,6 +444,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 {
                     DestroyImmediate(chunk); // Safe for edit mode
                 }
+            }
+
+            if(chunksToDestroy.Count != 0 || invalidGameObjects.Count != 0)
+            {
+                Debug.Log($"Marching cube cleanup: Removed {chunksToDestroy} invalid view chunks and an additional {invalidGameObjects.Count} GameObjects");
             }
         }
 
