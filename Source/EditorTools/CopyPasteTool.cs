@@ -122,7 +122,7 @@ public class CopyPasteTool : BaseTool
     {
         copied = true;
 
-        currentDataCopy = GenerateVoxelDataCopy();
+        currentDataCopy = GenerateVoxelDataCopy(LinkedMarchingCubeController);
 
         Transform shapeTransform = currentEditShapeHandler.SelectedEditShape.transform;
 

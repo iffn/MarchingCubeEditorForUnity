@@ -107,12 +107,12 @@ public abstract class BaseTool
         }
     }
 
-    protected VoxelData[,,] GenerateVoxelDataCopy()
+    public static VoxelData[,,] GenerateVoxelDataCopy(MarchingCubesController linkedController)
     {
         VoxelData[,,] oldData = new VoxelData[
-            LinkedMarchingCubeController.VoxelDataReference.GetLength(0),
-            LinkedMarchingCubeController.VoxelDataReference.GetLength(1),
-            LinkedMarchingCubeController.VoxelDataReference.GetLength(2)
+            linkedController.VoxelDataReference.GetLength(0),
+            linkedController.VoxelDataReference.GetLength(1),
+            linkedController.VoxelDataReference.GetLength(2)
         ];
 
         Parallel.For(0, oldData.GetLength(0), x =>
@@ -121,7 +121,7 @@ public abstract class BaseTool
             {
                 for (int z = 0; z < oldData.GetLength(2); z++)
                 {
-                    oldData[x, y, z] = LinkedMarchingCubeController.VoxelDataReference[x, y, z];
+                    oldData[x, y, z] = linkedController.VoxelDataReference[x, y, z];
                 }
             }
         });

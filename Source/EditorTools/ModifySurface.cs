@@ -149,7 +149,7 @@ public class ModifySurface : BaseTool
     // Internal functions
     BaseModificationTools.IVoxelModifier GaussianSmoothingModification()
     {
-        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
+        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy(LinkedMarchingCubeController);
 
         return new BaseModificationTools.GaussianSmoothingModifier(
             currentDataCopy,
@@ -161,7 +161,7 @@ public class ModifySurface : BaseTool
 
     BaseModificationTools.IVoxelModifier WorldSpaceRougheningModification()
     {
-        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy();
+        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy(LinkedMarchingCubeController);
 
         return new BaseModificationTools.WorldSpaceRougheningModifier(
             currentDataCopy,
