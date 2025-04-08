@@ -115,7 +115,7 @@ public class ExpansionEditorElement : EditorElement
         float averageScale = (xScale + yScale + zScale) * 0.3333333333f;
         float newAverageScale = EditorGUILayout.FloatField("Average", averageScale);
 
-        if(!Mathf.Approximately(averageScale, newAverageScale))
+        if(newAverageScale != 0f && !Mathf.Approximately(averageScale, newAverageScale))
         {
             float multiplier = newAverageScale / averageScale;
             xScale *= multiplier;
