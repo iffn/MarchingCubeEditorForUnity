@@ -146,10 +146,17 @@ public class ModifySurface : BaseTool
         }
     }
 
+    VoxelData[,,] CalculateDataCopyBasedOnSelectedShape(int maxOffset)
+    {
+        (Vector3Int minGrid, Vector3Int maxGrid) = LinkedMarchingCubeController.ModificationManager.CalculateGridBoundsClamped(placeableByClick.SelectedEditShape);
+
+        return GenerateVoxelDataCopy(LinkedMarchingCubeController, minGrid, maxGrid, maxOffset);
+    }
+
     // Internal functions
     BaseModificationTools.IVoxelModifier GaussianSmoothingModification()
     {
-        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy(LinkedMarchingCubeController);
+        VoxelData[,,] currentDataCopy = CalculateDataCopyBasedOnSelectedShape(smoothRadius);
 
         return new BaseModificationTools.GaussianSmoothingModifier(
             currentDataCopy,
@@ -161,7 +168,7 @@ public class ModifySurface : BaseTool
 
     BaseModificationTools.IVoxelModifier WorldSpaceRougheningModification()
     {
-        VoxelData[,,] currentDataCopy = GenerateVoxelDataCopy(LinkedMarchingCubeController);
+        VoxelData[,,] currentDataCopy = CalculateDataCopyBasedOnSelectedShape(roughenRadius);
 
         return new BaseModificationTools.WorldSpaceRougheningModifier(
             currentDataCopy,

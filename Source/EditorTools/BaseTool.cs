@@ -107,6 +107,40 @@ public abstract class BaseTool
         }
     }
 
+
+    public static VoxelData[,,] GenerateVoxelDataCopy(MarchingCubesController linkedController, Vector3Int minGrid, Vector3Int maxGrid, int maxOffset)
+    {
+        VoxelData[,,] oldData = new VoxelData[
+            linkedController.VoxelDataReference.GetLength(0),
+            linkedController.VoxelDataReference.GetLength(1),
+            linkedController.VoxelDataReference.GetLength(2)
+        ];
+
+        minGrid -= maxOffset * Vector3Int.one;
+        maxGrid += maxOffset * Vector3Int.one;
+
+        minGrid.x = Math.Max(minGrid.x, 0);
+        minGrid.y = Math.Max(minGrid.y, 0);
+        minGrid.z = Math.Max(minGrid.z, 0);
+
+        maxGrid.x = Math.Min(maxGrid.x, oldData.GetLength(0));
+        maxGrid.y = Math.Min(maxGrid.y, oldData.GetLength(1));
+        maxGrid.z = Math.Min(maxGrid.z, oldData.GetLength(2));
+
+        Parallel.For(minGrid.x, maxGrid.x, x =>
+        {
+            for (int y = minGrid.y; y < maxGrid.y; y++)
+            {
+                for (int z = minGrid.z; z < maxGrid.z; z++)
+                {
+                    oldData[x, y, z] = linkedController.VoxelDataReference[x, y, z];
+                }
+            }
+        });
+
+        return oldData;
+    }
+
     public static VoxelData[,,] GenerateVoxelDataCopy(MarchingCubesController linkedController)
     {
         VoxelData[,,] oldData = new VoxelData[
