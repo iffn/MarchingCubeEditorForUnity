@@ -11,7 +11,7 @@ using static BaseModificationTools;
 
 public class ExpansionEditorElement : EditorElement
 {
-    public override string DisplayName => "Expansion";
+    public override string DisplayName => "Expansion and resolution";
 
     public ExpansionEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
     {
@@ -123,7 +123,7 @@ public class ExpansionEditorElement : EditorElement
             zScale *= multiplier;
         }
 
-        if (GUILayout.Button("Apply scale"))
+        if (GUILayout.Button("Apply resolution"))
         {
             // Copy data
             Matrix4x4 initialTransformWTL = linkedController.transform.worldToLocalMatrix;
