@@ -138,7 +138,7 @@ public class ExpansionEditorElement : EditorElement
 
             // Paste
             Matrix4x4 newTransformWTL = linkedController.transform.worldToLocalMatrix;
-            CopyModifier copyModifier = new CopyModifier(currentDataCopy, initialTransformWTL, newTransformWTL, newTransformWTL); // Check for issues
+            CopyModifier copyModifier = new CopyModifier(currentDataCopy, newTransformWTL, initialTransformWTL, Matrix4x4.identity); // Check for issues
 
             VoxelData[,,] newData = new VoxelData[xSize, ySize, zSize];
 
