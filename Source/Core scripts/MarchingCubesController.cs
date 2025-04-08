@@ -458,6 +458,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// </summary>
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty, bool skipViewSetup)
         {
+            ViewsSetUp = false;
+
             // We don't want to initialize if we are inside a prefab
             if (gameObject.scene.name == null)
                 return;
