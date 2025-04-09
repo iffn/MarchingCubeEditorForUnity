@@ -239,8 +239,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             Debug.Log($"UpdateMesh: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
 #endif
-
-            isDirty = false; // Mark as clean
         }
 
         MarchingCubesMeshData cachedMeshData;
@@ -258,6 +256,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             mesh.SetColors(cachedMeshData.colors);
 
             FinishMesh();
+
+            isDirty = false; // Mark as clean
         }
 
         public bool InvertedNormals
