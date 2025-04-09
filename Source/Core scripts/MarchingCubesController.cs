@@ -5,6 +5,7 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using static UnityUtilityFunctions;
@@ -355,11 +356,33 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void UpdateAllChunks(bool directPostProcessCall)
         {
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
+            Parallel.For(0, chunkViews.Count, i =>
+            {
+                MarchingCubesView view = ChunkViews[i];
+                view.MarkDirty();
+                view.UpdateMeshIfDirty(mainModel, true);
+            });
+
+            foreach (MarchingCubesView view in chunkViews)
+            {
+                view.ApplyNonParallelMeshDataIfDirty();
+            }
+
+            sw.Stop();
+            Debug.Log($"Parallel update: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+
             foreach (MarchingCubesView view in chunkViews)
             {
                 view.MarkDirty();
-                view.UpdateMeshIfDirty(mainModel);
+                view.UpdateMeshIfDirty(mainModel, false);
             }
+            sw.Stop();
+            Debug.Log($"Serial update: {sw.Elapsed.TotalMilliseconds}ms");
 
             if (directPostProcessCall || currentPostProcessingOptions.postProcessWhileEditing)
             {
@@ -540,7 +563,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 if (chunkView.IsWithinBounds(gridPoint))
                 {
-                    chunkView.UpdateMeshIfDirty(mainModel);
+                    chunkView.UpdateMeshIfDirty(mainModel, false);
                     return;
                 }
             }
@@ -552,7 +575,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 if (chunkView.IsWithinBounds(minGrid, maxGrid))
                 {
-                    chunkView.UpdateMeshIfDirty(mainModel);
+                    chunkView.UpdateMeshIfDirty(mainModel, false);
                 }
             }
         }
@@ -666,7 +689,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void UpdatePreviewShape()
         {
             previewView.MarkDirty();
-            previewView.UpdateMeshIfDirty(previewModelWithOldData);
+            previewView.UpdateMeshIfDirty(previewModelWithOldData, false);
         }
 
         /// <summary>

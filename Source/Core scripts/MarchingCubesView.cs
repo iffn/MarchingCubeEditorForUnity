@@ -20,6 +20,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         private bool isDirty; // Whether this chunk's mesh needs updating
         private bool invertedNormals;
 
+        Mesh mesh;
+
         public static void ResetPostProcessingDiagnostics()
         {
             PostProcessingStopwatch.Reset();
@@ -127,6 +129,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             this.gridBoundsMin = gridBoundsMin;
             this.gridBoundsMax = gridBoundsMax;
 
+
             transform.localPosition = new Vector3(gridBoundsMin.x, gridBoundsMin.y, gridBoundsMin.z);
 
             if (linkedMeshFilter.sharedMesh == null)
@@ -138,12 +141,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 linkedMeshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
             }
 
-            grassMeshFilter.sharedMesh = linkedMeshFilter.sharedMesh;
+            mesh = linkedMeshFilter.sharedMesh;
+
+            grassMeshFilter.sharedMesh = mesh;
 
             linkedMeshCollider.enabled = colliderEnabled;
 
-            if(linkedMeshFilter.sharedMesh != null && linkedMeshFilter.sharedMesh.vertexCount > 0)
-                linkedMeshCollider.sharedMesh = linkedMeshFilter.sharedMesh;
+            if(mesh.vertexCount > 0)
+                linkedMeshCollider.sharedMesh = mesh;
 
             isDirty = true; // Mark the chunk as dirty upon initialization
         }
@@ -171,7 +176,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (currentPostProcessingOptions.mergeTriangles)
             {
                 MeshUtilityFunctions.RemoveDegenerateTriangles(
-                    linkedMeshFilter.sharedMesh,
+                    mesh,
                     PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds,
                     out int removedVertices, out int modifiedElements,
                     currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
@@ -184,10 +189,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (currentPostProcessingOptions.smoothNormals)
             {
-                linkedMeshFilter.sharedMesh.RecalculateNormals();
-                SmoothNormalsWithDistanceBias(linkedMeshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
+                mesh.RecalculateNormals();
+                SmoothNormalsWithDistanceBias(mesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
 
-                linkedMeshFilter.sharedMesh.RecalculateTangents();
+                mesh.RecalculateTangents();
                 //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
                 if (ColliderEnabled)
                     UpdateCollider();
@@ -209,7 +214,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             isDirty = true;
         }
 
-        public void UpdateMeshIfDirty(MarchingCubesModel model)
+        public void UpdateMeshIfDirty(MarchingCubesModel model, bool parallelCall)
         {
             if (!isDirty) return;
 
@@ -219,7 +224,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 #endif
 
             // Generate mesh data for this chunk
-            MarchingCubesMeshData meshData = GenerateChunkMesh(model);
+            cachedMeshData = GenerateChunkMesh(model);
 
 #if singleViewPerformanceOutput
             Debug.Log($"GenerateChunkMesh: {sw.Elapsed.TotalMilliseconds}ms");
@@ -227,7 +232,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 #endif
 
             // Update the view's mesh
-            UpdateMesh(meshData);
+            if (!parallelCall)
+                ApplyNonParallelMeshDataIfDirty();
 
 #if singleViewPerformanceOutput
             Debug.Log($"UpdateMesh: {sw.Elapsed.TotalMilliseconds}ms");
@@ -237,21 +243,19 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             isDirty = false; // Mark as clean
         }
 
-        public void UpdateMesh(MarchingCubesMeshData meshData)
-        {
-            UpdateMesh(meshData.vertices, meshData.triangles, meshData.colors);
-        }
+        MarchingCubesMeshData cachedMeshData;
 
-        public void UpdateMesh(List<Vector3> vertices, List<int> triangles, List<Color32> colors)
+        public void ApplyNonParallelMeshDataIfDirty()
         {
-            Mesh mesh = linkedMeshFilter.sharedMesh;
+            if (!isDirty) return;
+
             mesh.Clear();
 
-            mesh.indexFormat = (vertices.Count > 65535) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
+            mesh.indexFormat = (cachedMeshData.vertices.Count > 65535) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
 
-            mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, 0);
-            mesh.SetColors(colors);
+            mesh.SetVertices(cachedMeshData.vertices);
+            mesh.SetTriangles(cachedMeshData.triangles, 0);
+            mesh.SetColors(cachedMeshData.colors);
 
             FinishMesh();
         }
@@ -334,9 +338,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         void OnDestroy()
         {
             // Safely destroy the dynamically created mesh
-            if (linkedMeshFilter != null && linkedMeshFilter.sharedMesh != null)
+            if (linkedMeshFilter != null && mesh != null)
             {
-                Destroy(linkedMeshFilter.sharedMesh);
+                Destroy(mesh);
             }
 
             // Optionally clear the collider's mesh reference
@@ -377,8 +381,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             linkedMeshCollider.sharedMesh = null;
 
-            Mesh mesh = linkedMeshFilter.sharedMesh;
-
             if (mesh.vertexCount == 0 || mesh.triangles.Length == 0) // Prevent invalid mesh assignment
                 return;
 
@@ -387,8 +389,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void InvertMeshTriangles()
         {
-            Mesh mesh = linkedMeshFilter.sharedMesh;
-
             // Get the current triangles from the mesh
             int[] triangles = mesh.triangles;
 
@@ -407,8 +407,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void FinishMesh()
         {
-            linkedMeshFilter.sharedMesh.RecalculateNormals();
-            linkedMeshFilter.sharedMesh.RecalculateTangents();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
             //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
             if (ColliderEnabled)
                 UpdateCollider();
