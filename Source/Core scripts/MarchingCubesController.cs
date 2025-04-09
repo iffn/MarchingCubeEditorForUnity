@@ -83,24 +83,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
-                if (forceColliderOn == value) return;
-
-                if (value)
-                {
-                    foreach (MarchingCubesView chunkView in chunkViews)
-                    {
-                        chunkView.ColliderEnabled = true;
-                    }
-                }
-                else
-                {
-                    foreach (MarchingCubesView chunkView in chunkViews)
-                    {
-                        chunkView.ColliderEnabled = enableAllColliders;
-                    }
-                }
+                if (forceColliderOn == value)
+                    return;
 
                 forceColliderOn = value;
+
+                UpdateColliderStates();
 
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(this); // Makes it saveable
@@ -111,16 +99,22 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         bool enableAllColliders = false;
         public bool EnableAllColliders
         {
-            get
-            {
-                if (forceColliderOn) return true;
-                return enableAllColliders;
-            }
             set
             {
+                if (enableAllColliders == value)
+                    return;
+
                 enableAllColliders = value;
 
                 UpdateColliderStates();
+            }
+        }
+
+        public bool CollidersShouldBeOn
+        {
+            get
+            {
+                return enableAllColliders || forceColliderOn;
             }
         }
 
@@ -187,7 +181,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             foreach (MarchingCubesView chunkView in chunkViews)
             {
-                chunkView.ColliderEnabled = EnableAllColliders;
+                chunkView.ColliderEnabled = CollidersShouldBeOn;
             }
         }
 
@@ -316,7 +310,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (requiredChunks == 1)
             {
-                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMainMaterial, CurrentGrassMaterial);
+                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, CollidersShouldBeOn, CurrentMainMaterial, CurrentGrassMaterial);
             }
             else
             {
@@ -333,7 +327,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                             Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMainMaterial, CurrentGrassMaterial);
+                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, CollidersShouldBeOn, CurrentMainMaterial, CurrentGrassMaterial);
                         }
                     }
                 }
