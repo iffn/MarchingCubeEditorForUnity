@@ -53,9 +53,9 @@ public class SizeAndLoaderEditorElement : EditorElement
         // Save and load
         GUILayout.Label("Save data:");
         ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
-        linkedController.linkedSaveData,
-        typeof(ScriptableObjectSaveData),
-        true) as ScriptableObjectSaveData;
+            linkedController.linkedSaveData,
+            typeof(ScriptableObjectSaveData),
+            true) as ScriptableObjectSaveData;
 
 
         if (newSaveData != linkedController.linkedSaveData)
@@ -69,14 +69,24 @@ public class SizeAndLoaderEditorElement : EditorElement
 
         if (linkedController.linkedSaveData != null)
         {
-            if (linkedController.linkedSaveData.resolutionX != linkedController.GridResolutionX
-            || linkedController.linkedSaveData.resolutionY != linkedController.GridResolutionY
-            || linkedController.linkedSaveData.resolutionZ != linkedController.GridResolutionZ)
+            if(!linkedController.ViewsSetUp)
+                EditorGUILayout.HelpBox("Note: Views are not set up. Please load data first or set it to empty.", MessageType.Warning);
+            else if (linkedController.linkedSaveData.resolutionX != linkedController.GridResolutionX
+                || linkedController.linkedSaveData.resolutionY != linkedController.GridResolutionY
+                || linkedController.linkedSaveData.resolutionZ != linkedController.GridResolutionZ)
                 EditorGUILayout.HelpBox("Note: The grid resolution is different. Make sure everything is correct before saving.", MessageType.Warning);
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button($"Save data")) linkedController.SaveAndLoadManager.SaveGridData(linkedController.linkedSaveData);
-            if (GUILayout.Button($"Load data")) linkedEditor.LoadData();
+
+            if (linkedController.ViewsSetUp)
+            {
+                if (GUILayout.Button($"Save data"))
+                    linkedController.SaveAndLoadManager.SaveGridData(linkedController.linkedSaveData);
+            }
+
+            if (GUILayout.Button($"Load data"))
+                linkedEditor.LoadData();
+
             EditorGUILayout.EndHorizontal();
         }
 

@@ -4,12 +4,14 @@ using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using static BaseModificationTools;
 
 public class ExpansionEditorElement : EditorElement
 {
-    public override string DisplayName => "Expansion";
+    public override string DisplayName => "Expansion and resolution";
 
     public ExpansionEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
     {
@@ -18,6 +20,21 @@ public class ExpansionEditorElement : EditorElement
 
     int gridCExpandSize = 0;
     bool moveTransformWhenExpanding = true;
+    float xScale = 1;
+    float yScale = 1;
+    float zScale = 1;
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        if(linkedController != null)
+        {
+            xScale = linkedController.transform.localScale.x;
+            yScale = linkedController.transform.localScale.y;
+            zScale = linkedController.transform.localScale.z;
+        }
+    }
 
     public override void DrawUI()
     {
@@ -71,6 +88,79 @@ public class ExpansionEditorElement : EditorElement
         EditorGUILayout.EndHorizontal();
 
         moveTransformWhenExpanding = EditorGUILayout.Toggle("Move transform to keep position", moveTransformWhenExpanding);
+
+        // Scale up layout
+        EditorGUILayout.LabelField("Resolution change");
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label("X");
+        GUILayout.Label("Y");
+        GUILayout.Label("Z");
+        EditorGUILayout.EndHorizontal();
+
+        Vector3 currentLocalScale = linkedController.transform.localScale;
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label($"{currentLocalScale.x}");
+        GUILayout.Label($"{currentLocalScale.y}");
+        GUILayout.Label($"{currentLocalScale.z}");
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        xScale = EditorGUILayout.FloatField(xScale);
+        yScale = EditorGUILayout.FloatField(yScale);
+        zScale = EditorGUILayout.FloatField(zScale);
+        EditorGUILayout.EndHorizontal();
+
+        float averageScale = (xScale + yScale + zScale) * 0.3333333333f;
+        float newAverageScale = EditorGUILayout.FloatField("Average", averageScale);
+
+        if(newAverageScale != 0f && !Mathf.Approximately(averageScale, newAverageScale))
+        {
+            float multiplier = newAverageScale / averageScale;
+            xScale *= multiplier;
+            yScale *= multiplier;
+            zScale *= multiplier;
+        }
+
+        if (GUILayout.Button("Apply resolution"))
+        {
+            // Copy data
+            Matrix4x4 initialTransformWTL = linkedController.transform.worldToLocalMatrix;
+            VoxelData[,,] currentDataCopy = BaseTool.GenerateVoxelDataCopy(linkedController);
+
+            // Change size
+            int xSize = Mathf.RoundToInt(linkedController.GridResolutionX / xScale);
+            int ySize = Mathf.RoundToInt(linkedController.GridResolutionY / yScale);
+            int zSize = Mathf.RoundToInt(linkedController.GridResolutionZ / zScale);
+
+            linkedController.transform.localScale = new Vector3(xScale, yScale, zScale);
+
+            // Paste
+            Matrix4x4 newTransformWTL = linkedController.transform.worldToLocalMatrix;
+            CopyModifier copyModifier = new CopyModifier(currentDataCopy, newTransformWTL, initialTransformWTL, Matrix4x4.identity); // ToDo: Fix when resolution is not (1,1,1)
+
+            VoxelData[,,] newData = new VoxelData[xSize, ySize, zSize];
+
+            Parallel.For(0, xSize, x =>
+            {
+                for (int y = 0; y < ySize; y++)
+                {
+                    for (int z = 0; z < zSize; z++)
+                    {
+                        // Transform grid position to world space
+                        Vector3 gridPoint = new Vector3(x, y, z);
+
+                        // Modify the voxel value
+                        VoxelData newValue = copyModifier.ModifyVoxel(x, y, z, newData[x, y, z], -1f);
+
+                        newData[x, y, z] = newValue;
+                    }
+                }
+            });
+            
+            linkedController.SetAllGridDataAndUpdateMesh(newData);
+        }
     }
 }
 

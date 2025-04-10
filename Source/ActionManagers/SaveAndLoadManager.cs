@@ -29,9 +29,9 @@ public class SaveAndLoadManager
     public void LoadGridData(ScriptableObjectSaveData saveData)
     {
 #if loadDataPerformanceOutput
-#endif
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         sw.Start();
+#endif
 
         VoxelData[,,] voxelData = saveData.LoadData();
 

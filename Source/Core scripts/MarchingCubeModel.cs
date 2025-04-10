@@ -43,20 +43,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             VoxelDataGrid[x, y, z] = value;
         }
 
-        /*public void AddVoxel(int x, int y, int z, float value)
-        {
-            if (!IsInGrid(x, y, z)) return;
-
-            VoxelData[x, y, z] = Mathf.Max(VoxelData[x, y, z], value);
-        }
-
-        public void SubtractVoxel(int x, int y, int z, float value)
-        {
-            if (!IsInGrid(x, y, z)) return;
-
-            VoxelData[x, y, z] = Mathf.Min(VoxelData[x, y, z], value);
-        }*/
-
         public VoxelData GetVoxelWithoutClamp(int x, int y, int z)
         {
             return VoxelDataGrid[x, y, z];

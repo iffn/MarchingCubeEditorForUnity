@@ -5,6 +5,7 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using static UnityUtilityFunctions;
@@ -29,9 +30,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         MarchingCubesModel previewModelWithOldData;
         static readonly Vector3Int defaultChunkSize = new Vector3Int(16, 16, 16);
         Vector3Int chunkSize = defaultChunkSize;
-
         readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
 
+        public bool ViewsSetUp { get; private set; } = false;
         public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
 
         public Material CurrentMainMaterial
@@ -83,22 +84,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
-                if (value)
-                {
-                    foreach (MarchingCubesView chunkView in chunkViews)
-                    {
-                        chunkView.ColliderEnabled = true;
-                    }
-                }
-                else
-                {
-                    foreach (MarchingCubesView chunkView in chunkViews)
-                    {
-                        chunkView.ColliderEnabled = enableAllColliders;
-                    }
-                }
+                if (forceColliderOn == value)
+                    return;
 
                 forceColliderOn = value;
+
+                UpdateColliderStates();
 
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(this); // Makes it saveable
@@ -109,16 +100,22 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         bool enableAllColliders = false;
         public bool EnableAllColliders
         {
-            get
-            {
-                if (forceColliderOn) return true;
-                return enableAllColliders;
-            }
             set
             {
+                if (enableAllColliders == value)
+                    return;
+
                 enableAllColliders = value;
 
                 UpdateColliderStates();
+            }
+        }
+
+        public bool CollidersShouldBeOn
+        {
+            get
+            {
+                return enableAllColliders || forceColliderOn;
             }
         }
 
@@ -185,7 +182,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             foreach (MarchingCubesView chunkView in chunkViews)
             {
-                chunkView.ColliderEnabled = EnableAllColliders;
+                chunkView.ColliderEnabled = CollidersShouldBeOn;
             }
         }
 
@@ -215,7 +212,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 #endif
-
+            ViewsSetUp = true;
             int requiredChunks;
 
             int resolutionX = mainModel.ResolutionX;
@@ -314,7 +311,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (requiredChunks == 1)
             {
-                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, enableAllColliders, CurrentMainMaterial);
+                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, CollidersShouldBeOn, CurrentMainMaterial, CurrentGrassMaterial);
             }
             else
             {
@@ -331,7 +328,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                             Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, enableAllColliders, CurrentMainMaterial);
+                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, CollidersShouldBeOn, CurrentMainMaterial, CurrentGrassMaterial);
                         }
                     }
                 }
@@ -359,10 +356,28 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         void UpdateAllChunks(bool directPostProcessCall)
         {
-            foreach (MarchingCubesView view in chunkViews)
+
+            if(chunkViews.Count < 2)
             {
-                view.MarkDirty();
-                view.UpdateMeshIfDirty(mainModel);
+                foreach (MarchingCubesView view in chunkViews)
+                {
+                    view.MarkDirty();
+                    view.UpdateMeshIfDirty(mainModel, false);
+                }
+            }
+            else
+            {
+                Parallel.For(0, chunkViews.Count, i =>
+                {
+                    MarchingCubesView view = ChunkViews[i];
+                    view.MarkDirty();
+                    view.UpdateMeshIfDirty(mainModel, true);
+                });
+
+                foreach (MarchingCubesView view in chunkViews)
+                {
+                    view.ApplyNonParallelMeshDataIfDirty();
+                }
             }
 
             if (directPostProcessCall || currentPostProcessingOptions.postProcessWhileEditing)
@@ -412,9 +427,41 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 foreach (MarchingCubesView chunk in chunksToDestroy)
                 {
-                    DestroyImmediate(chunk); // Safe for edit mode
+                    DestroyImmediate(chunk.gameObject); // Safe for edit mode
                     chunkViews.Remove(chunk);
                 }
+            }
+
+            List<GameObject> invalidGameObjects = new List<GameObject>();
+
+            foreach (Transform element in chunkHolder)
+            {
+                element.TryGetComponent(out MarchingCubesView view);
+
+                if (view == null)
+                {
+                    invalidGameObjects.Add(element.gameObject);
+                }
+            }
+
+            if (Application.isPlaying)
+            {
+                foreach (GameObject chunk in invalidGameObjects)
+                {
+                    Destroy(chunk); // Safe for runtime
+                }
+            }
+            else
+            {
+                foreach (GameObject chunk in invalidGameObjects)
+                {
+                    DestroyImmediate(chunk); // Safe for edit mode
+                }
+            }
+
+            if(chunksToDestroy.Count != 0 || invalidGameObjects.Count != 0)
+            {
+                Debug.Log($"Marching cube cleanup: Removed {chunksToDestroy} invalid view chunks and an additional {invalidGameObjects.Count} GameObjects");
             }
         }
 
@@ -424,6 +471,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// </summary>
         public void Initialize(int resolutionX, int resolutionY, int resolutionZ, bool setEmpty, bool skipViewSetup)
         {
+            ViewsSetUp = false;
+
             // We don't want to initialize if we are inside a prefab
             if (gameObject.scene.name == null)
                 return;
@@ -506,11 +555,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// </summary>
         public void UpdateAffectedChunks(Vector3Int gridPoint)
         {
-            foreach (var chunkView in chunkViews)
+            foreach (MarchingCubesView chunkView in chunkViews)
             {
                 if (chunkView.IsWithinBounds(gridPoint))
                 {
-                    chunkView.UpdateMeshIfDirty(mainModel);
+                    chunkView.UpdateMeshIfDirty(mainModel, false);
                     return;
                 }
             }
@@ -518,11 +567,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void UpdateAffectedChunks(Vector3Int minGrid, Vector3Int maxGrid)
         {
-            foreach (var chunkView in chunkViews)
+            foreach (MarchingCubesView chunkView in chunkViews)
             {
                 if (chunkView.IsWithinBounds(minGrid, maxGrid))
                 {
-                    chunkView.UpdateMeshIfDirty(mainModel);
+                    chunkView.UpdateMeshIfDirty(mainModel, false);
                 }
             }
         }
@@ -636,7 +685,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public void UpdatePreviewShape()
         {
             previewView.MarkDirty();
-            previewView.UpdateMeshIfDirty(previewModelWithOldData);
+            previewView.UpdateMeshIfDirty(previewModelWithOldData, false);
         }
 
         /// <summary>
