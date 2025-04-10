@@ -9,6 +9,7 @@ Shader "VoxelMesh/GrassFromArea"
         _GrassDensityPerSquareMeter ("Grass Density per m²", Range(0, 1000)) = 100
         _WindSwayFrequency ("Wind Sway Frequency", Range(0, 5)) = 1.0
         _WindStrength ("Wind Strength", Range(0, 0.5)) = 0.1
+        _MinHeight ("Grass Min Height", Float) = 1
         _CullDistance ("Grass Cull Distance", Float) = 50
         _SlopeThreshold ("Slope Threshold (Y Dot)", Range(0,1)) = 0.3
         _MaxBladesPerTriangle ("Max Blades Per Triangle", Range(1, 20)) = 6
@@ -40,6 +41,7 @@ Shader "VoxelMesh/GrassFromArea"
             float _GrassDensityPerSquareMeter;
             float _WindSwayFrequency;
             float _WindStrength;
+            float _MinHeight;
             float _CullDistance;
             float _SlopeThreshold;
             float4 _ChunkPosition;
@@ -133,6 +135,10 @@ Shader "VoxelMesh/GrassFromArea"
 
                     // Convert to world-space position
                     float3 pos = rand.x * A + rand.y * B + (1.0 - rand.x - rand.y) * C;
+
+                    // Ignore grass below minimum height
+                    if(pos.y < _MinHeight)
+                        continue;
 
                     // Create a rotation angle per blade (based on blade index)
                     float randAngle = Hash(pos.xz + i * 11.123) * 6.2831853; // 0 to 2*PI
