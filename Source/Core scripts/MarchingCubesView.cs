@@ -381,7 +381,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             linkedMeshCollider.sharedMesh = null;
 
-            if (mesh.vertexCount == 0 || mesh.triangles.Length == 0) // Prevent invalid mesh assignment
+            if (mesh.vertexCount < 3 || mesh.triangles.Length < 3) // Prevent invalid mesh assignment
                 return;
 
             linkedMeshCollider.sharedMesh = mesh;
