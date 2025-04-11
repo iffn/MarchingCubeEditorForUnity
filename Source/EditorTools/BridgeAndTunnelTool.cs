@@ -70,8 +70,6 @@ public class BridgeAndTunnelTool : BaseTool
 
                 if (showPreviewBeforeApplying && startPointSet && endPointSet)
                 {
-                    Debug.Log("Update");
-
                     if (previewingTunnel)
                         PreviewTunnel(startPointLocal, endPointLocal);
                     else
