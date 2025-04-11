@@ -61,20 +61,24 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
+                if (chunkViews == null)
+                    return;
+
                 Material currentMaterial;
 
-                if(value == -1)
+                if (value == -1)
                     currentMaterial = currentMainMaterial;
                 else if (value < DebugMaterials.Count)
-                {
-                    if (chunkViews == null)
-                        return;
+                    currentMaterial = DebugMaterials[value];
+                else
+                    return;
 
-                    foreach (MarchingCubesView view in chunkViews)
-                    {
-                        view.CurrentMainMaterial = DebugMaterials[value];
-                    }
+                foreach (MarchingCubesView view in chunkViews)
+                {
+                    view.CurrentMainMaterial = currentMaterial;
                 }
+
+                displayMaterialindex = value;
             }
         }
 

@@ -52,8 +52,14 @@ public class SettingsEditorElement : EditorElement
             linkedController.CurrentGrassMaterial = newMaterial;
 
         // Display material
-        int newSelectedMaterial = -1; // Selection drop dowwn
+        int currentIndex = linkedController.DisplayMaterialIndex + 1;
 
+        int newIndex = EditorGUILayout.Popup("Select Option", currentIndex, linkedController.MainMaterialNames.ToArray()) - 1;
+
+        if(newIndex != linkedController.DisplayMaterialIndex)
+        {
+            linkedController.DisplayMaterialIndex = newIndex;
+        }
     }
 }
 
