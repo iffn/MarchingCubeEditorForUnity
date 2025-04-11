@@ -22,6 +22,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] VisualisationManager linkedVisualisationManager;
         [SerializeField] Material currentMainMaterial;
         [SerializeField] Material currentGrassMaterial;
+        [SerializeField] List<Material> DebugMaterials;
 
         public ScriptableObjectSaveData linkedSaveData;
         public bool showGridOutline = false; // Toggle controlled by the editor tool
@@ -35,6 +36,60 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public bool ViewsSetUp { get; private set; } = false;
         public List<EditShape> ShapeList { get; private set; } = new List<EditShape>();
 
+        public List<string> MainMaterialNames
+        {
+            get
+            {
+                List<string> returnList = new List<string>();
+                returnList.Add("Main material");
+
+                foreach(Material mat in DebugMaterials)
+                {
+                    returnList.Add(mat.name);
+                }
+
+                return returnList;
+            }
+        }
+
+        int displayMaterialindex = -1;
+        public int DisplayMaterialIndex
+        {
+            get
+            {
+                return displayMaterialindex;
+            }
+            set
+            {
+                Material currentMaterial;
+
+                if(value == -1)
+                    currentMaterial = currentMainMaterial;
+                else if (value < DebugMaterials.Count)
+                {
+                    if (chunkViews == null)
+                        return;
+
+                    foreach (MarchingCubesView view in chunkViews)
+                    {
+                        view.CurrentMainMaterial = DebugMaterials[value];
+                    }
+                }
+            }
+        }
+
+        public Material MainDisplayMaterial
+        {
+            get
+            {
+                if (displayMaterialindex > 0 && displayMaterialindex < ChunkViews.Count)
+                    return DebugMaterials[displayMaterialindex];
+                else
+                    return currentMainMaterial;
+
+            }
+        }
+
         public Material CurrentMainMaterial
         {
             get
@@ -43,6 +98,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
+                if(currentMainMaterial == value) return;
+
                 currentMainMaterial = value;
 
                 if (chunkViews == null)
@@ -311,7 +368,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
             if (requiredChunks == 1)
             {
-                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, CollidersShouldBeOn, CurrentMainMaterial, CurrentGrassMaterial);
+                chunkViews[0].Initialize(Vector3Int.zero, mainModel.MaxGrid, CollidersShouldBeOn, MainDisplayMaterial, CurrentGrassMaterial);
             }
             else
             {
@@ -328,7 +385,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                             Vector3Int gridBoundsMax = Vector3Int.Min(gridBoundsMin + chunkSize, mainModel.MaxGrid);
 
-                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, CollidersShouldBeOn, CurrentMainMaterial, CurrentGrassMaterial);
+                            chunkViews[counter++].Initialize(gridBoundsMin, gridBoundsMax, CollidersShouldBeOn, MainDisplayMaterial, CurrentGrassMaterial);
                         }
                     }
                 }

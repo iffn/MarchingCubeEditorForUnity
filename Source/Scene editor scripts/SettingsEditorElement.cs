@@ -50,7 +50,10 @@ public class SettingsEditorElement : EditorElement
 
         if (currentMaterial != newMaterial)
             linkedController.CurrentGrassMaterial = newMaterial;
-            
+
+        // Display material
+        int newSelectedMaterial = -1; // Selection drop dowwn
+
     }
 }
 
