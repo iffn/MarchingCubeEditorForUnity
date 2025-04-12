@@ -51,10 +51,21 @@ public class SettingsEditorElement : EditorElement
         if (currentMaterial != newMaterial)
             linkedController.CurrentGrassMaterial = newMaterial;
 
-        if (GUILayout.Button("Clear meshes (Smaller scene file)"))
+        // Display material
+        int currentIndex = linkedController.DisplayMaterialIndex + 1;
+
+        int newIndex = EditorGUILayout.Popup("Select Option", currentIndex, linkedController.MainMaterialNames.ToArray()) - 1;
+
+        if(newIndex != linkedController.DisplayMaterialIndex)
+        {
+            linkedController.DisplayMaterialIndex = newIndex;
+        }
+		
+		// Clear mesh button
+		if (GUILayout.Button("Clear meshes (Smaller scene file)"))
         {
             linkedController.ClearAllViews();
-        }
+		}
     }
 }
 
