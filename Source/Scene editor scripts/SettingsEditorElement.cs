@@ -30,14 +30,13 @@ public class SettingsEditorElement : EditorElement
         currentMaterial = linkedController.CurrentMainMaterial;
 
         newMaterial = EditorGUILayout.ObjectField(
-           "Grass material",
+           "Main material",
            currentMaterial,
            typeof(Material),
            true) as Material;
 
         if(currentMaterial != newMaterial)
             linkedController.CurrentMainMaterial = newMaterial;
-            
 
         // Grass material
         currentMaterial = linkedController.CurrentGrassMaterial;
