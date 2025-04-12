@@ -50,7 +50,11 @@ public class SettingsEditorElement : EditorElement
 
         if (currentMaterial != newMaterial)
             linkedController.CurrentGrassMaterial = newMaterial;
-            
+
+        if (GUILayout.Button("Clear meshes (Smaller scene file)"))
+        {
+            linkedController.ClearAllViews();
+        }
     }
 }
 

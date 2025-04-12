@@ -525,6 +525,35 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             GatherTools();
         }
 
+        public void ClearAllViews()
+        {
+            List<GameObject> views = new List<GameObject>();
+
+            foreach(Transform child in chunkHolder)
+            {
+                views.Add(child.gameObject);
+            }
+
+            if (Application.isPlaying)
+            {
+                foreach (GameObject view in views)
+                {
+                    Destroy(view); // Safe for runtime
+                }
+            }
+            else
+            {
+                foreach (GameObject view in views)
+                {
+                    DestroyImmediate(view); // Safe for edit mode
+                }
+            }
+
+            chunkViews.Clear();
+
+            // ViewsSetUp = false; // Would also disable save while not affectign model
+        }
+
         /// <summary>
         /// Marks all chunks between and including the two grid points diry for editing.
         /// </summary>
