@@ -33,6 +33,8 @@ public class ClickToPaintTool : BaseTool
     public override void OnDisable()
     {
         base.OnDisable();
+
+        placeableByClick.SelectedEditShape.gameObject.SetActive(false);
     }
 
     public override void DrawUI()
@@ -191,6 +193,8 @@ public class ClickToPaintTool : BaseTool
             if (EscapeDownEvent(e))
             {
                 raycastActive = false;
+                placeableByClick.SelectedEditShape.gameObject.SetActive(false);
+                RefreshUI();
                 e.Use();
                 return;
             }

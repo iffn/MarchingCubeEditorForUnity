@@ -48,6 +48,8 @@ public class ModifySurface : BaseTool
     public override void OnDisable()
     {
         base.OnDisable();
+
+        placeableByClick.SelectedEditShape.gameObject.SetActive(false);
     }
 
     public override void DrawUI()
@@ -142,7 +144,9 @@ public class ModifySurface : BaseTool
         if (EscapeDownEvent(e))
         {
             raycastActive = false;
+            placeableByClick.SelectedEditShape.gameObject.SetActive(false);
             e.Use();
+            RefreshUI();
         }
     }
 
