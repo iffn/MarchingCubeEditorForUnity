@@ -53,7 +53,9 @@ public class VoxelDebugTool : BaseTool
         GUILayout.Label("Weight", GUILayout.Width(100)); // Optional label
 
         // Slider (adjusts value within range)
-        float newWeight = GUILayout.HorizontalSlider(currentData.WeightInsideIsPositive, minValue, maxValue, GUILayout.Width(150));
+        float currentWeight = currentData.WeightInsideIsPositive;
+
+        float newWeight = GUILayout.HorizontalSlider(currentWeight, minValue, maxValue, GUILayout.Width(150));
 
         // Float Field (allows direct input)
         newWeight = EditorGUILayout.FloatField(newWeight);
@@ -62,7 +64,7 @@ public class VoxelDebugTool : BaseTool
 
         newWeight = Mathf.Clamp(newWeight, minValue, maxValue);
 
-        if(newWeight != currentData.DistanceOutsideIsPositive)
+        if(!Mathf.Approximately(newWeight, currentWeight))
         {
             LinkedMarchingCubeController.ModificationManager.ModifySingleVoxel(coordinateX, coordinateY, coordinateZ, currentData.WithWeightInsideIsPositive(newWeight));
         }
