@@ -3,11 +3,8 @@
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEditor;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class ClickToModifyTool : BaseTool
 {
@@ -36,6 +33,8 @@ public class ClickToModifyTool : BaseTool
     // Internal variables
     double nextUpdateTime;
     double timeBetweenUpdates = 1.0 / 60.0;
+    Vector3 prevShapePoint = Vector3.zero;
+    Vector3 prevImpactPoint = Vector3.zero;
 
     public override string DisplayName => "Click to modify tool";
     
@@ -132,7 +131,12 @@ public class ClickToModifyTool : BaseTool
                     break;
             }
 
+            prevImpactPoint = result.point;
+
             placeableByClick.SelectedEditShape.transform.position = result.point + currentOffset * offsetDirection;
+
+            prevShapePoint = placeableByClick.SelectedEditShape.transform.position;
+
             RefreshUI();
 
             if (displayPreviewShape)
@@ -186,6 +190,24 @@ public class ClickToModifyTool : BaseTool
     public override void DrawGizmos()
     {
         base.DrawGizmos();
+
+        if(!Mathf.Approximately(currentOffset, 0) && (placeableByClick.SelectedEditShape.transform.position - prevShapePoint).magnitude < 0.1f)
+        {
+            Color prevColor = Handles.color;
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+            Handles.color = Color.white;
+
+            Handles.DrawAAPolyLine(
+                2f, // Thickness
+                placeableByClick.SelectedEditShape.transform.position,
+                prevImpactPoint
+            );
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+
+            Handles.color = prevColor;
+        }
     }
 
     // Internal functions
