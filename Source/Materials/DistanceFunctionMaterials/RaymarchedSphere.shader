@@ -6,8 +6,9 @@ Shader "DistanceFunctionShapes/RaymarchedSphere"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
-        ZWrite On
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+        ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
         Pass
         {
             CGPROGRAM
@@ -52,7 +53,8 @@ Shader "DistanceFunctionShapes/RaymarchedSphere"
                 if (result.hit)
                 {
                     depth = result.depth;
-                    return fixed4(_Color.rgb * result.shading, 1.0);
+                    float alpha = _Color.a; // Or compute your own transparency
+                    return fixed4(_Color.rgb * result.shading, alpha);
                 }
 
                 clip(-1.0);
