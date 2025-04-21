@@ -17,10 +17,12 @@ Shader "DistanceFunctionShapes/RaymarchedSphere"
             #pragma multi_compile_fog
 
             #include "RaymarchedShaderStart.cginc"
+
+            #include "SDFMath.cginc"
             
             float SDF(float3 localPosition)
             {
-                return length(localPosition) - 0.5;
+                return sphereSDF(localPosition, 0.5);
             }
             
             #include "RaymarchedShaderEnd.cginc"

@@ -24,6 +24,8 @@ Shader "Custom/RaymarchingWithDepth"
             #pragma multi_compile_fog
 
             #include "RaymarchedShaderStart.cginc"
+
+            #include "SDFMath.cginc"
             
             float _BaseScale;
             float _BaseFrequency;
@@ -72,11 +74,6 @@ Shader "Custom/RaymarchingWithDepth"
                 returnValue -= voronoi(localPos * _VoronoiScale) * _VoronoiStrength;
 
                 return returnValue;
-            }
-
-            float sphereSDF(float3 p, float radius)
-            {
-                return length(p) - radius;
             }
 
             float SDF(float3 localPosition)
