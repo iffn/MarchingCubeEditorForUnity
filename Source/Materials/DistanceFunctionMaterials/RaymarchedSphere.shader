@@ -37,11 +37,10 @@ Shader "DistanceFunctionShapes/RaymarchedSphere"
                 output.worldPos = mul(unity_ObjectToWorld, input.vertex).xyz;
                 return output;
             }
-            
-            float SDF(float3 worldPosition)
+
+            float SDF(float3 localPosition)
             {
-                float3 objectLocal = mul(unity_WorldToObject, float4(worldPosition, 1)).xyz;
-                return length(objectLocal) - 0.5;
+                return length(localPosition) - 0.5;
             }
 
             #include "RaymarchedSurface.cginc"
