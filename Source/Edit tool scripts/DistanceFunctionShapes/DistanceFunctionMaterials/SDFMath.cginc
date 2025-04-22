@@ -34,17 +34,17 @@ Boolean logic:
 
 float CombineAddSDF(float a, float b) // Same as (A | B)
 {
-    return Mathf.Min(a, b);
+    return min(a, b);
 }
 
 float CombineSubtractSDF(float a, float b) // Same as (A & !B)
 {
-    return Mathf.Max(a, -b);
+    return max(a, -b);
 }
 
 float CombineIntersectSDF(float a, float b) // Same as (A & B)
 {
-    return Mathf.Max(a, b);
+    return max(a, b);
 }
 
 #endif // RAYMARCHED_SURFACE_INCLUDED
