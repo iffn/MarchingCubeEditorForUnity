@@ -7,12 +7,12 @@ public static class SDFMath
 {
     public static class ShapesDistanceOutsideIsPositive
     {
-        public static float Sphere(Vector3 samplePoint, float radius)
+        public static float SphereSDF(Vector3 samplePoint, float radius)
         {
             return (samplePoint).magnitude - radius;
         }
 
-        public static float Box(Vector3 samplePoint, Vector3 sideLengths)
+        public static float BoxSDF(Vector3 samplePoint, Vector3 sideLengths)
         {
             Vector3 absPoint = new Vector3(
                 Mathf.Abs(samplePoint.x),
@@ -21,10 +21,22 @@ public static class SDFMath
             );
 
             Vector3 halfExtents = 0.5f * sideLengths;
-            Vector3 delta = absPoint - halfExtents;
+            Vector3 distanceToSurface = absPoint - halfExtents;
 
-            return Mathf.Max(delta.x, delta.y, delta.z);
+            // Check if the point is outside the box
+            if (distanceToSurface.x > 0 || distanceToSurface.y > 0 || distanceToSurface.z > 0)
+            {
+                // Outside: Euclidean distance to box surface
+                Vector3 outside = Vector3.Max(distanceToSurface, Vector3.zero);
+                return outside.magnitude;
+            }
+            else
+            {
+                // Inside: signed distance is the maximum axis penetration (negative)
+                return Mathf.Max(distanceToSurface.x, distanceToSurface.y, distanceToSurface.z);
+            }
         }
+
 
         public static float PlaneFloor(Vector3 samplePoint)
         {

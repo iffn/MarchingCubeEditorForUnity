@@ -13,7 +13,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
 
         protected override float DistanceOutsideIsPositive(Vector3 localPoint)
         {
-            return SDFMath.ShapesDistanceOutsideIsPositive.Box(localPoint, Vector3.one);
+            return SDFMath.ShapesDistanceOutsideIsPositive.BoxSDF(localPoint, Vector3.one);
         }
 
         public override (Vector3 minOffset, Vector3 maxOffset) GetLocalBoundingBox()
