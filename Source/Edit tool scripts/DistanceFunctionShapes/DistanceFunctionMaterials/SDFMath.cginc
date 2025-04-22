@@ -19,4 +19,32 @@ float boxSDF(float3 samplePoint, float3 sideLengths)
     return outsideDistance + insideDistance;
 }
 
+float planeFloor(float3 samplePoint)
+{
+    return samplePoint.y;
+}
+
+/*
+Boolean logic:
+    A     ->  A
+    !A    ->  -A
+    A & B ->  Max(A,B)
+    A | B ->  Min(A,B)
+*/
+
+float CombineAddSDF(float a, float b) // Same as (A | B)
+{
+    return Mathf.Min(a, b);
+}
+
+float CombineSubtractSDF(float a, float b) // Same as (A & !B)
+{
+    return Mathf.Max(a, -b);
+}
+
+float CombineIntersectSDF(float a, float b) // Same as (A & B)
+{
+    return Mathf.Max(a, b);
+}
+
 #endif // RAYMARCHED_SURFACE_INCLUDED
