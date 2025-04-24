@@ -47,6 +47,27 @@ public class ClickToPaintTool : BaseTool
         // Handle color assignment
         brushColor = EditorGUILayout.ColorField("Brush Color", brushColor);
 
+        if (getColorActive)
+        {
+            // Store original colors
+            Color originalBackground = GUI.backgroundColor;
+            Color originalContentColor = GUI.contentColor;
+
+            // Set custom colors for the selected tool
+            GUI.backgroundColor = highlightBackgroundColor;
+            GUI.contentColor = Color.white; // Text color
+
+            ShowClickGotGetColorButton();
+
+            // Restore original colors
+            GUI.backgroundColor = originalBackground;
+            GUI.contentColor = originalContentColor;
+        }
+        else
+        {
+            ShowClickGotGetColorButton();
+        }
+
         GUILayout.Label("Modify individual channels and enable modification");
 
         byte newRed = DisplayModifyColor("R", brushColor.r, ref modifyRed);
@@ -84,7 +105,7 @@ public class ClickToPaintTool : BaseTool
         {
             string helpText = base.helpText +
                     "• Click to paint" + System.Environment.NewLine +
-                    "• Ctrl click to get color";
+                    "• Ctrl click to get color from voxels";
 
             helpText += placeableByClick.SelectedEditShape.HelpText;
 
@@ -93,30 +114,9 @@ public class ClickToPaintTool : BaseTool
             placeableByClick.SelectedEditShape.DrawUI();
         }
 
-        if (getColorActive)
-        {
-            // Store original colors
-            Color originalBackground = GUI.backgroundColor;
-            Color originalContentColor = GUI.contentColor;
-
-            // Set custom colors for the selected tool
-            GUI.backgroundColor = highlightBackgroundColor;
-            GUI.contentColor = Color.white; // Text color
-
-            ShowClickGotGetColorButton();
-
-            // Restore original colors
-            GUI.backgroundColor = originalBackground;
-            GUI.contentColor = originalContentColor;
-        }
-        else
-        {
-            ShowClickGotGetColorButton();
-        }
-
         void ShowClickGotGetColorButton()
         {
-            if (GUILayout.Button($"Get color"))
+            if (GUILayout.Button($"Get color from voxels"))
                 getColorActive = !getColorActive;
         }
 
