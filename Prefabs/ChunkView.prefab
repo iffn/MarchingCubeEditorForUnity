@@ -134,6 +134,7 @@ MonoBehaviour:
   linkedMeshFilter: {fileID: 2416100519165604167}
   linkedMeshCollider: {fileID: 3900927774036314729}
   mainMeshRenderer: {fileID: 434205084056070393}
+  grassMeshHolder: {fileID: 3655134421665964721}
   grassMeshFilter: {fileID: 5525297799318474060}
   grassMeshRenderer: {fileID: 6561362237200494897}
 --- !u!33 &2416100519165604167

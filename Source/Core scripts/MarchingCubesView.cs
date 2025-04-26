@@ -34,6 +34,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] MeshFilter linkedMeshFilter;
         [SerializeField] MeshCollider linkedMeshCollider;
         [SerializeField] MeshRenderer mainMeshRenderer;
+        [SerializeField] GameObject grassMeshHolder;
         [SerializeField] MeshFilter grassMeshFilter;
         [SerializeField] MeshRenderer grassMeshRenderer;
 
@@ -43,6 +44,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if(linkedMeshFilter == null) return false;
             if(linkedMeshCollider == null) return false;
             if(mainMeshRenderer == null) return false;
+            if(grassMeshHolder == null) return false;
             if(grassMeshFilter == null) return false;
             if(grassMeshRenderer == null) return false;
 
@@ -85,10 +87,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
-                if (grassMeshRenderer == null)
-                    return;
-                else
-                    grassMeshRenderer.sharedMaterial = value;
+                grassMeshHolder.SetActive(value != null);
+
+                grassMeshRenderer.sharedMaterial = value;
             }
         }
 
