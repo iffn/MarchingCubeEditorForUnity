@@ -645,6 +645,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         /// </summary>
         public void UpdateAffectedChunks(Vector3Int gridPoint)
         {
+            // ToDo: Smarter way to select update on certain chunks
+
             foreach (MarchingCubesView chunkView in chunkViews)
             {
                 if (chunkView.IsWithinBounds(gridPoint))
@@ -656,6 +658,8 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public void UpdateAffectedChunks(Vector3Int minGrid, Vector3Int maxGrid)
         {
+            // ToDo: Smarter way to select update on certain chunks
+
             foreach (MarchingCubesView chunkView in chunkViews)
             {
                 if (chunkView.IsWithinBounds(minGrid, maxGrid))

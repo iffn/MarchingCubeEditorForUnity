@@ -3,6 +3,7 @@
 #if UNITY_EDITOR
 
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
@@ -164,9 +165,11 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         public bool IsWithinBounds(Vector3Int point)
         {
             // Check for overlap between the chunk and the affected region
-            return !(gridBoundsMax.x < point.x || gridBoundsMin.x > point.x ||
+            bool isInGrid = !(gridBoundsMax.x < point.x || gridBoundsMin.x > point.x ||
                      gridBoundsMax.y < point.y || gridBoundsMin.y > point.y ||
-                     gridBoundsMax.z < point.z || gridBoundsMin.z > point.z);
+                     gridBoundsMax.z < point.z || gridBoundsMin.z > point.z); ;
+
+            return isInGrid;
         }
 
         public void PostProcessMesh(PostProcessingOptions currentPostProcessingOptions)
