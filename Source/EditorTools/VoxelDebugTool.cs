@@ -74,7 +74,6 @@ public class VoxelDebugTool : BaseTool
 
         if(newColor != currentData.Color)
         {
-            Debug.Log("Update");
             LinkedMarchingCubeController.ModificationManager.ModifySingleVoxel(coordinateX, coordinateY, coordinateZ, currentData.WithColor(newColor));
         }
 
