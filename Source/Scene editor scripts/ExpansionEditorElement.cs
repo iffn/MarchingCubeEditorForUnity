@@ -134,9 +134,12 @@ public class ExpansionEditorElement : EditorElement
         VoxelData[,,] currentDataCopy = BaseTool.GenerateVoxelDataCopy(linkedController);
 
         // Change size
-        int xSize = Mathf.RoundToInt(linkedController.GridResolutionX / xScale);
-        int ySize = Mathf.RoundToInt(linkedController.GridResolutionY / yScale);
-        int zSize = Mathf.RoundToInt(linkedController.GridResolutionZ / zScale);
+        Vector3 oldScale = linkedController.transform.localScale;
+
+        // Change size
+        int xSize = Mathf.RoundToInt(linkedController.GridResolutionX * (oldScale.x / xScale));
+        int ySize = Mathf.RoundToInt(linkedController.GridResolutionY * (oldScale.y / yScale));
+        int zSize = Mathf.RoundToInt(linkedController.GridResolutionZ * (oldScale.z / zScale));
 
         linkedController.transform.localScale = new Vector3(xScale, yScale, zScale);
 
