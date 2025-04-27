@@ -650,7 +650,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 if (chunkView.IsWithinBounds(gridPoint))
                 {
                     chunkView.UpdateMeshIfDirty(mainModel, false);
-                    return;
                 }
             }
         }
