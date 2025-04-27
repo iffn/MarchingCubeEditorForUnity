@@ -121,8 +121,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             if (mainMaterial != null)
                 mainMeshRenderer.sharedMaterial = mainMaterial;
 
-            if (grassMaterial != null)
-                grassMeshRenderer.sharedMaterial = grassMaterial;
+            CurrentGrassMaterial = grassMaterial;
         }
 
         public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)
