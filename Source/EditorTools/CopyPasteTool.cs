@@ -82,7 +82,7 @@ public class CopyPasteTool : BaseTool
 
     void DisplayPreivewIfEnabled()
     {
-        if (!displayPreview)
+        if (!displayPreview || !copied)
             return;
 
         Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
