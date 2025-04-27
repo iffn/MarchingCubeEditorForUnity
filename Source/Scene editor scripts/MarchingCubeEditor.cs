@@ -18,7 +18,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         PostProcessingEditorElement postProcessingEditorElement;
         SettingsEditorElement settingsEditorElement;
         ToolEditorElement toolEditorElement;
-        
+
+        private bool refreshScheduled = false;
+        private double nextAllowedRefreshTime = 0;
+        private const double refreshCooldown = 0.1; // 100ms cooldown
+
         public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
 
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
@@ -133,12 +137,40 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             CurrentTool?.HandleSceneUpdate(Event.current);
         }
 
-        public void RefreshUI()
+        public void RequestRefresh()
         {
-            EditorUtility.SetDirty(target);
-            Repaint();
+            if (!refreshScheduled)
+            {
+                refreshScheduled = true;
+                nextAllowedRefreshTime = EditorApplication.timeSinceStartup + refreshCooldown;
+                EditorApplication.delayCall += TryRefresh;
+            }
         }
-        
+
+        private void TryRefresh()
+        {
+            // Early exit if target disappears
+            if (serializedObject == null || serializedObject.targetObject == null)
+            {
+                refreshScheduled = false;
+                return;
+            }
+
+            double now = EditorApplication.timeSinceStartup;
+            if (now >= nextAllowedRefreshTime)
+            {
+                // Cooldown finished -> do the real refresh
+                refreshScheduled = false;
+                EditorUtility.SetDirty(target);
+                Repaint();
+            }
+            else
+            {
+                // Cooldown not finished -> schedule another check next frame
+                EditorApplication.delayCall += TryRefresh;
+            }
+        }
+
         public RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
         {
             Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);

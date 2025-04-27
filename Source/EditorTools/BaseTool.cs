@@ -70,7 +70,7 @@ public abstract class BaseTool
 
     public void RefreshUI()
     {
-        LinkedMarchingCubeEditor.RefreshUI();
+        LinkedMarchingCubeEditor.RequestRefresh();
     }
 
     protected void DrawTransformFields(Transform selectedTransform)
