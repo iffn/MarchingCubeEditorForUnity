@@ -4,6 +4,7 @@ using iffnsStuff.MarchingCubeEditor.Core;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UnityEditor;
 using UnityEngine;
 
 public class ExporterTool : BaseTool
@@ -17,6 +18,8 @@ public class ExporterTool : BaseTool
 
         if (GUILayout.Button($"Export as Obj"))
             ExportAsObj();
+
+        EditorGUILayout.HelpBox("Note: You can also use the 'FBX Exporter' package by Unity to export the result as an FBX.", MessageType.Info);
     }
 
     // Public functions
