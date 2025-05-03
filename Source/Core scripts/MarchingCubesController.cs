@@ -25,7 +25,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         [SerializeField] List<Material> DebugMaterials;
 
         public ScriptableObjectSaveData linkedSaveData;
-        public bool showGridOutline = false; // Toggle controlled by the editor tool
+        public bool ShowGridOutline = true; // Toggle controlled by the editor tool
 
         MarchingCubesModel mainModel;
         MarchingCubesModel previewModelWithOldData;

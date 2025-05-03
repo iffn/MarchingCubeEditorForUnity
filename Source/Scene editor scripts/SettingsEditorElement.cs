@@ -20,7 +20,8 @@ public class SettingsEditorElement : EditorElement
     {
         linkedController.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", linkedController.ForceColliderOn);
 
-        linkedController.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", linkedController.VisualisationManager.ShowGridOutline);
+        linkedController.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", linkedController.ShowGridOutline);
+
         linkedController.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", linkedController.InvertAllNormals);
 
         Material currentMaterial;
