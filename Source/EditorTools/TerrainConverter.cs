@@ -42,11 +42,25 @@ public class TerrainConverter : BaseTool
                objType: typeof(Terrain),
                true) as Terrain;
 
-        if (GUILayout.Button($"Apply data from terrain"))
+        if (GUILayout.Button($"Make shape fill the entire controller"))
+            FillEntireGridWithShape();
+
+        if (GUILayout.Button($"Apply data from terrain in the shape region"))
             ApplyDataFromTerrain();
     }
 
     // Internal functions
+    void FillEntireGridWithShape()
+    {
+        Transform controllerTransform = LinkedMarchingCubeController.transform;
+        Transform selectedShapeTransform = currentEditShapeHandler.SelectedEditShape.transform;
+        Vector3 gridSize = new Vector3(LinkedMarchingCubeController.GridResolutionX, LinkedMarchingCubeController.GridResolutionY, LinkedMarchingCubeController.GridResolutionZ) - Vector3.one;
+
+        selectedShapeTransform.SetLocalPositionAndRotation(0.5f * gridSize, Quaternion.identity);
+
+        selectedShapeTransform.localScale = gridSize;
+    }
+
     void ApplyDataFromTerrain()
     {
         Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
