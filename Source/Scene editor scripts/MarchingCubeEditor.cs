@@ -13,7 +13,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         int gridResolutionX = 20;
         int gridResolutionY = 20;
         int gridResolutionZ = 20;
-        bool invertNormals;
 
         List<BaseTool> tools;
 
@@ -25,6 +24,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         bool generalFoldout = true;
         bool settingsFoldout = true;
         bool toolsFoldout = true;
+
+        PostProcessingEditorElement postProcessingEditorElement;
 
         BaseTool CurrentTool 
         {
@@ -55,6 +56,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         public override void OnInspectorGUI()
         {
             DrawSetupUI();
+            postProcessingEditorElement.DrawAsFoldout(Controller);
             DrawEditUI();
         }
 
@@ -66,6 +68,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         private void OnEnable() 
         {
             tools = BaseTool.GetTools(this).ToList();
+
+            if(postProcessingEditorElement == null)
+                postProcessingEditorElement = new PostProcessingEditorElement(true);
 
             if (!Controller.IsInitialized)
             {
@@ -142,6 +147,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
+
                 Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);
                 Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
 
