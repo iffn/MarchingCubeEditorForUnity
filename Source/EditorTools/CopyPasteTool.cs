@@ -80,23 +80,6 @@ public class CopyPasteTool : BaseTool
         EditorGUILayout.EndHorizontal();
     }
 
-    void DisplayPreivewIfEnabled()
-    {
-        if (!displayPreview || !copied)
-            return;
-
-        Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
-
-        if (!MatricesAreEqual(previousTransformWTL, newTransformWTL, 0.0001f))
-        {
-            Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
-
-            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(currentDataCopy, initialTransformWTL, newTransformWTL, controllerTransformWTL));
-
-            previousTransformWTL = newTransformWTL;
-        }
-    }
-
     public override void HandleSceneUpdate(Event currentEvent)
     {
         base.HandleSceneUpdate(currentEvent);
@@ -140,6 +123,32 @@ public class CopyPasteTool : BaseTool
         gizmosMatrix = Matrix4x4.TRS(shapeTransform.position, shapeTransform.rotation, shapeTransform.lossyScale);
     }
 
+    BaseModificationTools.IVoxelModifier PasteModifier()
+    {
+        Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
+
+        Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
+
+        return new BaseModificationTools.CopyModifier(currentDataCopy, initialTransformWTL, newTransformWTL, controllerTransformWTL);
+    }
+
+    void DisplayPreivewIfEnabled()
+    {
+        if (!displayPreview || !copied)
+            return;
+
+        Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
+
+        if (!MatricesAreEqual(previousTransformWTL, newTransformWTL, 0.0001f))
+        {
+            BaseModificationTools.IVoxelModifier modifier = PasteModifier();
+
+            LinkedMarchingCubeController.ModificationManager.ShowPreviewData(currentEditShapeHandler.SelectedEditShape, modifier);
+
+            previousTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
+        }
+    }
+
     void Paste()
     {
         if (!copied) return;
@@ -148,12 +157,10 @@ public class CopyPasteTool : BaseTool
         {
             LinkedMarchingCubeController.ModificationManager.ApplyPreviewChanges();
         }
-            
         else
         {
-            Matrix4x4 newTransformWTL = currentEditShapeHandler.SelectedEditShape.transform.worldToLocalMatrix;
-            Matrix4x4 controllerTransformWTL = LinkedMarchingCubeController.transform.worldToLocalMatrix;
-            LinkedMarchingCubeController.ModificationManager.ModifyData(currentEditShapeHandler.SelectedEditShape, new BaseModificationTools.CopyModifier(currentDataCopy, initialTransformWTL, newTransformWTL, controllerTransformWTL));
+            BaseModificationTools.IVoxelModifier modifier = PasteModifier();
+            LinkedMarchingCubeController.ModificationManager.ModifyData(currentEditShapeHandler.SelectedEditShape, modifier);
         }
             
     }
