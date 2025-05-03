@@ -1,4 +1,6 @@
-# Marching cube editor
+# List of concepts and ideas
+Playground for ideas. Can contrain old, current and future elements
+
 ## Architecture
 ### Facade for implementing functions
 ```mermaid
