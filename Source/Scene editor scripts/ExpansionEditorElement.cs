@@ -145,7 +145,7 @@ public class ExpansionEditorElement : EditorElement
 
         // Paste
         Matrix4x4 newTransformWTL = linkedController.transform.worldToLocalMatrix;
-        CopyModifier copyModifier = new CopyModifier(currentDataCopy, newTransformWTL, initialTransformWTL, Matrix4x4.identity); // ToDo: Fix when resolution is not (1,1,1)
+        CopyModifier copyModifier = new CopyModifier(currentDataCopy, newTransformWTL, initialTransformWTL, newTransformWTL); // ToDo: Fix when resolution is not (1,1,1)
 
         VoxelData[,,] newData = new VoxelData[xSize, ySize, zSize];
 

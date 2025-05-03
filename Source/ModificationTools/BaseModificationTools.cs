@@ -42,14 +42,14 @@ public class BaseModificationTools
         VoxelData[,,] currentDataCopy;
         private Matrix4x4 originalTransformWTL;
         private Matrix4x4 newTransformWTL;
-        private Matrix4x4 controllerTransformWTL;
+        private Matrix4x4 referenceTransformWTL;
 
-        public CopyModifier(VoxelData[,,] currentDataCopy, Matrix4x4 originalTransformWTL, Matrix4x4 newTransformWTL, Matrix4x4 controllerTransformWTL)
+        public CopyModifier(VoxelData[,,] currentDataCopy, Matrix4x4 originalTransformWTL, Matrix4x4 newTransformWTL, Matrix4x4 referenceTransformWTL)
         {
             this.currentDataCopy = currentDataCopy;
             this.originalTransformWTL = originalTransformWTL;
             this.newTransformWTL = newTransformWTL;
-            this.controllerTransformWTL = controllerTransformWTL;
+            this.referenceTransformWTL = referenceTransformWTL;
         }
 
         public virtual VoxelData ModifyVoxel(int x, int y, int z, VoxelData currentValue, float distanceOutsideIsPositive)
@@ -58,12 +58,12 @@ public class BaseModificationTools
 
             // Convert voxel position to Vector3
             Vector3 originalPosition = new Vector3(x, y, z);
-            originalPosition = controllerTransformWTL.inverse.MultiplyPoint3x4(originalPosition);
+            originalPosition = referenceTransformWTL.inverse.MultiplyPoint3x4(originalPosition);
 
             // Apply transformation matrix
             Vector3 transformedPosition = TransformBetweenLocalSpaces(originalPosition, originalTransformWTL, newTransformWTL);
 
-            transformedPosition = controllerTransformWTL.MultiplyPoint3x4(transformedPosition);
+            transformedPosition = referenceTransformWTL.MultiplyPoint3x4(transformedPosition);
 
             // Get the integer floor and ceiling of the transformed position
             int x0 = Mathf.FloorToInt(transformedPosition.x);
