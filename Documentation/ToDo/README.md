@@ -3,12 +3,12 @@
 ## Tools
 - Heightmap addition
   - [x] Implement
-  - [ ] Fix wrong addition when world origin of heightmap not (0,0,0)
+  - [x] Fix wrong addition when world origin of heightmap not (0,0,0)
 - Terrain conversion
   - [x] Basic implementation
 - Limit height to cursor
   - [x] Reimplement
-  - [ ] Fix when prefab has offset
+  - [x] Fix when prefab has offset
 - Tunnel
   - [x] Basic implementation
   - [x] Preview with options
@@ -38,8 +38,8 @@
 ## Result visualization
 - Post process mesh (Chunk border normals, close by vertex merge, null area triangle merge)
   - [x] Basic implementation
-  - [ ] Give more options (One chunk, smooth normals, remove narrow triangles)
-  - [ ] Give time limits for processing
+  - [x] Give more options (One chunk, smooth normals, remove narrow triangles)
+  - [x] Give time limits for processing
   - [ ] Set on build option
 - [ ] Triplanar shader
 - [ ] Create LOD level for Chunks (Low prio)
@@ -51,11 +51,12 @@
 ## Editor visualization
 - [ ] Visual cuts
 - [ ] Normal direction shader
+- [x] Height hue shader
 
 ## Performance improvements
-- [ ] Faster save and load
+- [x] Faster save and load
 - [x] Only copy voxel data when needed
-- [ ] Measure current mesh processing time
+- [x] Measure current mesh processing time
 - [ ] Implement elemements (Like the preview) as a geometry shader (Low prio)
 
 ## Additional functionalities
