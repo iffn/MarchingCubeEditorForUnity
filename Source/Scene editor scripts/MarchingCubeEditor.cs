@@ -23,6 +23,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         private double nextAllowedRefreshTime = 0;
         private const double refreshCooldown = 0.1; // 100ms cooldown
 
+        bool NotPartOfScene => EditorUtility.IsPersistent(target);
+
         public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
 
         // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
@@ -54,7 +56,10 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable() 
         {
-			// Initialize controller
+            if (NotPartOfScene)
+                return;
+
+            // Initialize controller
             if (!LinkedMarchingCubeController.IsInitialized)
             {
                 if (LinkedMarchingCubeController.linkedSaveData != null)
@@ -108,19 +113,29 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public override void OnInspectorGUI()
         {
-            defaultFoldout = EditorGUILayout.Foldout(defaultFoldout, "Default Inspector", true);
-            if (defaultFoldout)
+            if (NotPartOfScene)
             {
+                // This object is a prefab asset (in the Project window)
                 DrawDefaultInspector();
+                EditorGUILayout.HelpBox("Note: Add the prefab to a scene to get access to the editor tools here.", MessageType.Info);
             }
+            else
+            {
+                // This object is in a scene (not a project prefab)
+                defaultFoldout = EditorGUILayout.Foldout(defaultFoldout, "Default Inspector", true);
+                if (defaultFoldout)
+                {
+                    DrawDefaultInspector();
+                }
 
-            sizeAndLoaderEditorElement.DrawAsFoldout();
-            expansionEditorElement.DrawAsFoldout();
-            settingsEditorElement.DrawAsFoldout();
+                sizeAndLoaderEditorElement.DrawAsFoldout();
+                expansionEditorElement.DrawAsFoldout();
+                settingsEditorElement.DrawAsFoldout();
 
-            postProcessingEditorElement.DrawAsFoldout();
+                postProcessingEditorElement.DrawAsFoldout();
 
-            toolEditorElement.DrawAsFoldout();
+                toolEditorElement.DrawAsFoldout();
+            }
         }
 
         public void LoadData()
