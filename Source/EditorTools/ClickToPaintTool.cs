@@ -27,7 +27,10 @@ public class ClickToPaintTool : BaseTool
     {
         base.OnEnable();
 
-        if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        if (placeableByClick == null)
+            placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+
+        raycastActive = true;
     }
 
     public override void OnDisable()

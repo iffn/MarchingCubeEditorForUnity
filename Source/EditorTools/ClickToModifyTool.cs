@@ -48,8 +48,12 @@ public class ClickToModifyTool : BaseTool
     {
         base.OnEnable();
 
-        if(placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        if(placeableByClick == null)
+            placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+        
         currentOffset = 0;
+
+        raycastActive = true;
     }
 
     public override void OnDisable()
