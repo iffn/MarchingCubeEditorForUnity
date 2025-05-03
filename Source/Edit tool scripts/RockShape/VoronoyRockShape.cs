@@ -5,8 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VoronoyRockShape : EditShape
+public class VoronoyRockShape : EditShape, IPlaceableByClick
 {
+    public EditShape AsEditShape => this;
+
+    public override OffsetTypes offsetType => OffsetTypes.towardsNormal;
+
     // Parameters for the SDF
     float baseFrequency = 10.0f;
     float baseAmplitude = 0.05f;
@@ -37,6 +41,13 @@ public class VoronoyRockShape : EditShape
         baseScale = linkedMaterial.GetFloat("_BaseScale");
         voronoiScale = linkedMaterial.GetFloat("_VoronoiScale");
         voronoiStrength = linkedMaterial.GetFloat("_VoronoiStrength");
+    }
+
+    protected override void SetupShortcutHandlers()
+    {
+        base.SetupShortcutHandlers();
+        shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
+        shortcutHandlers.Add(new HandleHorizontalRotateByHoldingDAndScrolling(transform));
     }
 
     public override (Vector3 minOffset, Vector3 maxOffset) GetLocalBoundingBox()

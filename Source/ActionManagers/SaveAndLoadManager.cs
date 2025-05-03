@@ -1,5 +1,8 @@
+//#define loadDataPerformanceOutput
+
 #if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
+using UnityEngine;
 using UnityEditor;
 
 public class SaveAndLoadManager
@@ -25,9 +28,23 @@ public class SaveAndLoadManager
 
     public void LoadGridData(ScriptableObjectSaveData saveData)
     {
+#if loadDataPerformanceOutput
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+#endif
+
         VoxelData[,,] voxelData = saveData.LoadData();
 
+#if loadDataPerformanceOutput
+        Debug.Log($"Load voxel data: {sw.Elapsed.TotalMilliseconds}ms");
+        sw.Restart();
+#endif
+
         linkedController.SetAllGridDataAndUpdateMesh(voxelData);
+
+#if loadDataPerformanceOutput
+        Debug.Log($"Set voxel data: {sw.Elapsed.TotalMilliseconds}ms");
+#endif
     }
 }
 #endif

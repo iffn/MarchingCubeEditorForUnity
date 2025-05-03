@@ -15,7 +15,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             // Determine cube configuration based on corner weights
             for (int i = 0; i < 8; i++)
             {
-                if (cubeData[i].Weight > 0)
+                if (cubeData[i].WeightInsideIsPositive > 0)
                     cubeIndex |= 1 << i;
             }
 
@@ -86,7 +86,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         private static (Vector3, Color32) InterpolateEdge(Vector3 p1, Vector3 p2, VoxelData val1, VoxelData val2)
         {
-            float t = (0 - val1.Weight) / (val2.Weight - val1.Weight);  // t is the interpolation factor
+            float t = (0 - val1.WeightInsideIsPositive) / (val2.WeightInsideIsPositive - val1.WeightInsideIsPositive);  // t is the interpolation factor
             return (p1 + t * (p2 - p1), Color32.Lerp(val1.Color, val2.Color, t));
         }
 

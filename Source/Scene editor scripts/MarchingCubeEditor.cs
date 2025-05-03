@@ -10,54 +10,100 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
     [CustomEditor(typeof(MarchingCubesController))]
     public class MarchingCubeEditor : Editor
     {
-        int gridResolutionX = 20;
-        int gridResolutionY = 20;
-        int gridResolutionZ = 20;
+        bool defaultFoldout = false;
+        const int autoLoadMaxSize = 200 * 200 * 200;
 
-        List<BaseTool> tools;
-
-        // This stores all the currently selectedTools across different Editors by using the
-        // MarchingCubesController as a Key.
-        readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
-
-
-        bool generalFoldout = true;
-        bool settingsFoldout = true;
-        bool toolsFoldout = true;
-
+        SizeAndLoaderEditorElement sizeAndLoaderEditorElement;
+        ExpansionEditorElement expansionEditorElement;
         PostProcessingEditorElement postProcessingEditorElement;
+        SettingsEditorElement settingsEditorElement;
+        ToolEditorElement toolEditorElement;
 
-        BaseTool CurrentTool 
+        private bool refreshScheduled = false;
+        private double nextAllowedRefreshTime = 0;
+        private const double refreshCooldown = 0.1; // 100ms cooldown
+
+        bool NotPartOfScene => EditorUtility.IsPersistent(target);
+
+        public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
+
+        // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
+        readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
+		
+        public BaseTool CurrentTool 
         {
             get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
-            set 
+            set
             {
-                if (selectedTool.TryGetValue(target, out BaseTool tool)) 
-                    tool.OnDisable();
-                selectedTool[target] = value;
-                value.OnEnable();
+                if (selectedTool.TryGetValue(target, out BaseTool currentTool))
+                {
+                    currentTool.OnDisable();
+                }
+
+                if (value == null)
+                {
+                    selectedTool.Remove(target);
+                    LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = null;
+                }
+                else
+                {
+                    selectedTool[target] = value;
+                    value.OnEnable();
+                    LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = value;
+                }
             }
         }
 
-        public MarchingCubesController Controller => (MarchingCubesController)target;
-
-        public void LoadData()
+        private void OnEnable() 
         {
-            if (Controller.linkedSaveData == null)
+            if (NotPartOfScene)
                 return;
 
-            gridResolutionX = Controller.linkedSaveData.resolutionX;
-            gridResolutionY = Controller.linkedSaveData.resolutionY;
-            gridResolutionZ = Controller.linkedSaveData.resolutionZ;
-            Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-            Controller.SaveAndLoadManager.LoadGridData(Controller.linkedSaveData);
-        }
+            // Initialize controller
+            if (!LinkedMarchingCubeController.IsInitialized)
+            {
+                if (LinkedMarchingCubeController.linkedSaveData != null)
+                {
+                    bool largeFile = LinkedMarchingCubeController.linkedSaveData.VoxelCount > autoLoadMaxSize;
 
-        public override void OnInspectorGUI()
-        {
-            DrawSetupUI();
-            postProcessingEditorElement.DrawAsFoldout(Controller);
-            DrawEditUI();
+                    if (largeFile)
+                    {
+                        LinkedMarchingCubeController.Initialize(1, 1, 1, true, true);
+                        Debug.Log($"Note: Loading skipped during initialization since it would have {LinkedMarchingCubeController.linkedSaveData.VoxelCount} voxels. Please load manually if needed.");
+                    }
+                    else
+                    {
+                        LinkedMarchingCubeController.Initialize(1, 1, 1, true, false);
+                        LoadData();
+                    }
+                }
+                else
+                {
+                    LinkedMarchingCubeController.Initialize(20, 20, 20, true, false);
+                }
+            }
+            else
+            {
+                // ToDo: Update resolution
+            }
+
+            // Setup foldouts
+            if (sizeAndLoaderEditorElement == null)
+                sizeAndLoaderEditorElement = new SizeAndLoaderEditorElement(this, true);
+
+			if(expansionEditorElement == null)
+                expansionEditorElement = new ExpansionEditorElement(this, false);
+
+			if(postProcessingEditorElement == null)
+                postProcessingEditorElement = new PostProcessingEditorElement(this, false);
+
+			if(settingsEditorElement == null)
+                settingsEditorElement = new SettingsEditorElement(this, false);
+
+			if(toolEditorElement == null)
+                toolEditorElement = new ToolEditorElement(this, true);
+            
+            SceneView.duringSceneGui += UpdateSceneInteractionForController;
         }
 
         private void OnDisable() 
@@ -65,119 +111,39 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             SceneView.duringSceneGui -= UpdateSceneInteractionForController;
         }
 
-        private void OnEnable() 
+        public override void OnInspectorGUI()
         {
-            tools = BaseTool.GetTools(this).ToList();
-
-            if(postProcessingEditorElement == null)
-                postProcessingEditorElement = new PostProcessingEditorElement(true);
-
-            if (!Controller.IsInitialized)
+            if (NotPartOfScene)
             {
-                if (Controller.linkedSaveData == null)
-                    Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-                else
-                    LoadData();
+                // This object is a prefab asset (in the Project window)
+                DrawDefaultInspector();
+                EditorGUILayout.HelpBox("Note: Add the prefab to a scene to get access to the editor tools here.", MessageType.Info);
             }
             else
             {
-                gridResolutionX = Controller.GridResolutionX;
-                gridResolutionY = Controller.GridResolutionY;
-                gridResolutionZ = Controller.GridResolutionZ;
-            }
+                // This object is in a scene (not a project prefab)
+                defaultFoldout = EditorGUILayout.Foldout(defaultFoldout, "Default Inspector", true);
+                if (defaultFoldout)
+                {
+                    DrawDefaultInspector();
+                }
 
-            SceneView.duringSceneGui += UpdateSceneInteractionForController;
+                sizeAndLoaderEditorElement.DrawAsFoldout();
+                expansionEditorElement.DrawAsFoldout();
+                settingsEditorElement.DrawAsFoldout();
+
+                postProcessingEditorElement.DrawAsFoldout();
+
+                toolEditorElement.DrawAsFoldout();
+            }
         }
 
-        //Components
-        void DrawSetupUI()
+        public void LoadData()
         {
-            generalFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(generalFoldout, "General");
-            if (generalFoldout)
-            {
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("X");
-                GUILayout.Label("Y");
-                GUILayout.Label("Z");
-                EditorGUILayout.EndHorizontal();
-                EditorGUILayout.BeginHorizontal();
-                gridResolutionX = EditorGUILayout.IntField(gridResolutionX);
-                gridResolutionY = EditorGUILayout.IntField(gridResolutionY);
-                gridResolutionZ = EditorGUILayout.IntField(gridResolutionZ);
-                EditorGUILayout.EndHorizontal();
+            if (LinkedMarchingCubeController.linkedSaveData == null)
+                return;
 
-                if (GUILayout.Button("Apply and set empty"))
-                {
-                    Controller.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true);
-                }
-
-                GUILayout.Label("Save data:");
-                ScriptableObjectSaveData newSaveData = EditorGUILayout.ObjectField(
-                Controller.linkedSaveData,
-                typeof(ScriptableObjectSaveData),
-                true) as ScriptableObjectSaveData;
-
-
-                if (newSaveData != Controller.linkedSaveData)
-                {
-                    Undo.RecordObject(Controller, "Set save data file");
-                    Controller.linkedSaveData = newSaveData;
-                    EditorUtility.SetDirty(Controller);
-                    if (!Application.isPlaying)
-                        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(Controller.gameObject.scene);
-                }
-
-                if (Controller.linkedSaveData != null)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    if (GUILayout.Button($"Save data")) Controller.SaveAndLoadManager.SaveGridData(Controller.linkedSaveData);
-                    if (GUILayout.Button($"Load data")) LoadData();
-                    EditorGUILayout.EndHorizontal();
-                }
-
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-
-            settingsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(settingsFoldout, "Settings");
-            if (settingsFoldout)
-            {
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-                Controller.ForceColliderOn = EditorGUILayout.Toggle("Force colliders on", Controller.ForceColliderOn);
-
-                Controller.VisualisationManager.ShowGridOutline = EditorGUILayout.Toggle("Show Grid Outline", Controller.VisualisationManager.ShowGridOutline);
-                Controller.InvertAllNormals = EditorGUILayout.Toggle("Inverted normals", Controller.InvertAllNormals);
-
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-        }
-
-        void DrawEditUI()
-        {
-            toolsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(toolsFoldout, "Tools");
-            if (toolsFoldout)
-            {
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-                string[] tabs = tools.Select(tool => tool.DisplayName).ToArray();
-                int index = tools.FindIndex(tab => tab == CurrentTool);
-
-                // Draw Toolbar
-                int newIndex = GUILayout.Toolbar(index, tabs);
-                if (newIndex != index)
-                    CurrentTool = tools[newIndex];
-                    
-                // Draw current tool
-                if (CurrentTool != null)
-                    CurrentTool.DrawUI();
-
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+            LinkedMarchingCubeController.SaveAndLoadManager.LoadGridData(LinkedMarchingCubeController.linkedSaveData);
         }
 
         void UpdateSceneInteractionForController(SceneView sceneView)
@@ -185,7 +151,40 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             CurrentTool?.HandleSceneUpdate(Event.current);
         }
 
-        
+        public void RequestRefresh()
+        {
+            if (!refreshScheduled)
+            {
+                refreshScheduled = true;
+                nextAllowedRefreshTime = EditorApplication.timeSinceStartup + refreshCooldown;
+                EditorApplication.delayCall += TryRefresh;
+            }
+        }
+
+        private void TryRefresh()
+        {
+            // Early exit if target disappears
+            if (serializedObject == null || serializedObject.targetObject == null)
+            {
+                refreshScheduled = false;
+                return;
+            }
+
+            double now = EditorApplication.timeSinceStartup;
+            if (now >= nextAllowedRefreshTime)
+            {
+                // Cooldown finished -> do the real refresh
+                refreshScheduled = false;
+                EditorUtility.SetDirty(target);
+                Repaint();
+            }
+            else
+            {
+                // Cooldown not finished -> schedule another check next frame
+                EditorApplication.delayCall += TryRefresh;
+            }
+        }
+
         public RayHitResult RaycastAtMousePosition(Event e, bool detectBoundingBox = true)
         {
             Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
@@ -196,8 +195,8 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             if (!detectBoundingBox)
                 return RayHitResult.None;
 
-            Vector3 areaPosition = Controller.transform.position;
-            Vector3Int areaSize = Controller.MaxGrid;
+            Vector3 areaPosition = LinkedMarchingCubeController.transform.position;
+            Vector3Int areaSize = LinkedMarchingCubeController.MaxGrid;
             Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
             
             var result = bounds.GetIntersectRayPoints(ray);

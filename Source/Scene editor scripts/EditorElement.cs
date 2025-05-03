@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -9,22 +10,34 @@ public abstract class EditorElement
 {
     public abstract string DisplayName { get; }
 
+    protected MarchingCubeEditor linkedEditor;
+    protected MarchingCubesController linkedController => linkedEditor.LinkedMarchingCubeController;
 
-    public abstract void DrawUI(MarchingCubesController linkedController);
+    public abstract void DrawUI();
 
     public bool foldoutOpen;
 
-    public EditorElement(bool foldoutOpenByDefault)
+    public EditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault)
     {
+        this.linkedEditor = linkedEditor;
         foldoutOpen = foldoutOpenByDefault;
     }
 
-    public void DrawAsFoldout(MarchingCubesController linkedController)
+    public virtual void OnEnable()
     {
-        foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, DisplayName);
+
+    }
+
+    public void DrawAsFoldout()
+    {
         if (foldoutOpen)
         {
-            DrawUI(linkedController);
+            foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, $"{DisplayName}:");
+            DrawUI();
+        }
+        else
+        {
+            foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, DisplayName); // Only show colon when foldout is open
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
     }

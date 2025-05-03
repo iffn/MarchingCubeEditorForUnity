@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 
+using iffnsStuff.MarchingCubeEditor.Core;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +11,14 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
     [ExecuteInEditMode]
     public abstract class EditShape : MonoBehaviour
     {
+        public enum OffsetTypes
+        {
+            vertical,
+            towardsNormal
+        }
+
+        public abstract OffsetTypes offsetType { get; }
+
         private Matrix4x4 worldToLocalMatrix;
 
         /// <summary>
@@ -19,12 +29,17 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             worldToLocalMatrix = transform.worldToLocalMatrix * gridTransform.localToWorldMatrix;
         }
 
+        public Vector3 ConcertWorldToOptimizedLocalPoint(Vector3 worldPoint)
+        {
+            return worldToLocalMatrix.MultiplyPoint3x4(worldPoint);
+        }
+
         /// <summary>
         /// Calculate the distance to the shape surface in world space.
         /// </summary>
-        public float OptimizedDistance(Vector3 worldPoint)
+        public float OptimizedDistanceOutsideIsPositive(Vector3 worldPoint)
         {
-            Vector3 localPoint = worldToLocalMatrix.MultiplyPoint3x4(worldPoint);
+            Vector3 localPoint = ConcertWorldToOptimizedLocalPoint(worldPoint);
             return DistanceOutsideIsPositive(localPoint);
         }
 
@@ -36,17 +51,12 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         /// <summary>
         /// The shape's position in world space.
         /// </summary>
-        public Vector3 Position => transform.position;
+        public Vector3 WorldPosition => transform.position;
 
         /// <summary>
         /// The shape's scale in local space.
         /// </summary>
-        public Vector3 Scale => transform.localScale;
-
-        /// <summary>
-        /// Material linked to the shape for visualization.
-        /// </summary>
-        [SerializeField] private Material linkedMaterial;
+        public Vector3 LocalScale => transform.localScale;
 
         readonly protected List<ShortcutHandler> shortcutHandlers = new List<ShortcutHandler>();
 
@@ -59,26 +69,32 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         {
             shortcutHandlers.Clear();
             SetupShortcutHandlers();
+            gameObject.SetActive(true);
         }
 
         protected virtual void SetupShortcutHandlers()
         {
-            shortcutHandlers.Add(new HandleScaleByHoldingSAndScrolling(transform));
+            
+        }
+
+        public virtual string HelpText
+        {
+            get
+            {
+                string helpText = "";
+
+                foreach (ShortcutHandler handler in shortcutHandlers)
+                {
+                    helpText += "\n• " + handler.ShortcutText;
+                }
+
+                return helpText;
+            }
         }
 
         public virtual void DrawUI()
         {
-            string helpText = "Controls:\n" +
-                    "Note that the scene has to be active for some of these to work.\n"+
-                    "Click to add\n" +
-                    "Ctrl Click to subtract";
-
-            foreach(ShortcutHandler handler in shortcutHandlers)
-            {
-                helpText += "\n" + handler.ShortcutText;
-            }
-
-            EditorGUILayout.HelpBox(helpText, MessageType.None);
+            
         }
 
         public virtual void HandleSceneUpdate(Event e)
@@ -86,29 +102,6 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             foreach (ShortcutHandler handler in shortcutHandlers)
             {
                 handler.HandleShortcut(e);
-            }
-        }
-
-        public Color Color
-        {
-            set
-            {
-                //ToDo: Make better
-                return;
-
-                if (linkedMaterial == null)
-                {
-                    Renderer renderer = GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        linkedMaterial = renderer.material;
-                    }
-                }
-
-                if (linkedMaterial != null)
-                {
-                    linkedMaterial.SetColor("_Color", value);
-                }
             }
         }
 
@@ -149,6 +142,61 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             }
 
             return (worldMin, worldMax);
+        }
+    }
+
+    public interface IPlaceableByClick
+    {
+        EditShape AsEditShape { get; }
+    }
+
+    public class PlaceableByClickHandler
+    {
+        public IPlaceableByClick SelectedShape { get; private set; }
+        public EditShape SelectedEditShape => SelectedShape.AsEditShape;
+        public List<IPlaceableByClick> EditShapes { get; } = new List<IPlaceableByClick>();
+        string[] EditShapeNames { get; }
+        int selectedIndex;
+
+        public PlaceableByClickHandler(MarchingCubesController linkedController)
+        {
+            List<EditShape> shapes = linkedController.ShapeList;
+
+            EditShapes.Clear();
+
+
+            foreach (EditShape shape in shapes)
+            {
+                if (shape is IPlaceableByClick clickableShape)
+                {
+                    EditShapes.Add(clickableShape);
+                    shape.gameObject.SetActive(false);
+                }
+            }
+
+            EditShapeNames = new string[EditShapes.Count];
+
+            for (int i = 0; i < EditShapes.Count; i++)
+            {
+                EditShapeNames[i] = EditShapes[i].AsEditShape.transform.name;
+            }
+
+            selectedIndex = Math.Clamp(selectedIndex, 0, EditShapes.Count);
+            SelectedShape = EditShapes[selectedIndex];
+            SelectedEditShape.Initialize();
+        }
+
+        public void DrawEditorUI()
+        {
+            int newSelectedIndex = EditorGUILayout.Popup("Selected shape", selectedIndex, EditShapeNames);
+
+            if(newSelectedIndex != selectedIndex)
+            {
+                SelectedEditShape.gameObject.SetActive(false);
+                selectedIndex = newSelectedIndex;
+                SelectedShape = EditShapes[selectedIndex];
+                SelectedEditShape.Initialize();
+            }
         }
     }
 }

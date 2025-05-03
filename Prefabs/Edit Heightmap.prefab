@@ -151,7 +151,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac4905bedec7a5c43bfa59d1eb791e50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linkedMaterial: {fileID: 2100000, guid: b38f22ce452c8c94e8aa461512f97e25, type: 2}
   heightmapTextures:
   - {fileID: 2800000, guid: 9e8ca77a70e884b478e4a43381fbd562, type: 3}
   - {fileID: 2800000, guid: 40d38a32d7178e444b625acde725ddb5, type: 3}
@@ -178,7 +177,10 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 54a2b810131806049a874e72c5960b8f, type: 3}
   - {fileID: 2800000, guid: d51433e4ecd266749a1724b396a92bff, type: 3}
   - {fileID: 2800000, guid: f7a0287770dc58a4b894868c96cf922a, type: 3}
-  heightmapDisplayMaterial: {fileID: 2100000, guid: 114e15bd6ab5c2e42870025f74ac1708, type: 2}
+  - {fileID: 2800000, guid: 96a65e60bb11c0446a9bac3cf7402f39, type: 3}
+  - {fileID: 2800000, guid: 66f74c000b9525740b19a75dd3ab81ad, type: 3}
+  heightmapDisplayMaterial: {fileID: 2100000, guid: 114e15bd6ab5c2e42870025f74ac1708,
+    type: 2}
 --- !u!1 &9089664717611121996
 GameObject:
   m_ObjectHideFlags: 0

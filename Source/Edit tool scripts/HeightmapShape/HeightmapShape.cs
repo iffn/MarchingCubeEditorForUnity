@@ -3,8 +3,12 @@ using iffnsStuff.MarchingCubeEditor.EditTools;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HeightmapShape : EditShape
+public class HeightmapShape : EditShape, IPlaceableByClick
 {
+    public EditShape AsEditShape => this;
+
+    public override OffsetTypes offsetType => OffsetTypes.vertical;
+
     private float[,] heightmapData; // 2D array to store heightmap values
     private int heightmapWidth;
     private int heightmapHeight;
@@ -55,9 +59,14 @@ public class HeightmapShape : EditShape
             for (int y = 0; y < heightmapHeight; y++)
             {
                 // Read pixel grayscale value and store as height
-                heightmapData[x, y] = heightmapTexture.GetPixel(x, y).r;
+                float rawValue = heightmapTexture.GetPixel(x, y).r;
 
-                if(max < heightmapData[x, y]) max = heightmapData[x, y];
+                //Convert from gamma to linear color space
+                float linearValue = Mathf.GammaToLinearSpace(rawValue);
+
+                heightmapData[x, y] = Mathf.Clamp01(linearValue); // Clamp to 0-1
+
+                if (max < heightmapData[x, y]) max = heightmapData[x, y];
                 if(min > heightmapData[x, y]) min = heightmapData[x, y];
             }
         }

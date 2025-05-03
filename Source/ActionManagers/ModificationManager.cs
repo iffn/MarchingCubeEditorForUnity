@@ -2,8 +2,10 @@
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using static BaseModificationTools;
+using static MarchingCubesPreview;
 
 public class ModificationManager
 {
@@ -24,13 +26,18 @@ public class ModificationManager
         (Vector3Int minGrid, Vector3Int maxGrid) = CalculateGridBoundsClamped(shape);
 
         // Modify model
-        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetDataPoint, linkedController.SetDataPointWithoutSettingItToDirty); // Warning: In this case, get has access to the new data
+        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetVoxelWithoutClamp, linkedController.SetDataPointWithoutSettingItToDirty); // Warning: In this case, get has access to the new data
 
         // Mark affected chunks as dirty
         linkedController.MarkRegionDirty(minGrid, maxGrid);
 
         // Update affected chunk meshes
         linkedController.UpdateAffectedChunks(minGrid, maxGrid);
+    }
+
+    public void SetPreviewDisplayState(MarchingCubesPreview.PreviewDisplayStates newState)
+    {
+       linkedController.Preview.SetPreviewDisplayState(newState);
     }
 
     public void ShowPreviewData(EditShape shape, IVoxelModifier modifier)
@@ -40,7 +47,7 @@ public class ModificationManager
         linkedController.SetupPreviewZone(minGrid, maxGrid);
 
         //Modify the model
-        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetDataPoint, linkedController.SetPreviewDataPoint); // Warning: In this case, get has access to the old data
+        ModifyModel(shape, modifier, minGrid, maxGrid, linkedController.GetVoxelWithoutClamp, linkedController.SetPreviewDataPoint); // Warning: In this case, get has access to the old data
 
         linkedController.UpdatePreviewShape();
     }
@@ -50,7 +57,7 @@ public class ModificationManager
         linkedController.ApplyPreviewChanges(); //Takes care of setting stuff to dirty
     }
 
-    private (Vector3Int minGrid, Vector3Int maxGrid) CalculateGridBoundsClamped(EditShape shape)
+    public (Vector3Int minGrid, Vector3Int maxGrid) CalculateGridBoundsClamped(EditShape shape)
     {
         // Precompute transformation matrices
         Matrix4x4 worldToGrid = linkedControllerTransform.worldToLocalMatrix; // Transform world space to grid space
@@ -70,26 +77,36 @@ public class ModificationManager
         return (minGrid, maxGrid);
     }
 
+    public void ModifySingleVoxel(int x, int y, int z, VoxelData newValue)
+    {
+        linkedController.VoxelDataReference[x,y, z] = newValue;
+
+        Vector3Int point = new Vector3Int(x, y, z);
+
+        linkedController.MarkRegionDirty(point);
+
+        linkedController.UpdateAffectedChunks(point);
+    }
+
     void ModifyModel(EditShape shape, IVoxelModifier modifier, Vector3Int minGrid, Vector3Int maxGrid, Func<int, int, int, VoxelData> getDataPoint, Action<int, int, int, VoxelData> setDataPoint)
     {
         float worldToGridScaleFactor = linkedControllerTransform.localScale.magnitude; //ToDo: Reimplement scaling
 
         // Parallel processing
-        System.Threading.Tasks.Parallel.For(minGrid.x, maxGrid.x, x =>
+        Parallel.For(minGrid.x, maxGrid.x + 1, x =>
         {
-            for (int y = minGrid.y; y < maxGrid.y; y++)
+            for (int y = minGrid.y; y < maxGrid.y + 1; y++)
             {
-                for (int z = minGrid.z; z < maxGrid.z; z++)
+                for (int z = minGrid.z; z < maxGrid.z + 1; z++)
                 {
                     // Transform grid position to world space
                     Vector3 gridPoint = new Vector3(x, y, z);
 
                     // Calculate the distance using the shape's transformation
-                    float distance = shape.OptimizedDistance(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
+                    float distanceOutsideIsPositive = shape.OptimizedDistanceOutsideIsPositive(gridPoint); //Note: Since this transform was passed for the transformation matrix and each grid point has a size of 1, the grid point can be used directly.
 
                     // Modify the voxel value
-                    VoxelData currentValue = getDataPoint(x, y, z);
-                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, currentValue, distance);
+                    VoxelData newValue = modifier.ModifyVoxel(x, y, z, linkedController.VoxelDataReference[x, y, z], distanceOutsideIsPositive);
                     setDataPoint(x, y, z, newValue);
                 }
             }

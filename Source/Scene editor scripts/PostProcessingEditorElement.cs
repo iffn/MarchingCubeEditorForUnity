@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using iffnsStuff.MarchingCubeEditor.Core;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -9,12 +10,12 @@ public class PostProcessingEditorElement : EditorElement
 {
     public override string DisplayName => "Post processing";
 
-    public PostProcessingEditorElement(bool foldoutOpenByDefault) : base(foldoutOpenByDefault)
+    public PostProcessingEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
     {
         // Constructor
     }
 
-    public override void DrawUI(MarchingCubesController linkedController)
+    public override void DrawUI()
     {
         PostProcessingOptions options = linkedController.CurrentPostProcessingOptions;
 

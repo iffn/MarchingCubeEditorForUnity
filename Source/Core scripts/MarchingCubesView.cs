@@ -1,17 +1,27 @@
+//#define singleViewPerformanceOutput
+
 #if UNITY_EDITOR
 
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using static iffnsStuff.MarchingCubeEditor.Core.MarchingCubesController;
 
 namespace iffnsStuff.MarchingCubeEditor.Core
 {
-    [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
     public class MarchingCubesView : MonoBehaviour
     {
         static readonly System.Diagnostics.Stopwatch PostProcessingStopwatch = new System.Diagnostics.Stopwatch();
         public static int ModifiedElements { get; private set; }
         public static int RemovedVertices { get; private set; }
+
+        Vector3Int gridBoundsMin;
+        Vector3Int gridBoundsMax;
+
+        private bool isDirty; // Whether this chunk's mesh needs updating
+        private bool invertedNormals;
+
+        Mesh mesh;
 
         public static void ResetPostProcessingDiagnostics()
         {
@@ -22,42 +32,178 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         public static double ElapsedPostProcessingTimeSeconds => PostProcessingStopwatch.Elapsed.TotalSeconds;
 
-        private MeshFilter meshFilter;
-        private MeshCollider meshCollider;
+        [SerializeField] MeshFilter linkedMeshFilter;
+        [SerializeField] MeshCollider linkedMeshCollider;
+        [SerializeField] MeshRenderer mainMeshRenderer;
+        [SerializeField] GameObject grassMeshHolder;
+        [SerializeField] MeshFilter grassMeshFilter;
+        [SerializeField] MeshRenderer grassMeshRenderer;
 
-        Vector3Int gridBoundsMin;
-        Vector3Int gridBoundsMax;
+        public bool SetupIsCorrect(MarchingCubesView prefabReference)
+        {
+            // Assignments
+            if(linkedMeshFilter == null) return false;
+            if(linkedMeshCollider == null) return false;
+            if(mainMeshRenderer == null) return false;
+            if(grassMeshHolder == null) return false;
+            if(grassMeshFilter == null) return false;
+            if(grassMeshRenderer == null) return false;
 
-        private bool isDirty;           // Whether this chunk's mesh needs updating
-        private bool invertedNormals;
+            // GetComponents
+            // All done via SerializeField so far
+
+            // Comparison with prefeabReference
+            if(transform.childCount != prefabReference.transform.childCount) return false;
+
+            // Return true if no problem found
+            return true;
+        }
+
+        public Material CurrentMainMaterial
+        {
+            get
+            {
+                if (mainMeshRenderer == null)
+                    return null;
+                else
+                    return mainMeshRenderer.sharedMaterial;
+            }
+            set
+            {
+                if (mainMeshRenderer == null)
+                    return;
+                else
+                    mainMeshRenderer.sharedMaterial = value;
+            }
+        }
+
+        public Material CurrentGrassMaterial
+        {
+            get
+            {
+                if (grassMeshRenderer == null)
+                    return null;
+                else
+                    return grassMeshRenderer.sharedMaterial;
+            }
+            set
+            {
+                grassMeshHolder.SetActive(value != null);
+
+                grassMeshRenderer.sharedMaterial = value;
+            }
+        }
 
         public Vector3Int GridBoundsMin => gridBoundsMin;
         public Vector3Int GridBoundsMax => gridBoundsMax;
+
+        public Mesh SharedMesh => linkedMeshFilter.sharedMesh;
+
+        public bool ColliderEnabled
+        {
+            get
+            {
+                return linkedMeshCollider.enabled;
+            }
+            set
+            {
+                bool wasOn = linkedMeshCollider.enabled;
+
+                linkedMeshCollider.enabled = value;
+
+                if (value && !wasOn)
+                    UpdateCollider();
+            }
+        }
+
+        // Public functions
+        public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled, Material mainMaterial, Material grassMaterial)
+        {
+            Initialize(gridBoundsMin, gridBoundsMax, colliderEnabled);
+
+            if (mainMaterial != null)
+                mainMeshRenderer.sharedMaterial = mainMaterial;
+
+            CurrentGrassMaterial = grassMaterial;
+        }
 
         public void Initialize(Vector3Int gridBoundsMin, Vector3Int gridBoundsMax, bool colliderEnabled)
         {
             this.gridBoundsMin = gridBoundsMin;
             this.gridBoundsMax = gridBoundsMax;
 
-            transform.localPosition = new Vector3(gridBoundsMin.x, gridBoundsMin.y, gridBoundsMin.z);
-            
-            meshFilter = GetComponent<MeshFilter>();
-            meshCollider = GetComponent<MeshCollider>();
 
-            if (meshFilter.sharedMesh == null)
+            transform.localPosition = new Vector3(gridBoundsMin.x, gridBoundsMin.y, gridBoundsMin.z);
+
+            if (linkedMeshFilter.sharedMesh == null)
             {
-                meshFilter.mesh = new Mesh();
+                linkedMeshFilter.mesh = new Mesh();
             }
             else
             {
-                meshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
+                linkedMeshFilter.sharedMesh.Clear(); // Clear existing mesh data for reuse
             }
 
-            meshCollider.enabled = colliderEnabled;
+            mesh = linkedMeshFilter.sharedMesh;
 
-            meshCollider.sharedMesh = meshFilter.sharedMesh;
+            grassMeshFilter.sharedMesh = mesh;
+
+            linkedMeshCollider.enabled = colliderEnabled;
+
+            if(mesh.vertexCount > 0)
+                linkedMeshCollider.sharedMesh = mesh;
 
             isDirty = true; // Mark the chunk as dirty upon initialization
+        }
+
+        public bool IsWithinBounds(Vector3Int min, Vector3Int max)
+        {
+            // Check for overlap between the chunk and the affected region
+            return !(gridBoundsMax.x < min.x || gridBoundsMin.x > max.x ||
+                     gridBoundsMax.y < min.y || gridBoundsMin.y > max.y ||
+                     gridBoundsMax.z < min.z || gridBoundsMin.z > max.z);
+        }
+
+        public bool IsWithinBounds(Vector3Int point)
+        {
+            // Check for overlap between the chunk and the affected region
+            bool isInGrid = !(gridBoundsMax.x < point.x || gridBoundsMin.x > point.x ||
+                     gridBoundsMax.y < point.y || gridBoundsMin.y > point.y ||
+                     gridBoundsMax.z < point.z || gridBoundsMin.z > point.z); ;
+
+            return isInGrid;
+        }
+
+        public void PostProcessMesh(PostProcessingOptions currentPostProcessingOptions)
+        {
+            PostProcessingStopwatch.Start();
+
+            if (currentPostProcessingOptions.mergeTriangles)
+            {
+                MeshUtilityFunctions.RemoveDegenerateTriangles(
+                    mesh,
+                    PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds,
+                    out int removedVertices, out int modifiedElements,
+                    currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
+
+                ModifiedElements += modifiedElements;
+                RemovedVertices += removedVertices;
+            }
+
+            FinishMesh();
+
+            if (currentPostProcessingOptions.smoothNormals)
+            {
+                mesh.RecalculateNormals();
+                SmoothNormalsWithDistanceBias(mesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
+
+                mesh.RecalculateTangents();
+                //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
+                if (ColliderEnabled)
+                    UpdateCollider();
+            }
+
+            PostProcessingStopwatch.Stop();
         }
 
         public void UpdateBounds(Vector3Int min, Vector3Int max)
@@ -68,85 +214,55 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             transform.localPosition = new Vector3(min.x, min.y, min.z);
         }
 
-        private void OnDestroy()
-        {
-            // Safely destroy the dynamically created mesh
-            if (meshFilter != null && meshFilter.sharedMesh != null)
-            {
-                Destroy(meshFilter.sharedMesh);
-            }
-
-            // Optionally clear the collider's mesh reference
-            if (meshCollider != null)
-            {
-                meshCollider.sharedMesh = null;
-            }
-        }
-
         public void MarkDirty()
         {
             isDirty = true;
         }
 
-        public void UpdateMeshIfDirty(MarchingCubesModel model)
+        public void UpdateMeshIfDirty(MarchingCubesModel model, bool parallelCall)
         {
             if (!isDirty) return;
 
+#if singleViewPerformanceOutput
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+#endif
+
             // Generate mesh data for this chunk
-            MarchingCubesMeshData meshData = GenerateChunkMesh(model);
+            cachedMeshData = GenerateChunkMesh(model);
+
+#if singleViewPerformanceOutput
+            Debug.Log($"GenerateChunkMesh: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+#endif
 
             // Update the view's mesh
-            UpdateMesh(meshData);
+            if (!parallelCall)
+                ApplyNonParallelMeshDataIfDirty();
 
-            isDirty = false; // Mark as clean
+#if singleViewPerformanceOutput
+            Debug.Log($"UpdateMesh: {sw.Elapsed.TotalMilliseconds}ms");
+            sw.Restart();
+#endif
         }
 
-        private MarchingCubesMeshData GenerateChunkMesh(MarchingCubesModel model)
+        MarchingCubesMeshData cachedMeshData;
+
+        public void ApplyNonParallelMeshDataIfDirty()
         {
-            MarchingCubesMeshData meshData = new MarchingCubesMeshData();
+            if (!isDirty) return;
 
-            for (int x = gridBoundsMin.x; x < gridBoundsMax.x; x++)
-            {
-                for (int y = gridBoundsMin.y; y < gridBoundsMax.y; y++)
-                {
-                    for (int z = gridBoundsMin.z; z < gridBoundsMax.z; z++)
-                    {
-                        // Directly query the model for cube weights
-                        VoxelData[] cubeData = model.GetCubeWeights(x, y, z);
-                        MarchingCubes.GenerateCubeMesh(meshData, cubeData, x - gridBoundsMin.x, y - gridBoundsMin.y, z - gridBoundsMin.z, invertedNormals);
-                    }
-                }
-            }
-
-            return meshData;
-        }
-
-        public void UpdateMesh(MarchingCubesMeshData meshData)
-        {
-            UpdateMesh(meshData.vertices, meshData.triangles, meshData.colors);
-        }
-
-        public void UpdateMesh(List<Vector3> vertices, List<int> triangles, List<Color32> colors)
-        {
-            Mesh mesh = meshFilter.sharedMesh;
             mesh.Clear();
 
-            mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, 0);
-            mesh.SetColors(colors);
+            mesh.indexFormat = (cachedMeshData.vertices.Count > 65535) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
+
+            mesh.SetVertices(cachedMeshData.vertices);
+            mesh.SetTriangles(cachedMeshData.triangles, 0);
+            mesh.SetColors(cachedMeshData.colors);
 
             FinishMesh();
-        }
 
-        void UpdateCollider()
-        {
-            meshCollider.sharedMesh = null;
-
-            Mesh mesh = meshFilter.sharedMesh;
-
-            if (mesh.vertexCount == 0 || mesh.triangles.Length == 0) return; // Prevent invalid mesh assignment
-
-            meshCollider.sharedMesh = mesh;
+            isDirty = false; // Mark as clean
         }
 
         public bool InvertedNormals
@@ -155,15 +271,129 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 if (invertedNormals != value)
                     InvertMeshTriangles();
-                
+
                 invertedNormals = value;
             }
         }
 
-        void InvertMeshTriangles()
-        {         
-            Mesh mesh = meshFilter.sharedMesh;
 
+        public static void MergeCloseVertices(Mesh mesh, float threshold)
+        {
+            Vector3[] originalVertices = mesh.vertices;
+            Color[] originalColors = mesh.colors;
+            int[] originalTriangles = mesh.triangles;
+
+            List<Vector3> newVertices = new List<Vector3>();
+            List<Color> newColors = new List<Color>();
+            Dictionary<int, int> vertexMapping = new Dictionary<int, int>();
+
+            for (int i = 0; i < originalVertices.Length; i++)
+            {
+                bool merged = false;
+
+                for (int j = 0; j < newVertices.Count; j++)
+                {
+                    if (Vector3.Distance(newVertices[j], originalVertices[i]) < threshold)
+                    {
+                        // Map this vertex to an existing one
+                        vertexMapping[i] = j;
+
+                        // Merge colors by averaging
+                        newColors[j] = (newColors[j] + originalColors[i]) * 0.5f;
+
+                        merged = true;
+                        break;
+                    }
+                }
+
+                if (!merged)
+                {
+                    // Add as a new unique vertex and preserve its color
+                    vertexMapping[i] = newVertices.Count;
+                    newVertices.Add(originalVertices[i]);
+                    newColors.Add(originalColors[i]);
+                }
+            }
+
+            // Rebuild the triangle array and filter degenerate triangles
+            List<int> filteredTriangles = new List<int>();
+            for (int i = 0; i < originalTriangles.Length; i += 3)
+            {
+                int v1 = vertexMapping[originalTriangles[i]];
+                int v2 = vertexMapping[originalTriangles[i + 1]];
+                int v3 = vertexMapping[originalTriangles[i + 2]];
+
+                // Add the triangle only if it is non-degenerate
+                if (v1 != v2 && v2 != v3 && v3 != v1)
+                {
+                    filteredTriangles.Add(v1);
+                    filteredTriangles.Add(v2);
+                    filteredTriangles.Add(v3);
+                }
+            }
+
+            // Update the mesh
+            mesh.Clear();
+            mesh.vertices = newVertices.ToArray();
+            mesh.triangles = filteredTriangles.ToArray(); // Only valid triangles remain
+            mesh.colors = newColors.ToArray();
+        }
+
+        // Unity functions
+        void OnDestroy()
+        {
+            // Safely destroy the dynamically created mesh
+            if (linkedMeshFilter != null && mesh != null)
+            {
+                Destroy(mesh);
+            }
+
+            // Optionally clear the collider's mesh reference
+            if (linkedMeshCollider != null)
+            {
+                linkedMeshCollider.sharedMesh = null;
+            }
+        }
+
+        // Internal functions
+        MarchingCubesMeshData GenerateChunkMesh(MarchingCubesModel model)
+        {
+            MarchingCubesMeshData meshData = new MarchingCubesMeshData();
+
+            int sizeX = gridBoundsMax.x - gridBoundsMin.x;
+            int sizeY = gridBoundsMax.y - gridBoundsMin.y;
+            int sizeZ = gridBoundsMax.z - gridBoundsMin.z;
+            
+            VoxelData[] tempWeights = new VoxelData[8];
+
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int y = 0; y < sizeY; y++)
+                {
+                    for (int z = 0; z < sizeZ; z++)
+                    {
+                        model.GetCubeWeights(x + gridBoundsMin.x, y + gridBoundsMin.y, z + gridBoundsMin.z, tempWeights);
+
+                        MarchingCubes.GenerateCubeMesh(meshData, tempWeights, x, y, z, invertedNormals);
+                    }
+                }
+            }
+
+            return meshData;
+        }
+
+        void UpdateCollider()
+        {
+            linkedMeshCollider.sharedMesh = null;
+
+            if (mesh.vertexCount < 3 || mesh.triangles.Length < 3) // Prevent invalid mesh assignment
+                return;
+
+            linkedMeshCollider.sharedMesh = mesh;
+        }
+
+        void InvertMeshTriangles()
+        {
             // Get the current triangles from the mesh
             int[] triangles = mesh.triangles;
 
@@ -180,65 +410,14 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             FinishMesh();
         }
 
-        public bool ColliderEnabled
-        {
-            get
-            {
-                return meshCollider.enabled;
-            }
-            set
-            {
-                if (!ColliderEnabled && value) UpdateCollider();
-
-                meshCollider.enabled = value;
-            }
-        }
-
-        public bool IsWithinBounds(Vector3Int min, Vector3Int max)
-        {
-            // Check for overlap between the chunk and the affected region
-            return !(gridBoundsMax.x <= min.x || gridBoundsMin.x >= max.x ||
-                     gridBoundsMax.y <= min.y || gridBoundsMin.y >= max.y ||
-                     gridBoundsMax.z <= min.z || gridBoundsMin.z >= max.z);
-        }
-
-        public void PostProcessMesh(PostProcessingOptions currentPostProcessingOptions)
-        {
-            PostProcessingStopwatch.Start();
-
-            if (currentPostProcessingOptions.mergeTriangles)
-            {
-                MeshUtilityFunctions.RemoveDegenerateTriangles(
-                    meshFilter.sharedMesh, 
-                    PostProcessingStopwatch, currentPostProcessingOptions.maxProcessingTimeSeconds, 
-                    out int removedVertices, out int modifiedElements, 
-                    currentPostProcessingOptions.angleThresholdDeg, currentPostProcessingOptions.areaThreshold);
-
-                ModifiedElements += modifiedElements;
-                RemovedVertices += removedVertices;
-            }
-
-            FinishMesh();
-
-            if (currentPostProcessingOptions.smoothNormals)
-            {
-                meshFilter.sharedMesh.RecalculateNormals();
-                SmoothNormalsWithDistanceBias(meshFilter.sharedMesh, currentPostProcessingOptions.smoothNormalsDistanceFactorBias, currentPostProcessingOptions);
-
-                meshFilter.sharedMesh.RecalculateTangents();
-                //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
-                if (ColliderEnabled) UpdateCollider();
-            }
-
-            PostProcessingStopwatch.Stop();
-        }
-
         void FinishMesh()
         {
-            meshFilter.sharedMesh.RecalculateNormals();
-            meshFilter.sharedMesh.RecalculateTangents();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
             //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
-            if (ColliderEnabled) UpdateCollider();
+
+            if (ColliderEnabled)
+                UpdateCollider();
         }
 
         void SmoothNormalsWithDistanceBias(Mesh mesh, float distanceBiasFactor, PostProcessingOptions currentPostProcessingOptions)
@@ -248,7 +427,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 Debug.LogWarning("Did not start normal smoothing because time already ran out.");
                 return;
             }
-            
+
             // Step 1: Recalculate initial normals
             mesh.RecalculateNormals();
             Vector3[] vertices = mesh.vertices;
@@ -314,68 +493,6 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             {
                 adjacencyList[v2].Add(v1);
             }
-        }
-
-        public static void MergeCloseVertices(Mesh mesh, float threshold)
-        {
-            Vector3[] originalVertices = mesh.vertices;
-            Color[] originalColors = mesh.colors;
-            int[] originalTriangles = mesh.triangles;
-
-            List<Vector3> newVertices = new List<Vector3>();
-            List<Color> newColors = new List<Color>();
-            Dictionary<int, int> vertexMapping = new Dictionary<int, int>();
-
-            for (int i = 0; i < originalVertices.Length; i++)
-            {
-                bool merged = false;
-
-                for (int j = 0; j < newVertices.Count; j++)
-                {
-                    if (Vector3.Distance(newVertices[j], originalVertices[i]) < threshold)
-                    {
-                        // Map this vertex to an existing one
-                        vertexMapping[i] = j;
-
-                        // Merge colors by averaging
-                        newColors[j] = (newColors[j] + originalColors[i]) * 0.5f;
-
-                        merged = true;
-                        break;
-                    }
-                }
-
-                if (!merged)
-                {
-                    // Add as a new unique vertex and preserve its color
-                    vertexMapping[i] = newVertices.Count;
-                    newVertices.Add(originalVertices[i]);
-                    newColors.Add(originalColors[i]);
-                }
-            }
-
-            // Rebuild the triangle array and filter degenerate triangles
-            List<int> filteredTriangles = new List<int>();
-            for (int i = 0; i < originalTriangles.Length; i += 3)
-            {
-                int v1 = vertexMapping[originalTriangles[i]];
-                int v2 = vertexMapping[originalTriangles[i + 1]];
-                int v3 = vertexMapping[originalTriangles[i + 2]];
-
-                // Add the triangle only if it is non-degenerate
-                if (v1 != v2 && v2 != v3 && v3 != v1)
-                {
-                    filteredTriangles.Add(v1);
-                    filteredTriangles.Add(v2);
-                    filteredTriangles.Add(v3);
-                }
-            }
-
-            // Update the mesh
-            mesh.Clear();
-            mesh.vertices = newVertices.ToArray();
-            mesh.triangles = filteredTriangles.ToArray(); // Only valid triangles remain
-            mesh.colors = newColors.ToArray();
         }
     }
 }

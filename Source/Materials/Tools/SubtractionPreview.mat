@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Edit shape material
+  m_Name: SubtractionPreview
   m_Shader: {fileID: 4800000, guid: a8e7115b9d3e66745bb0bd508f83d609, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -78,7 +78,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 0
-    - __dirty: 1
+    - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 0.5, b: 0, a: 0.5}
     - _Color0: {r: 1, g: 0.5019608, b: 0, a: 0.5019608}
