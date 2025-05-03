@@ -107,10 +107,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
             set
             {
-                if (value && (!ColliderEnabled || linkedMeshCollider.sharedMesh != null))
-                    UpdateCollider();
+                bool wasOn = linkedMeshCollider.enabled;
 
                 linkedMeshCollider.enabled = value;
+
+                if (value && !wasOn)
+                    UpdateCollider();
             }
         }
 
@@ -413,6 +415,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             //meshFilter.sharedMesh.RecalculateBounds(); // Not needed in this case since recalculated automatically when setting the triangles: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mesh.RecalculateBounds.html
+
             if (ColliderEnabled)
                 UpdateCollider();
         }
