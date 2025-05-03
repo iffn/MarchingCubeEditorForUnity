@@ -108,12 +108,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public override void OnInspectorGUI()
         {
-            defaultFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(defaultFoldout, "Default inspector");
+            defaultFoldout = EditorGUILayout.Foldout(defaultFoldout, "Default Inspector", true);
             if (defaultFoldout)
             {
                 DrawDefaultInspector();
             }
-            EditorGUILayout.EndFoldoutHeaderGroup();
 
             sizeAndLoaderEditorElement.DrawAsFoldout();
             expansionEditorElement.DrawAsFoldout();
