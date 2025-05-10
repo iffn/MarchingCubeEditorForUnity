@@ -8,6 +8,8 @@ using UnityEngine;
 
 public abstract class EditorElement
 {
+    public List<GenericPersistentUI.UIElement> GenericUIElements { get; } = new List<GenericPersistentUI.UIElement>();
+
     public abstract string DisplayName { get; }
 
     protected MarchingCubeEditor linkedEditor;

@@ -132,13 +132,10 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 expansionEditorElement.DrawAsFoldout();
                 settingsEditorElement.DrawAsFoldout();
 
-                foreach (GenericPersistentUI.UIElement element in settingsEditorElement.PersistentUI.Elements)
-                {
-                    if (element is GenericPersistentUI.Toggle toggle)
-                    {
-                        toggle.Value = EditorGUILayout.Toggle(toggle.Title, toggle.Value);
-                    }
-                }
+                UnityEditorUIRenderer.RenderUI(
+                    new GenericPersistentUI.Foldout(settingsEditorElement.DisplayName, 
+                    settingsEditorElement.GenericUIElements, 
+                    false));
 
                 postProcessingEditorElement.DrawAsFoldout();
 

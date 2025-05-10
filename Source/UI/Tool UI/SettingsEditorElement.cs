@@ -9,8 +9,6 @@ using UnityEngine;
 
 public class SettingsEditorElement : EditorElement
 {
-    public GenericPersistentUI PersistentUI {  get; private set; } = new GenericPersistentUI();
-
     public override string DisplayName => "Settings";
 
     public SettingsEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
@@ -21,28 +19,23 @@ public class SettingsEditorElement : EditorElement
 
     }
 
-    public void Setup()
-    {
-        GeneratePersistentUI();
-    }
-
     void GeneratePersistentUI()
     {
-        PersistentUI.Clear();
+        GenericUIElements.Clear();
 
-        PersistentUI.AddElement(new GenericPersistentUI.Toggle(
+        GenericUIElements.Add(new GenericPersistentUI.Toggle(
             "Force colliders on",
             () => linkedController.ForceColliderOn,
             val => linkedController.ForceColliderOn = val
         ));
 
-        PersistentUI.AddElement(new GenericPersistentUI.Toggle(
+        GenericUIElements.Add(new GenericPersistentUI.Toggle(
             "Show Grid Outline",
             () => linkedController.ShowGridOutline,
             val => linkedController.ShowGridOutline = val
         ));
 
-        PersistentUI.AddElement(new GenericPersistentUI.Toggle(
+        GenericUIElements.Add(new GenericPersistentUI.Toggle(
             "Inverted normals",
             () => linkedController.InvertAllNormals,
             val => linkedController.InvertAllNormals = val
