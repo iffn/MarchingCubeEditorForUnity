@@ -56,7 +56,9 @@ public static class UnityEditorUIRenderer
         }
         else if (element is GenericPersistentUI.Foldout foldout)
         {
-            foldout.Open = EditorGUILayout.Foldout(foldout.Open, foldout.Title); // Wokrs fine with nested layouts. BeginFoldoutHeaderGroup could have problems.
+            foldout.Open = EditorGUILayout.BeginFoldoutHeaderGroup(foldout.Open, foldout.Title); // Wokrs fine with nested layouts. BeginFoldoutHeaderGroup could have problems.
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
             if (foldout.Open)
             {
                 EditorGUI.indentLevel++;
@@ -64,6 +66,11 @@ public static class UnityEditorUIRenderer
                     DrawElement(child);
                 EditorGUI.indentLevel--;
             }
+        }
+        else if (element is GenericPersistentUI.Dropdown dropdown)
+        {
+            int newValue = EditorGUILayout.Popup(dropdown.Title, dropdown.Value, dropdown.Options);
+            dropdown.Value = newValue;
         }
     }
 }

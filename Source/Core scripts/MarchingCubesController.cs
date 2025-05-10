@@ -52,7 +52,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             }
         }
 
-        int displayMaterialindex = -1;
+        int displayMaterialindex = 0;
         public int DisplayMaterialIndex
         {
             get
@@ -66,10 +66,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
                 Material currentMaterial;
 
-                if (value == -1)
+                if (value == 0)
                     currentMaterial = currentMainMaterial;
-                else if (value < DebugMaterials.Count)
-                    currentMaterial = DebugMaterials[value];
+                else if (value <= DebugMaterials.Count)
+                    currentMaterial = DebugMaterials[value - 1];
                 else
                     return;
 

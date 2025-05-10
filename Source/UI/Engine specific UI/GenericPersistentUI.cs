@@ -124,6 +124,38 @@ public class GenericPersistentUI
         }
     }
 
+    public class Dropdown : UIElement
+    {
+        public string Title { get; private set; }
+        public string[] Options { get; private set; }
+        private readonly Func<int> getter;
+        private readonly Action<int> setter;
+
+        public Dropdown(string title, string[] options, Func<int> getter, Action<int> setter)
+        {
+            Title = title;
+            Options = options;
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        public Dropdown(string title, List<string> options, Func<int> getter, Action<int> setter)
+            : this(title, options.ToArray(), getter, setter)
+        {
+            // Not needed
+        }
+
+        public int Value
+        {
+            get => getter();
+            set
+            {
+                if (value == getter()) return;
+                setter(value);
+            }
+        }
+    }
+
     public class HorizontalArrangement : UIElement
     {
         public string Title { get; private set; }

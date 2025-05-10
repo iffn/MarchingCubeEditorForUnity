@@ -15,14 +15,17 @@ public abstract class EditorElement
     protected MarchingCubeEditor linkedEditor;
     protected MarchingCubesController linkedController => linkedEditor.LinkedMarchingCubeController;
 
+    public GenericPersistentUI.Foldout Foldout { get; private set; }
+
     public abstract void DrawUI();
 
-    public bool foldoutOpen;
+    bool foldoutOpen;
 
     public EditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault)
     {
         this.linkedEditor = linkedEditor;
         foldoutOpen = foldoutOpenByDefault;
+        Foldout = new GenericPersistentUI.Foldout(DisplayName, GenericUIElements, foldoutOpenByDefault);
     }
 
     public virtual void OnEnable()

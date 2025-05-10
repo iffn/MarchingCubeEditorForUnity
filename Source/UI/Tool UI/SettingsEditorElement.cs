@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SettingsEditorElement : EditorElement
 {
@@ -14,9 +15,7 @@ public class SettingsEditorElement : EditorElement
     public SettingsEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
     {
         // Constructor
-        Debug.Log("Generating persistent ui");
         GeneratePersistentUI();
-
     }
 
     void GeneratePersistentUI()
@@ -39,6 +38,13 @@ public class SettingsEditorElement : EditorElement
             "Inverted normals",
             () => linkedController.InvertAllNormals,
             val => linkedController.InvertAllNormals = val
+        ));
+
+        GenericUIElements.Add(new GenericPersistentUI.Dropdown(
+            "Select Option",
+            linkedController.MainMaterialNames,
+            () => linkedController.DisplayMaterialIndex,
+            val => linkedController.DisplayMaterialIndex = val
         ));
     }
 
@@ -78,9 +84,9 @@ public class SettingsEditorElement : EditorElement
             linkedController.CurrentGrassMaterial = newMaterial;
 
         // Display material
-        int currentIndex = linkedController.DisplayMaterialIndex + 1;
+        int currentIndex = linkedController.DisplayMaterialIndex;
 
-        int newIndex = EditorGUILayout.Popup("Select Option", currentIndex, linkedController.MainMaterialNames.ToArray()) - 1;
+        int newIndex = EditorGUILayout.Popup("Select Option", currentIndex, linkedController.MainMaterialNames.ToArray());
 
         if(newIndex != linkedController.DisplayMaterialIndex)
         {
