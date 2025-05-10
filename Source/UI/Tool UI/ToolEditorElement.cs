@@ -18,6 +18,11 @@ public class ToolEditorElement : EditorElement
         tools = BaseTool.GetTools(linkedEditor).ToList();
     }
 
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     BaseTool currentTool
     {
         get

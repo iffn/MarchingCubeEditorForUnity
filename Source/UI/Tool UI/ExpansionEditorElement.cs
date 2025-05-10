@@ -36,6 +36,148 @@ public class ExpansionEditorElement : EditorElement
         }
     }
 
+    protected override void GeneratePersistentUI()
+    {
+        GenericUIElements.Clear();
+
+        GenericUIElements.Add(new GenericPersistentUI.IntField(
+            "Expansion size",
+            () => gridCExpandSize,
+            val => gridCExpandSize = val
+        ));
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.Button("Expand +X", () =>
+                        linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XPos)),
+
+                    new GenericPersistentUI.Button("Expand +Y", () =>
+                        linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YPos)),
+
+                    new GenericPersistentUI.Button("Expand +Z", () =>
+                        linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZPos))
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.Button("Expand -X", () =>
+                    {
+                        linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.XNeg);
+
+                        if (moveTransformWhenExpanding)
+                            linkedController.transform.localPosition -=
+                                gridCExpandSize * linkedController.transform.localScale.x * Vector3.right;
+                    }),
+
+                    new GenericPersistentUI.Button("Expand -Y", () =>
+                    {
+                        linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.YNeg);
+
+                        if (moveTransformWhenExpanding)
+                            linkedController.transform.localPosition -=
+                                gridCExpandSize * linkedController.transform.localScale.y * Vector3.up;
+                    }),
+
+                    new GenericPersistentUI.Button("Expand -Z", () =>
+                    {
+                        linkedController.ExpandGrid(gridCExpandSize, MarchingCubesController.ExpansionDirections.ZNeg);
+
+                        if (moveTransformWhenExpanding)
+                            linkedController.transform.localPosition -=
+                                gridCExpandSize * linkedController.transform.localScale.z * Vector3.forward;
+                    })
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle
+            (
+                "Move transform to keep position",
+                () => moveTransformWhenExpanding,
+                val => moveTransformWhenExpanding = val
+            )
+        );
+
+        GenericUIElements.Add(new GenericPersistentUI.Heading("Resolution change"));
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.Heading("X"),
+                    new GenericPersistentUI.Heading("Y"),
+                    new GenericPersistentUI.Heading("Z"),
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.RefLabel("", () => linkedController.transform.localScale.x.ToString("0.###")),
+                    new GenericPersistentUI.RefLabel("", () => linkedController.transform.localScale.y.ToString("0.###")),
+                    new GenericPersistentUI.RefLabel("", () => linkedController.transform.localScale.z.ToString("0.###"))
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.FloatField("", () => xScale, val => xScale = val),
+                    new GenericPersistentUI.FloatField("", () => yScale, val => yScale = val),
+                    new GenericPersistentUI.FloatField("", () => zScale, val => zScale = val)
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.FloatField
+            (
+                "Average",
+                () => (xScale + yScale + zScale) * 0.3333333333f,
+                newAverage =>
+                {
+                    float average = (xScale + yScale + zScale) * 0.3333333333f;
+
+                    if (newAverage != 0f && !Mathf.Approximately(average, newAverage))
+                    {
+                        float multiplier = newAverage / average;
+                        xScale *= multiplier;
+                        yScale *= multiplier;
+                        zScale *= multiplier;
+                    }
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Button("Apply resolution", ApplyResolution)
+        );
+    }
+
     public override void DrawUI()
     {
         gridCExpandSize = EditorGUILayout.IntField("Expansion size", gridCExpandSize);

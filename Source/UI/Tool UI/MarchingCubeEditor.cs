@@ -129,7 +129,9 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 }
 
                 sizeAndLoaderEditorElement.DrawAsFoldout();
-                expansionEditorElement.DrawAsFoldout();
+
+                UnityEditorUIRenderer.RenderUI(expansionEditorElement.Foldout);
+                
                 UnityEditorUIRenderer.RenderUI(settingsEditorElement.Foldout);
 
                 postProcessingEditorElement.DrawAsFoldout();

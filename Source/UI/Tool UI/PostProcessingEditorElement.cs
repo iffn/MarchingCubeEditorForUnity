@@ -15,6 +15,11 @@ public class PostProcessingEditorElement : EditorElement
         // Constructor
     }
 
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     public override void DrawUI()
     {
         PostProcessingOptions options = linkedController.CurrentPostProcessingOptions;

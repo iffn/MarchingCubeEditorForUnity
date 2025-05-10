@@ -23,6 +23,11 @@ public class SizeAndLoaderEditorElement : EditorElement
         int gridResolutionZ = linkedController.GridResolutionZ;
     }
 
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     public override void DrawUI()
     {
         // Normal grid size

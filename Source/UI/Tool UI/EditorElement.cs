@@ -10,6 +10,8 @@ public abstract class EditorElement
 {
     public List<GenericPersistentUI.UIElement> GenericUIElements { get; } = new List<GenericPersistentUI.UIElement>();
 
+    protected abstract void GeneratePersistentUI();
+
     public abstract string DisplayName { get; }
 
     protected MarchingCubeEditor linkedEditor;
@@ -26,6 +28,8 @@ public abstract class EditorElement
         this.linkedEditor = linkedEditor;
         foldoutOpen = foldoutOpenByDefault;
         Foldout = new GenericPersistentUI.Foldout(DisplayName, GenericUIElements, foldoutOpenByDefault);
+
+        GeneratePersistentUI();
     }
 
     public virtual void OnEnable()

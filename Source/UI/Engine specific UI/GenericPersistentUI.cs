@@ -97,6 +97,54 @@ public class GenericPersistentUI
         }
     }
 
+    public class IntField : UIElement
+    {
+        public string Title { get; private set; }
+        private readonly Func<int> getter;
+        private readonly Action<int> setter;
+
+        public IntField(string title, Func<int> getter, Action<int> setter)
+        {
+            Title = title;
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        public int Value
+        {
+            get => getter();
+            set
+            {
+                if (value == getter()) return;
+                setter(value);
+            }
+        }
+    }
+
+    public class FloatField : UIElement
+    {
+        public string Title { get; private set; }
+        private readonly Func<float> getter;
+        private readonly Action<float> setter;
+
+        public FloatField(string title, Func<float> getter, Action<float> setter)
+        {
+            Title = title;
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        public float Value
+        {
+            get => getter();
+            set
+            {
+                if (Mathf.Approximately(value, getter())) return;
+                setter(value);
+            }
+        }
+    }
+
     public class Slider : UIElement
     {
         public string Title { get; private set; }
@@ -186,12 +234,10 @@ public class GenericPersistentUI
     // Organizing
     public class HorizontalArrangement : UIElement
     {
-        public string Title { get; private set; }
         public List<UIElement> Elements { get; private set; }
 
-        public HorizontalArrangement(string title, List<UIElement> elements)
+        public HorizontalArrangement(List<UIElement> elements)
         {
-            this.Title = title;
             this.Elements = elements;
         }
     }

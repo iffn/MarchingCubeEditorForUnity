@@ -15,10 +15,9 @@ public class SettingsEditorElement : EditorElement
     public SettingsEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
     {
         // Constructor
-        GeneratePersistentUI();
     }
 
-    void GeneratePersistentUI()
+    protected override void GeneratePersistentUI()
     {
         GenericUIElements.Clear();
 
