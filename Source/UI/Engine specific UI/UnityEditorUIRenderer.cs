@@ -27,6 +27,10 @@ public static class UnityEditorUIRenderer
         {
             GUILayout.Label(heading.Title);
         }
+        else if (element is GenericPersistentUI.NoteBox noteBox)
+        {
+            EditorGUILayout.HelpBox(noteBox.Message, MessageType.None);
+        }
         else if (element is GenericPersistentUI.RefLabel refLabel)
         {
             if (string.IsNullOrEmpty(refLabel.Title))

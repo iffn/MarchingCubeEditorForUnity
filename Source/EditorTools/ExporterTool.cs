@@ -14,7 +14,9 @@ public class ExporterTool : BaseTool
     // Base class functions
     protected override void GeneratePersistentUI()
     {
+        GenericUIElements.Add(new GenericPersistentUI.Button("Export as Obj", () => ExportAsObj()));
 
+        GenericUIElements.Add(new GenericPersistentUI.NoteBox("Note: You can also use the 'FBX Exporter' package by Unity to export the result as an FBX."));
     }
 
     public override void DrawUI()

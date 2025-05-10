@@ -41,7 +41,15 @@ public class ToolEditorElement : EditorElement
         foreach (BaseTool tool in tools)
         {
             toolNames.Add(tool.DisplayName);
-            uiElements.Add(tool.GenericUIElements);
+
+            List<GenericPersistentUI.UIElement> uiElementsForTool = new List<GenericPersistentUI.UIElement>
+            {
+                new GenericPersistentUI.Heading(tool.DisplayName + ":")
+            };
+
+            uiElementsForTool.AddRange(tool.GenericUIElements);
+
+            uiElements.Add(uiElementsForTool);
         }
 
         GenericUIElements.Add(new GenericPersistentUI.TogglePanel(toolNames, uiElements));

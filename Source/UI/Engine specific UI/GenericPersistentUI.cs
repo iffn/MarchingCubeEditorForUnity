@@ -39,6 +39,15 @@ public class GenericPersistentUI
         }
     }
 
+    public class NoteBox : UIElement
+    {
+        public string Message { get; private set; }
+        public NoteBox(string message)
+        {
+            this.Message = message;
+        }
+    }
+
     public class RefLabel : UIElement
     {
         public string Title { get; private set; }
