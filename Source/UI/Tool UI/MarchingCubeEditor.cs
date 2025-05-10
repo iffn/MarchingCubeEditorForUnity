@@ -100,7 +100,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 			if(settingsEditorElement == null)
                 settingsEditorElement = new SettingsEditorElement(this, false);
 
-			if(toolEditorElement == null)
+            if (toolEditorElement == null)
                 toolEditorElement = new ToolEditorElement(this, true);
             
             SceneView.duringSceneGui += UpdateSceneInteractionForController;
@@ -131,6 +131,14 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 sizeAndLoaderEditorElement.DrawAsFoldout();
                 expansionEditorElement.DrawAsFoldout();
                 settingsEditorElement.DrawAsFoldout();
+
+                foreach (GenericPersistentUI.UIElement element in settingsEditorElement.PersistentUI.Elements)
+                {
+                    if (element is GenericPersistentUI.Toggle toggle)
+                    {
+                        toggle.Value = EditorGUILayout.Toggle(toggle.Title, toggle.Value);
+                    }
+                }
 
                 postProcessingEditorElement.DrawAsFoldout();
 
