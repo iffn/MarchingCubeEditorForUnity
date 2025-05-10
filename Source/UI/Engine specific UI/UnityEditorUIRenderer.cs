@@ -118,7 +118,7 @@ public static class UnityEditorUIRenderer
         }
         else if (element is GenericPersistentUI.Foldout foldout)
         {
-            foldout.Open = EditorGUILayout.BeginFoldoutHeaderGroup(foldout.Open, foldout.Title); // Wokrs fine with nested layouts. BeginFoldoutHeaderGroup could have problems.
+            foldout.Open = EditorGUILayout.BeginFoldoutHeaderGroup(foldout.Open, foldout.Title); // Works fine with nested layouts. BeginFoldoutHeaderGroup could have problems.
             EditorGUILayout.EndFoldoutHeaderGroup();
 
             if (foldout.Open)
