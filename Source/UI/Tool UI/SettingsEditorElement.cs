@@ -40,6 +40,18 @@ public class SettingsEditorElement : EditorElement
             val => linkedController.InvertAllNormals = val
         ));
 
+        GenericUIElements.Add(new GenericPersistentUI.MaterialField(
+            "Main material",
+            () => linkedController.CurrentMainMaterial,
+            mat => linkedController.CurrentMainMaterial = mat
+        ));
+
+        GenericUIElements.Add(new GenericPersistentUI.MaterialField(
+            "Grass material",
+            () => linkedController.CurrentGrassMaterial,
+            mat => linkedController.CurrentGrassMaterial = mat
+        ));
+
         GenericUIElements.Add(new GenericPersistentUI.Dropdown(
             "Select Option",
             linkedController.MainMaterialNames,

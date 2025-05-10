@@ -47,6 +47,22 @@ public static class UnityEditorUIRenderer
             GUILayout.Label(refLabel.Value);
             EditorGUILayout.EndHorizontal();
         }
+        else if (element is GenericPersistentUI.Dropdown dropdown)
+        {
+            int newValue = EditorGUILayout.Popup(dropdown.Title, dropdown.Value, dropdown.Options);
+            dropdown.Value = newValue;
+        }
+        // Unity specific stuff
+        else if (element is GenericPersistentUI.MaterialField matField)
+        {
+            Material newMat = EditorGUILayout.ObjectField(
+                matField.Title,
+                matField.Value,
+                typeof(Material),
+                true) as Material;
+
+            matField.Value = newMat;
+        }
         else if (element is GenericPersistentUI.HorizontalArrangement row)
         {
             EditorGUILayout.BeginHorizontal();
@@ -54,6 +70,7 @@ public static class UnityEditorUIRenderer
                 DrawElement(child);
             EditorGUILayout.EndHorizontal();
         }
+        // Organization stuff
         else if (element is GenericPersistentUI.Foldout foldout)
         {
             foldout.Open = EditorGUILayout.BeginFoldoutHeaderGroup(foldout.Open, foldout.Title); // Wokrs fine with nested layouts. BeginFoldoutHeaderGroup could have problems.
@@ -67,11 +84,7 @@ public static class UnityEditorUIRenderer
                 EditorGUI.indentLevel--;
             }
         }
-        else if (element is GenericPersistentUI.Dropdown dropdown)
-        {
-            int newValue = EditorGUILayout.Popup(dropdown.Title, dropdown.Value, dropdown.Options);
-            dropdown.Value = newValue;
-        }
+
     }
 }
 

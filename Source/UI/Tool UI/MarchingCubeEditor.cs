@@ -111,8 +111,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             SceneView.duringSceneGui -= UpdateSceneInteractionForController;
         }
 
-
-
         public override void OnInspectorGUI()
         {
             if (NotPartOfScene)
@@ -132,8 +130,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 sizeAndLoaderEditorElement.DrawAsFoldout();
                 expansionEditorElement.DrawAsFoldout();
-                settingsEditorElement.DrawAsFoldout();
-
                 UnityEditorUIRenderer.RenderUI(settingsEditorElement.Foldout);
 
                 postProcessingEditorElement.DrawAsFoldout();

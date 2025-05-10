@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GenericPersistentUI
 {
@@ -156,6 +157,33 @@ public class GenericPersistentUI
         }
     }
 
+    // Unity specific stuff
+    public class MaterialField : UIElement
+    {
+        public string Title { get; private set; }
+
+        private readonly Func<Material> getter;
+        private readonly Action<Material> setter;
+
+        public MaterialField(string title, Func<Material> getter, Action<Material> setter)
+        {
+            Title = title;
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        public Material Value
+        {
+            get => getter();
+            set
+            {
+                if (value == getter()) return;
+                setter(value);
+            }
+        }
+    }
+
+    // Organizing
     public class HorizontalArrangement : UIElement
     {
         public string Title { get; private set; }
