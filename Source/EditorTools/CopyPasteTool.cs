@@ -44,6 +44,11 @@ public class CopyPasteTool : BaseTool
             currentEditShapeHandler.SelectedEditShape.gameObject.SetActive(false);
     }
 
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     public override void DrawUI()
     {
         base.DrawUI();

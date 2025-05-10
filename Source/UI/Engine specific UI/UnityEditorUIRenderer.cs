@@ -76,11 +76,28 @@ public static class UnityEditorUIRenderer
                 ? EditorGUILayout.Popup(dropdown.Value, dropdown.Options)
                 : EditorGUILayout.Popup(dropdown.Title, dropdown.Value, dropdown.Options);
         }
+        // Unity stuff
         else if (element is GenericPersistentUI.MaterialField matField)
         {
             matField.Value = string.IsNullOrEmpty(matField.Title)
                 ? EditorGUILayout.ObjectField(matField.Value, typeof(Material), true) as Material
                 : EditorGUILayout.ObjectField(matField.Title, matField.Value, typeof(Material), true) as Material;
+        }
+        else if (element is GenericPersistentUI.ScriptableObjectField<ScriptableObjectSaveData> saveField)
+        {
+            saveField.Value = EditorGUILayout.ObjectField(
+                saveField.Title,
+                saveField.Value,
+                typeof(ScriptableObjectSaveData),
+                true
+            ) as ScriptableObjectSaveData;
+        }
+        // Organization stuff
+        else if (element is GenericPersistentUI.DisplayIfTrue displayIfTrue)
+        {
+            if (displayIfTrue.ShouldDisplay)
+                foreach (var child in displayIfTrue.Elements)
+                    DrawElement(child);
         }
         else if (element is GenericPersistentUI.HorizontalArrangement row)
         {
@@ -89,7 +106,6 @@ public static class UnityEditorUIRenderer
                 DrawElement(child);
             EditorGUILayout.EndHorizontal();
         }
-        // Organization stuff
         else if (element is GenericPersistentUI.Foldout foldout)
         {
             foldout.Open = EditorGUILayout.BeginFoldoutHeaderGroup(foldout.Open, foldout.Title); // Wokrs fine with nested layouts. BeginFoldoutHeaderGroup could have problems.
@@ -103,7 +119,52 @@ public static class UnityEditorUIRenderer
                 //EditorGUI.indentLevel--;
             }
         }
+        else if (element is GenericPersistentUI.TogglePanel panel)
+        {
+            int columns = 2; // Customize as needed
+            Color highlightColor = new Color(0.7f, 0.7f, 1f);
 
+            for (int i = 0; i < panel.Titles.Count; i += columns)
+            {
+                EditorGUILayout.BeginHorizontal();
+
+                for (int j = 0; j < columns; j++)
+                {
+                    int index = i + j;
+                    if (index >= panel.Titles.Count) break;
+
+                    // Store original GUI colors
+                    Color originalBg = GUI.backgroundColor;
+                    Color originalContent = GUI.contentColor;
+
+                    if (panel.SelectedIndex == index)
+                    {
+                        GUI.backgroundColor = highlightColor;
+                        GUI.contentColor = Color.white;
+                    }
+
+                    if (GUILayout.Button(panel.Titles[index]))
+                    {
+                        panel.Toggle(index);
+                    }
+
+                    // Restore original colors
+                    GUI.backgroundColor = originalBg;
+                    GUI.contentColor = originalContent;
+                }
+
+                EditorGUILayout.EndHorizontal();
+            }
+
+            // Draw active content if a tab is selected
+            if (panel.SelectedIndex.HasValue)
+            {
+                foreach (var child in panel.ActiveElements)
+                {
+                    DrawElement(child);
+                }
+            }
+        }
     }
 }
 

@@ -22,6 +22,11 @@ public class SceneModifyTool : BaseTool
         if (placeableByClick == null) placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
     }
 
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     public override void DrawUI()
     {
         base.DrawUI();

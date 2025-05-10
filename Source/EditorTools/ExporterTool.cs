@@ -12,6 +12,11 @@ public class ExporterTool : BaseTool
     public override string DisplayName => "Exporter";
 
     // Base class functions
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     public override void DrawUI()
     {
         base.DrawUI();

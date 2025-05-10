@@ -55,6 +55,11 @@ public class ModifySurface : BaseTool
         placeableByClick.SelectedEditShape.gameObject.SetActive(false);
     }
 
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     public override void DrawUI()
     {
         base.DrawUI();

@@ -135,6 +135,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
                 postProcessingEditorElement.DrawAsFoldout();
 
                 toolEditorElement.DrawAsFoldout();
+                UnityEditorUIRenderer.RenderUI(toolEditorElement.Foldout);
             }
         }
 

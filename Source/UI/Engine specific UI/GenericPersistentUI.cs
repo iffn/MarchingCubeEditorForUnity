@@ -231,7 +231,48 @@ public class GenericPersistentUI
         }
     }
 
+    public class ScriptableObjectField<T> : GenericPersistentUI.UIElement where T : UnityEngine.Object
+    {
+        public string Title { get; private set; }
+        private readonly Func<T> getter;
+        private readonly Action<T> setter;
+
+        public ScriptableObjectField(string title, Func<T> getter, Action<T> setter)
+        {
+            Title = title;
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        public T Value
+        {
+            get => getter();
+            set
+            {
+                if (value == getter()) return;
+                setter(value);
+            }
+        }
+    }
+
     // Organizing
+    public class DisplayIfTrue : UIElement
+    {
+        private readonly Func<bool> getter;
+        public List<UIElement> Elements { get; private set; }
+
+        public DisplayIfTrue(Func<bool> getter, List<UIElement> elements)
+        {
+            this.getter = getter;
+            this.Elements = elements;
+        }
+
+        public bool ShouldDisplay
+        {
+            get => getter();
+        }
+    }
+
     public class HorizontalArrangement : UIElement
     {
         public List<UIElement> Elements { get; private set; }
@@ -254,5 +295,34 @@ public class GenericPersistentUI
             this.Elements = elements;
             this.Open = openByDefault;
         }
+    }
+
+    public class TogglePanel : UIElement
+    {
+        public List<string> Titles { get; private set; }
+        public List<List<UIElement>> ContentLists { get; private set; }
+
+        public int? SelectedIndex { get; private set; }
+
+        public TogglePanel(List<string> titles, List<List<UIElement>> contentLists)
+        {
+            if (titles == null || contentLists == null || titles.Count != contentLists.Count)
+                throw new ArgumentException("TogglePanel requires equal-length title and content lists.");
+
+            Titles = titles;
+            ContentLists = contentLists;
+            SelectedIndex = null; // Nothing selected by default
+        }
+
+        public void Toggle(int index)
+        {
+            if (SelectedIndex == index)
+                SelectedIndex = null; // Deselect if already selected
+            else if (index >= 0 && index < Titles.Count)
+                SelectedIndex = index;
+        }
+
+        public List<UIElement> ActiveElements =>
+            SelectedIndex.HasValue ? ContentLists[SelectedIndex.Value] : new List<UIElement>();
     }
 }

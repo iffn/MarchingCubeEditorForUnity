@@ -51,6 +51,11 @@ public class BridgeAndTunnelTool : BaseTool
         base.OnDisable();
     }
 
+    protected override void GeneratePersistentUI()
+    {
+
+    }
+
     public override void DrawUI()
     {
         base.DrawUI();

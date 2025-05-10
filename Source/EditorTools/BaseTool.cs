@@ -11,6 +11,15 @@ using UnityEngine;
 
 public abstract class BaseTool
 {
+    public BaseTool()
+    {
+        GeneratePersistentUI();
+    }
+
+    public List<GenericPersistentUI.UIElement> GenericUIElements { get; } = new List<GenericPersistentUI.UIElement>();
+
+    protected abstract void GeneratePersistentUI();
+
     protected MarchingCubeEditor LinkedMarchingCubeEditor { get; private set; }
     protected MarchingCubesController LinkedMarchingCubeController => LinkedMarchingCubeEditor.LinkedMarchingCubeController;
 
