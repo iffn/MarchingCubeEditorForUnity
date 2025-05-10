@@ -25,7 +25,122 @@ public class SizeAndLoaderEditorElement : EditorElement
 
     protected override void GeneratePersistentUI()
     {
+        // Row 1: Column headers (X, Y, Z)
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.RefLabel("", () => "X"),
+                    new GenericPersistentUI.RefLabel("", () => "Y"),
+                    new GenericPersistentUI.RefLabel("", () => "Z")
+                }
+            )
+        );
 
+        // Row 2: Current resolution values
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.RefLabel("", () => linkedController.GridResolutionX.ToString()),
+                    new GenericPersistentUI.RefLabel("", () => linkedController.GridResolutionY.ToString()),
+                    new GenericPersistentUI.RefLabel("", () => linkedController.GridResolutionZ.ToString())
+                }
+            )
+        );
+
+        // Row 3: Editable input fields
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.IntField("", () => gridResolutionX, v => gridResolutionX = v),
+                    new GenericPersistentUI.IntField("", () => gridResolutionY, v => gridResolutionY = v),
+                    new GenericPersistentUI.IntField("", () => gridResolutionZ, v => gridResolutionZ = v)
+                }
+            )
+        );
+
+        // Final row: Apply button
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Button("Apply and set empty", () =>
+            {
+                linkedController.Initialize(gridResolutionX, gridResolutionY, gridResolutionZ, true, false);
+            })
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.ScriptableObjectField<ScriptableObjectSaveData>
+            (
+                "Save Data",
+                () => linkedController.linkedSaveData,
+                val => linkedController.linkedSaveData = val
+            )
+        );
+
+        // Outer conditional block: only display if save data exists
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.DisplayIfTrue
+            (
+                () => linkedController.linkedSaveData != null,
+                new List<GenericPersistentUI.UIElement>
+                {
+                    // First conditional warning: Views not set up
+                    new GenericPersistentUI.DisplayIfTrue
+                    (
+                        () => !linkedController.ViewsSetUp,
+                        new List<GenericPersistentUI.UIElement>
+                        {
+                            new GenericPersistentUI.Heading("Note: Views are not set up. Please load data first or set it to empty.")
+                        }
+                    ),
+
+                    // Second conditional warning: Grid resolution mismatch
+                    new GenericPersistentUI.DisplayIfTrue
+                    (
+                        () =>
+                            linkedController.linkedSaveData.resolutionX != linkedController.GridResolutionX ||
+                            linkedController.linkedSaveData.resolutionY != linkedController.GridResolutionY ||
+                            linkedController.linkedSaveData.resolutionZ != linkedController.GridResolutionZ,
+                        new List<GenericPersistentUI.UIElement>
+                        {
+                            new GenericPersistentUI.Heading("Note: The grid resolution is different. Make sure everything is correct before saving.")
+                        }
+                    ),
+
+                    // Buttons row
+                    new GenericPersistentUI.HorizontalArrangement
+                    (
+                        new List<GenericPersistentUI.UIElement>
+                        {
+                            // Save button (only if ViewsSetUp)
+                            new GenericPersistentUI.DisplayIfTrue
+                            (
+                                () => linkedController.ViewsSetUp,
+                                new List<GenericPersistentUI.UIElement>
+                                {
+                                    new GenericPersistentUI.Button("Save data", () =>
+                                        linkedController.SaveAndLoadManager.SaveGridData(linkedController.linkedSaveData))
+                                }
+                            ),
+
+                            // Always show Load button
+                            new GenericPersistentUI.Button("Load data", () =>
+                                linkedEditor.LoadData())
+                        }
+                    )
+                }
+            )
+        );
     }
 
     public override void DrawUI()
