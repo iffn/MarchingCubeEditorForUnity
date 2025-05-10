@@ -206,6 +206,30 @@ public class GenericPersistentUI
     }
 
     // Unity specific stuff
+    public class ColorField : UIElement
+    {
+        public string Title { get; private set; }
+        private readonly Func<Color> getter;
+        private readonly Action<Color> setter;
+
+        public ColorField(string title, Func<Color> getter, Action<Color> setter)
+        {
+            Title = title;
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        public Color Value
+        {
+            get => getter();
+            set
+            {
+                if (value.Equals(getter())) return;
+                setter(value);
+            }
+        }
+    }
+
     public class MaterialField : UIElement
     {
         public string Title { get; private set; }

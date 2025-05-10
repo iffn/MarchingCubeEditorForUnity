@@ -29,7 +29,65 @@ public class VoxelDebugTool : BaseTool
 
     protected override void GeneratePersistentUI()
     {
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.Heading("X"),
+                    new GenericPersistentUI.Heading("Y"),
+                    new GenericPersistentUI.Heading("Z"),
+                }
+            )
+        );
 
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.HorizontalArrangement
+            (
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.IntField
+                    (
+                        "",
+                        () => coordinateX,
+                        val => coordinateX = System.Math.Clamp(val, 0, LinkedMarchingCubeController.GridResolutionX - 1)
+                    ),
+                    new GenericPersistentUI.IntField
+                    (
+                        "",
+                        () => coordinateY,
+                        val => coordinateY = System.Math.Clamp(val, 0, LinkedMarchingCubeController.GridResolutionY - 1)
+                    ),
+                    new GenericPersistentUI.IntField
+                    (
+                        "",
+                        () => coordinateZ,
+                        val => coordinateZ = System.Math.Clamp(val, 0, LinkedMarchingCubeController.GridResolutionZ - 1)
+                    )
+                }
+            )
+        );
+
+        GenericUIElements.Add(new GenericPersistentUI.Slider(
+            "Weight",
+            -1f,
+            1f,
+            () => LinkedMarchingCubeController.VoxelDataReference[coordinateX, coordinateY, coordinateZ].WeightInsideIsPositive,
+            val => LinkedMarchingCubeController.ModificationManager.ModifySingleVoxel(coordinateX, coordinateY, coordinateZ,
+                LinkedMarchingCubeController.VoxelDataReference[coordinateX, coordinateY, coordinateZ].WithWeightInsideIsPositive(val))));
+
+        GenericUIElements.Add(new GenericPersistentUI.ColorField (
+            "Color",
+            () => LinkedMarchingCubeController.VoxelDataReference[coordinateX, coordinateY, coordinateZ].Color,
+            value => LinkedMarchingCubeController.ModificationManager.ModifySingleVoxel(coordinateX, coordinateY, coordinateZ,
+                LinkedMarchingCubeController.VoxelDataReference[coordinateX, coordinateY, coordinateZ].WithColor(value))));
+
+        GenericUIElements.Add(new GenericPersistentUI.Toggle(
+            "Click to get active",
+            () => clickToGetActive,
+            val => clickToGetActive = val));
     }
 
     public override void DrawUI()

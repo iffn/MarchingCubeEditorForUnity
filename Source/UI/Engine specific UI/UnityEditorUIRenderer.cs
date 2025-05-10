@@ -77,6 +77,12 @@ public static class UnityEditorUIRenderer
                 : EditorGUILayout.Popup(dropdown.Title, dropdown.Value, dropdown.Options);
         }
         // Unity stuff
+        else if (element is GenericPersistentUI.ColorField colorField)
+        {
+            colorField.Value = string.IsNullOrEmpty(colorField.Title)
+                ? EditorGUILayout.ColorField(colorField.Value)
+                : EditorGUILayout.ColorField(colorField.Title, colorField.Value);
+        }
         else if (element is GenericPersistentUI.MaterialField matField)
         {
             matField.Value = string.IsNullOrEmpty(matField.Title)
