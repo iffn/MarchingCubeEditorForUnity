@@ -14,6 +14,11 @@ public class SceneModifyTool : BaseTool
 
     bool movingActive = false;
 
+    public SceneModifyTool(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
+
     // Base class functions
     public override void OnEnable()
     {

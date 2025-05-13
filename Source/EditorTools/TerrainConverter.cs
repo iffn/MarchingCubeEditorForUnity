@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -12,6 +13,11 @@ public class TerrainConverter : BaseTool
     Terrain selectedTerrain;
 
     public override string DisplayName => "Terrain converter";
+
+    public TerrainConverter(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
 
     // Base class functions
     public override void OnEnable()

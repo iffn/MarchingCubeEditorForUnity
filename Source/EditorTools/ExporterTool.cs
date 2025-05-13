@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.Core;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,6 +11,11 @@ using UnityEngine;
 public class ExporterTool : BaseTool
 {
     public override string DisplayName => "Exporter";
+
+    public ExporterTool(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
 
     // Base class functions
     protected override void GeneratePersistentUI()

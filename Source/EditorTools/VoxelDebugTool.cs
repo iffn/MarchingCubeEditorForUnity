@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using System;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 
 public class VoxelDebugTool : BaseTool
 {
@@ -15,6 +16,11 @@ public class VoxelDebugTool : BaseTool
     int coordinateY = 0;
     int coordinateZ = 0;
     bool clickToGetActive = true;
+
+    public VoxelDebugTool(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
 
     // Base class functions
     public override void OnEnable()

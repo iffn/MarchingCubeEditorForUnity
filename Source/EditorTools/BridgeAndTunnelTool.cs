@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -26,6 +27,22 @@ public class BridgeAndTunnelTool : BaseTool
     bool confirmToApply = false;
     bool continueWithEndPoint = true;
 
+    public BridgeAndTunnelTool(MarchingCubeEditor editor) : base(editor)
+    {
+        List<EditShape> shapes = LinkedMarchingCubeController.ShapeList;
+
+        foreach (EditShape shape in shapes)
+        {
+            if (shape is BridgeOrTunnelShape bridgeShape)
+            {
+                bridgeOrTunnelShape = bridgeShape;
+                break;
+            }
+        }
+
+        GeneratePersistentUI();
+    }
+
     // Base class functions
     public override void OnEnable()
     {
@@ -33,16 +50,7 @@ public class BridgeAndTunnelTool : BaseTool
 
         if(bridgeOrTunnelShape == null)
         {
-            List<EditShape> shapes = LinkedMarchingCubeController.ShapeList;
-
-            foreach(EditShape shape in shapes)
-            {
-                if(shape is BridgeOrTunnelShape bridgeShape)
-                {
-                    bridgeOrTunnelShape = bridgeShape;
-                    break;
-                }
-            }
+            
         }
     }
 
@@ -53,6 +61,148 @@ public class BridgeAndTunnelTool : BaseTool
 
     protected override void GeneratePersistentUI()
     {
+        if (bridgeOrTunnelShape == null)
+            return;
+
+        Debug.Log("Generating UI");
+
+        GenericUIElements.Clear();
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle
+            (
+                "Show preview before applying",
+                () => showPreviewBeforeApplying,
+                val =>
+                {
+                    
+                }
+            )
+        );
+
+        // Radius field with change reaction
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.FloatField
+            (
+                "Radius:",
+                () => bridgeOrTunnelShape.radius,
+                newRadius =>
+                {
+                    if (!Mathf.Approximately(newRadius, bridgeOrTunnelShape.radius))
+                    {
+                        bridgeOrTunnelShape.radius = newRadius;
+
+                        if (showPreviewBeforeApplying && startPointSet && endPointSet)
+                        {
+                            if (previewingTunnel)
+                                PreviewTunnel(startPointLocal, endPointLocal);
+                            else
+                                PreviewBridge(startPointLocal, endPointLocal);
+                        }
+                    }
+                }
+            )
+        );
+
+        // Show preview before applying toggle
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle
+            (
+                "Show preview before applying",
+                () => showPreviewBeforeApplying,
+                val =>
+                {
+                    showPreviewBeforeApplying = val;
+                    ShowPreviewCheck();
+                }
+            )
+        );
+
+        // Confirm to apply toggle
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle
+            (
+                "Confirm to apply",
+                () => confirmToApply,
+                val => confirmToApply = val
+            )
+        );
+
+        // Continue with end point toggle
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle
+            (
+                "Continue with end point",
+                () => continueWithEndPoint,
+                val => continueWithEndPoint = val
+            )
+        );
+
+        // Conditional button group when confirm + start + end are all true
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.DisplayIfTrue
+            (
+                () => confirmToApply && startPointSet && endPointSet,
+                new List<GenericPersistentUI.UIElement>
+                {
+            // If showing preview
+            new GenericPersistentUI.DisplayIfTrue
+            (
+                () => showPreviewBeforeApplying,
+                new List<GenericPersistentUI.UIElement>
+                {
+                    // Tunnel preview active
+                    new GenericPersistentUI.DisplayIfTrue
+                    (
+                        () => previewingTunnel,
+                        new List<GenericPersistentUI.UIElement>
+                        {
+                            new GenericPersistentUI.Button("Switch to bridge", () =>
+                            {
+                                PreviewBridge(startPointLocal, endPointLocal);
+                                previewingTunnel = false;
+                            }),
+                            new GenericPersistentUI.Button("Apply tunnel", ApplyPreviewChanges)
+                        }
+                    ),
+                    // Bridge preview active
+                    new GenericPersistentUI.DisplayIfTrue
+                    (
+                        () => !previewingTunnel,
+                        new List<GenericPersistentUI.UIElement>
+                        {
+                            new GenericPersistentUI.Button("Apply bridge", ApplyPreviewChanges),
+                            new GenericPersistentUI.Button("Switch to tunnel", () =>
+                            {
+                                PreviewTunnel(startPointLocal, endPointLocal);
+                                previewingTunnel = true;
+                            })
+                        }
+                    )
+                }
+            ),
+
+            // If NOT showing preview — direct creation
+            new GenericPersistentUI.DisplayIfTrue
+            (
+                () => !showPreviewBeforeApplying,
+                new List<GenericPersistentUI.UIElement>
+                {
+                    new GenericPersistentUI.Button("Create bridge", () =>
+                        CreateBridge(startPointLocal, endPointLocal)),
+                    new GenericPersistentUI.Button("Create tunnel", () =>
+                        CreateTunnel(startPointLocal, endPointLocal))
+                }
+            )
+                }
+            )
+        );
 
     }
 

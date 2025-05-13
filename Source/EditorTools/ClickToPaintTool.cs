@@ -2,6 +2,7 @@
 
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,11 @@ public class ClickToPaintTool : BaseTool
 
     // Internal values
     public override string DisplayName => "Click to paint tool";
+
+    public ClickToPaintTool(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
 
     // Base class functions
     public override void OnEnable()

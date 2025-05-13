@@ -2,6 +2,7 @@
 
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -27,6 +28,11 @@ public class ModifySurface : BaseTool
 
     // Internal variables
     PlaceableByClickHandler placeableByClick;
+
+    public ModifySurface(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
 
     // Override functions
     public override string DisplayName => "Modify surface";

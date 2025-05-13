@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -37,7 +38,12 @@ public class ClickToModifyTool : BaseTool
     Vector3 prevImpactPoint = Vector3.zero;
 
     public override string DisplayName => "Click to modify tool";
-    
+
+    public ClickToModifyTool(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
+
     bool ShouldSubtract(Event e)
     {
         return ControlIsHeld(e);

@@ -2,6 +2,7 @@
 
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.EditTools;
+using iffnsStuff.MarchingCubeEditor.SceneEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -26,6 +27,11 @@ public class CopyPasteTool : BaseTool
     bool displayPreview = false;
 
     bool copied = false;
+
+    public CopyPasteTool(MarchingCubeEditor editor) : base(editor)
+    {
+        // Constructor
+    }
 
     // Base class functions
     public override void OnEnable()

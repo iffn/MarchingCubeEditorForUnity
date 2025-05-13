@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using iffnsStuff.MarchingCubeEditor.Core;
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
@@ -11,8 +12,9 @@ using UnityEngine;
 
 public abstract class BaseTool
 {
-    public BaseTool()
+    public BaseTool(MarchingCubeEditor editor)
     {
+        this.LinkedMarchingCubeEditor = editor;
         GeneratePersistentUI();
     }
 
@@ -47,19 +49,44 @@ public abstract class BaseTool
 
     // Search for all Classes inheriting from BaseTool. We do this here so
     // that we only need to search once.
-    public static readonly IEnumerable<Type> Tools = AppDomain.CurrentDomain
+    public static readonly List<Type> Tools = AppDomain.CurrentDomain
         .GetAssemblies()
         .SelectMany(assembly => assembly.GetTypes())
-        .Where(type => type.IsSubclassOf(typeof(BaseTool)));
+        .Where(type => type.IsSubclassOf(typeof(BaseTool)) && !type.IsAbstract)
+        .ToList();
 
     // Instantiates the found BaseTool Classes and sets the reference to the
     // current editor.
-    public static IEnumerable<BaseTool> GetTools(MarchingCubeEditor editor) 
+    public static IEnumerable<BaseTool> GetTools(MarchingCubeEditor editor)
     {
-        var tools = Tools.Select(type => Activator.CreateInstance(type) as BaseTool).ToList();
-        tools.ForEach(x => x.LinkedMarchingCubeEditor = editor);
+        List<BaseTool> result = new List<BaseTool>();
 
-        return tools;
+        foreach (Type type in Tools)
+        {
+            try
+            {
+                ConstructorInfo constructor = type.GetConstructor(new[] { typeof(MarchingCubeEditor) });
+
+                if (constructor == null)
+                {
+                    Debug.LogError($"{type.Name} must have a public constructor with (MarchingCubeEditor editor).");
+                    continue;
+                }
+
+                BaseTool tool = constructor.Invoke(new object[] { editor }) as BaseTool;
+
+                if (tool != null)
+                {
+                    result.Add(tool);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to instantiate {type.Name}: {ex.Message}");
+            }
+        }
+
+        return result;
     }
 
     public static bool LeftClickDownEvent(Event e)

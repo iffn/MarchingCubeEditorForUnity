@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using iffnsStuff.MarchingCubeEditor.SceneEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -37,6 +38,8 @@ public class ToolEditorElement : EditorElement
 
         List<string> toolNames = new List<string>();
         List<List<GenericPersistentUI.UIElement>> uiElements = new List<List<GenericPersistentUI.UIElement>>();
+        List<Action> enableActions = new List<Action>();
+        List<Action> disableActions = new List<Action>();
 
         foreach (BaseTool tool in tools)
         {
@@ -50,9 +53,12 @@ public class ToolEditorElement : EditorElement
             uiElementsForTool.AddRange(tool.GenericUIElements);
 
             uiElements.Add(uiElementsForTool);
+
+            enableActions.Add(tool.OnEnable);
+            disableActions.Add(tool.OnDisable);
         }
 
-        GenericUIElements.Add(new GenericPersistentUI.TogglePanel(toolNames, uiElements));
+        GenericUIElements.Add(new GenericPersistentUI.TogglePanel(toolNames, uiElements, enableActions, disableActions));
     }
 
     public override void DrawUI()

@@ -334,10 +334,12 @@ public class GenericPersistentUI
     {
         public List<string> Titles { get; private set; }
         public List<List<UIElement>> ContentLists { get; private set; }
+        List<Action> enableActions;
+        List<Action> disableActions;
 
         public int? SelectedIndex { get; private set; }
 
-        public TogglePanel(List<string> titles, List<List<UIElement>> contentLists)
+        public TogglePanel(List<string> titles, List<List<UIElement>> contentLists, List<Action> enableActions, List<Action> disableActions)
         {
             if (titles == null || contentLists == null || titles.Count != contentLists.Count)
                 throw new ArgumentException("TogglePanel requires equal-length title and content lists.");
@@ -345,6 +347,8 @@ public class GenericPersistentUI
             Titles = titles;
             ContentLists = contentLists;
             SelectedIndex = null; // Nothing selected by default
+            this.enableActions = enableActions;
+            this.disableActions = disableActions;
         }
 
         public void Toggle(int index)
@@ -352,7 +356,12 @@ public class GenericPersistentUI
             if (SelectedIndex == index)
                 SelectedIndex = null; // Deselect if already selected
             else if (index >= 0 && index < Titles.Count)
+            {
+                if(SelectedIndex.HasValue && SelectedIndex.Value >= 0 && SelectedIndex.Value < Titles.Count)
+                    disableActions[SelectedIndex.Value].Invoke();
                 SelectedIndex = index;
+                enableActions[SelectedIndex.Value].Invoke();
+            }
         }
 
         public List<UIElement> ActiveElements =>
