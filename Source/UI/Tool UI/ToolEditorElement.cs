@@ -14,17 +14,7 @@ public class ToolEditorElement : EditorElement
     public override string DisplayName => "Tools";
     readonly List<BaseTool> tools;
 
-    BaseTool CurrentTool
-    {
-        get
-        {
-            return linkedEditor.CurrentTool;
-        }
-        set
-        {
-            linkedEditor.CurrentTool = value;
-        }
-    }
+    BaseTool currentTool;
 
     public ToolEditorElement(MarchingCubeEditor linkedEditor, bool foldoutOpenByDefault) : base(linkedEditor, foldoutOpenByDefault)
     {
@@ -32,9 +22,16 @@ public class ToolEditorElement : EditorElement
         GeneratePersistentUI(); // Calling it again, since it gets skipped in the base constructor since tools is not yet assigned
     }
 
+    public void RunSceneUpdate(Event currentEvent)
+    {
+        if (currentTool != null)
+            currentTool.HandleSceneUpdate(currentEvent);
+    }
+
     protected override void GeneratePersistentUI()
     {
-        if (tools == null) return;
+        if (tools == null)
+            return;
 
         List<string> toolNames = new List<string>();
         List<List<GenericPersistentUI.UIElement>> uiElements = new List<List<GenericPersistentUI.UIElement>>();
@@ -54,8 +51,17 @@ public class ToolEditorElement : EditorElement
 
             uiElements.Add(uiElementsForTool);
 
-            enableActions.Add(tool.OnEnable);
-            disableActions.Add(tool.OnDisable);
+            enableActions.Add(() =>
+            {
+                currentTool = tool;
+                tool.OnEnable();
+            });
+
+            disableActions.Add(() =>
+            {
+                currentTool = null;
+                tool.OnDisable();
+            });
         }
 
         GenericUIElements.Add(new GenericPersistentUI.TogglePanel(toolNames, uiElements, enableActions, disableActions));
@@ -88,7 +94,7 @@ public class ToolEditorElement : EditorElement
                     Color originalBackground = GUI.backgroundColor;
                     Color originalContentColor = GUI.contentColor;
 
-                    if (tools[index] == CurrentTool)
+                    if (tools[index] == currentTool)
                     {
                         // Set custom colors for the selected tool
                         GUI.backgroundColor = highlightColor;
@@ -97,13 +103,13 @@ public class ToolEditorElement : EditorElement
 
                     if (GUILayout.Button(tools[index].DisplayName))
                     {
-                        if (CurrentTool == tools[index])
+                        if (currentTool == tools[index])
                         {
-                            CurrentTool = null;
+                            currentTool = null;
                         }
                         else
                         {
-                            CurrentTool = tools[index];
+                            currentTool = tools[index];
                         }
                     }
 
@@ -116,10 +122,10 @@ public class ToolEditorElement : EditorElement
         }
 
         // Draw current tool UI
-        if (CurrentTool != null)
+        if (currentTool != null)
         {
-            GUILayout.Label($"{CurrentTool.DisplayName}:");
-            CurrentTool.DrawUI();
+            GUILayout.Label($"{currentTool.DisplayName}:");
+            currentTool.DrawUI();
         }
 
         EditorGUILayout.EndVertical();

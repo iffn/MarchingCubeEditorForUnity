@@ -27,33 +27,6 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public MarchingCubesController LinkedMarchingCubeController => (MarchingCubesController)target;
 
-        // This stores all the currently selectedTools across different Editors by using the MarchingCubesController as a Key.
-        readonly static Dictionary<Object, BaseTool> selectedTool = new Dictionary<Object, BaseTool>();
-		
-        public BaseTool CurrentTool 
-        {
-            get => selectedTool.TryGetValue(target, out BaseTool tool) ? tool : null;
-            set
-            {
-                if (selectedTool.TryGetValue(target, out BaseTool currentTool))
-                {
-                    currentTool.OnDisable();
-                }
-
-                if (value == null)
-                {
-                    selectedTool.Remove(target);
-                    LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = null;
-                }
-                else
-                {
-                    selectedTool[target] = value;
-                    value.OnEnable();
-                    LinkedMarchingCubeController.VisualisationManager.drawGizmosTool = value;
-                }
-            }
-        }
-
         private void OnEnable() 
         {
             if (NotPartOfScene)
@@ -134,7 +107,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
                 postProcessingEditorElement.DrawAsFoldout();
 
-                toolEditorElement.DrawAsFoldout();
+                //toolEditorElement.DrawAsFoldout();
                 UnityEditorUIRenderer.RenderUI(toolEditorElement.Foldout);
             }
         }
@@ -149,7 +122,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         void UpdateSceneInteractionForController(SceneView sceneView)
         {
-            CurrentTool?.HandleSceneUpdate(Event.current);
+            toolEditorElement.RunSceneUpdate(Event.current);
         }
 
         public void RequestRefresh()

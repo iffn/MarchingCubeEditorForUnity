@@ -47,11 +47,6 @@ public class BridgeAndTunnelTool : BaseTool
     public override void OnEnable()
     {
         base.OnEnable();
-
-        if(bridgeOrTunnelShape == null)
-        {
-            
-        }
     }
 
     public override void OnDisable()
@@ -63,8 +58,6 @@ public class BridgeAndTunnelTool : BaseTool
     {
         if (bridgeOrTunnelShape == null)
             return;
-
-        Debug.Log("Generating UI");
 
         GenericUIElements.Clear();
 
@@ -286,7 +279,21 @@ public class BridgeAndTunnelTool : BaseTool
     {
         base.HandleSceneUpdate(e);
 
-        if (startPointSet)
+        if (!startPointSet)
+        {
+            if (LeftClickDownEvent(e)) // Left-click event
+            {
+                RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
+
+                if (result == RayHitResult.None) return;
+
+                startPointWorld = result.point;
+                startPointLocal = LinkedMarchingCubeController.transform.InverseTransformPoint(startPointWorld);
+                startPointSet = true;
+                e.Use();
+            }
+        }
+        else
         {
             if (confirmToApply)
             {
@@ -360,20 +367,6 @@ public class BridgeAndTunnelTool : BaseTool
                 startPointSet = false;
                 endPointSet = false;
                 if (showPreviewBeforeApplying) LinkedMarchingCubeController.DisplayPreviewShape = false;
-            }
-        }
-        else
-        {
-            if (LeftClickDownEvent(e)) // Left-click event
-            {
-                RayHitResult result = LinkedMarchingCubeEditor.RaycastAtMousePosition(e);
-
-                if (result == RayHitResult.None) return;
-
-                startPointWorld = result.point;
-                startPointLocal = LinkedMarchingCubeController.transform.InverseTransformPoint(startPointWorld);
-                startPointSet = true;
-                e.Use();
             }
         }
     }
