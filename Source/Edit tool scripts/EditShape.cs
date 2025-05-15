@@ -186,6 +186,35 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             SelectedEditShape.Initialize();
         }
 
+        public List<GenericPersistentUI.UIElement> GenericUIElements
+        {
+            get
+            {
+                List<GenericPersistentUI.UIElement> returnList = new List<GenericPersistentUI.UIElement>();
+
+                returnList.Add
+                (
+                    new GenericPersistentUI.Dropdown(
+                        "Selected shape",
+                        EditShapeNames,
+                        () => selectedIndex,
+                        newIndex =>
+                        {
+                            if (newIndex != selectedIndex)
+                            {
+                                SelectedEditShape.gameObject.SetActive(false);
+                                selectedIndex = newIndex;
+                                SelectedShape = EditShapes[selectedIndex];
+                                SelectedEditShape.Initialize();
+                            }
+                        }
+                    )
+                );
+
+                return returnList;
+            }
+        }
+
         public void DrawEditorUI()
         {
             int newSelectedIndex = EditorGUILayout.Popup("Selected shape", selectedIndex, EditShapeNames);

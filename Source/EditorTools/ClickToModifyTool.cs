@@ -42,6 +42,9 @@ public class ClickToModifyTool : BaseTool
     public ClickToModifyTool(MarchingCubeEditor editor) : base(editor)
     {
         // Constructor
+        placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
+
+        GeneratePersistentUI();
     }
 
     bool ShouldSubtract(Event e)
@@ -53,9 +56,6 @@ public class ClickToModifyTool : BaseTool
     public override void OnEnable()
     {
         base.OnEnable();
-
-        if(placeableByClick == null)
-            placeableByClick = new PlaceableByClickHandler(LinkedMarchingCubeController);
         
         currentOffset = 0;
 
@@ -71,6 +71,86 @@ public class ClickToModifyTool : BaseTool
 
     protected override void GeneratePersistentUI()
     {
+        if (placeableByClick == null)
+            return;
+
+        GenericUIElements.AddRange(placeableByClick.GenericUIElements);
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle(
+                "Active",
+                () => raycastActive,
+                newValue =>
+                {
+                    if (raycastActive != newValue)
+                        RaycastActive = newValue;
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle(
+                "Display preview shape",
+                () => displayPreviewShape,
+                newValue =>
+                {
+                    if (displayPreviewShape != newValue)
+                    {
+                        placeableByClick.SelectedEditShape.gameObject.SetActive(false);
+                        LinkedMarchingCubeController.DisplayPreviewShape = false;
+                        displayPreviewShape = newValue;
+                    }
+                }
+            )
+        );
+
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Toggle(
+                "Limit height to cursor",
+                () => limitHeightToCursor,
+                newValue => limitHeightToCursor = newValue
+            )
+        );
+
+        // Call DrawTransformFields directly (no UI wrapper unless needed)
+        //DrawTransformFields(placeableByClick.SelectedEditShape.transform);
+
+        // Reset button
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.Button("Reset offset", () =>
+            {
+                currentOffset = 0;
+            })
+        );
+
+        List<GenericPersistentUI.UIElement> conditionalElements = new List<GenericPersistentUI.UIElement>
+        {
+            new GenericPersistentUI.RefLabel("", () =>
+            {
+                string helpText = base.helpText +
+                    "• Click to add\n" +
+                    "• Ctrl Click to subtract\n" +
+                    $"• Hold {offsetKey} and scroll to change the offset. Currently: {currentOffset.ToString("F1")}\n";
+
+                helpText += placeableByClick.SelectedEditShape.HelpText;
+                return helpText;
+            })
+        };
+
+        conditionalElements.AddRange(placeableByClick.GenericUIElements);
+
+        // Conditional raycast UI
+        GenericUIElements.Add
+        (
+            new GenericPersistentUI.DisplayIfTrue(
+                () => raycastActive,
+                conditionalElements
+            )
+        );
 
     }
 
