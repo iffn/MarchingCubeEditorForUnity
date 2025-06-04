@@ -189,7 +189,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
         {
             Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
-            if (Physics.Raycast(ray, out RaycastHit hitInfo))
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, ~0, QueryTriggerInteraction.Ignore)) //~0 = layer mask for all layers
                 return new RayHitResult(hitInfo.point, hitInfo.normal);
                 
             if (!detectBoundingBox)
@@ -199,7 +199,7 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
             Vector3Int areaSize = LinkedMarchingCubeController.MaxGrid;
             Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
             
-            var result = bounds.GetIntersectRayPoints(ray);
+            (Vector3, Vector3)? result = bounds.GetIntersectRayPoints(ray);
             if (result != null)
                 return new RayHitResult(result.Value.Item2, bounds.GetNormalToSurface(result.Value.Item2));
             
