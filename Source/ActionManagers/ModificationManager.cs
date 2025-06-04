@@ -70,9 +70,25 @@ public class ModificationManager
         Vector3 gridMin = worldToGrid.MultiplyPoint3x4(worldMin);
         Vector3 gridMax = worldToGrid.MultiplyPoint3x4(worldMax);
 
+        // Ensure correct min/max per component in case of inverted bounds
+        Vector3 gridLower = Vector3.Min(gridMin, gridMax);
+        Vector3 gridUpper = Vector3.Max(gridMin, gridMax);
+
         // Expand bounds by Vector3.one due to rounding and clamp to valid grid range
-        Vector3Int minGrid = Vector3Int.Max(Vector3Int.zero, Vector3Int.FloorToInt(gridMin) - Vector3Int.one);
-        Vector3Int maxGrid = Vector3Int.Min(Vector3Int.CeilToInt(gridMax) + Vector3Int.one, linkedController.MaxGrid);
+        Vector3Int unclampedMin = Vector3Int.FloorToInt(gridLower) - Vector3Int.one;
+        Vector3Int unclampedMax = Vector3Int.CeilToInt(gridUpper) + Vector3Int.one;
+
+        Vector3Int minGrid = new Vector3Int(
+            Mathf.Max(0, unclampedMin.x),
+            Mathf.Max(0, unclampedMin.y),
+            Mathf.Max(0, unclampedMin.z)
+        );
+
+        Vector3Int maxGrid = new Vector3Int(
+            Mathf.Min(linkedController.MaxGrid.x, unclampedMax.x),
+            Mathf.Min(linkedController.MaxGrid.y, unclampedMax.y),
+            Mathf.Min(linkedController.MaxGrid.z, unclampedMax.z)
+        );
 
         return (minGrid, maxGrid);
     }
