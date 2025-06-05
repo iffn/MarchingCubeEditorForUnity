@@ -76,7 +76,7 @@ public class BridgeOrTunnelShape : EditShape
 
     protected override float DistanceOutsideIsPositive(Vector3 localPoint)
     {
-        float roundTubeDistance = SDFMath.ShapesDistanceOutsideIsPositive.DistanceToRoundedTube(localPoint, startPointOptimized, endPointOptimized, radius);
+        float roundTubeDistance = SDFMath.ShapesDistanceOutsideIsPositive.DistanceToCylinder(localPoint, startPointOptimized, endPointOptimized, radius);
 
         float planeDistance;
 

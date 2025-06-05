@@ -46,9 +46,27 @@ public static class SDFMath
             return -PlaneFloor(samplePoint, ceilingHeight);
         }
 
-        public static float DistanceToRoundedTube(Vector3 point, Vector3 lineStart, Vector3 lineEnd, float radius)
+        public static float DistanceToPlane(Vector3 point, Vector3 origin, Vector3 normalDirection)
+        {
+            return Vector3.Dot(point - origin, normalDirection);
+        }
+
+        public static float DistanceToCapsule(Vector3 point, Vector3 lineStart, Vector3 lineEnd, float radius)
         {
             return DistanceToLineSegment(point, lineStart, lineEnd) - radius;
+        }
+
+        public static float DistanceToCylinder(Vector3 point, Vector3 lineStart, Vector3 lineEnd, float radius)
+        {
+            float capsule = DistanceToCapsule(point, lineStart, lineEnd, radius);
+
+            float planeStart = DistanceToPlane(point, lineStart, lineEnd - lineStart);
+            float planeEnd = DistanceToPlane(point, lineEnd, lineStart - lineEnd);
+
+            float cut = CombinationFunctionsOutsideIsPositive.Subtract(capsule, planeStart);
+            cut = CombinationFunctionsOutsideIsPositive.Subtract(capsule, planeEnd);
+
+            return cut;
         }
 
         public static float DistanceToLineSegment(Vector3 point, Vector3 lineStart, Vector3 lineEnd)
