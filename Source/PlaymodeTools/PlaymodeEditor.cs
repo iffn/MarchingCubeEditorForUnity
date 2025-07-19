@@ -84,6 +84,7 @@ public class PlaymodeEditor : MonoBehaviour
 
     void InitializeController()
     {
+        LinkedMarchingCubeController.ClearAllViews();
         LinkedMarchingCubeController.Initialize(1, 1, 1, true, false);
         LoadData();
     }

@@ -252,6 +252,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
         {
             if (!isDirty) return;
 
+            if (!mesh.isReadable)
+            {
+                Debug.Log("Error: Mesh not read/write enabled.");
+                return;
+            }
+
             mesh.Clear();
 
             mesh.indexFormat = (cachedMeshData.vertices.Count > 65535) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;

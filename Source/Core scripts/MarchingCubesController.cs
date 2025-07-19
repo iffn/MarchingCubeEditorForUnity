@@ -342,19 +342,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                     chunksToDestroy.Add(chunkViews[i].gameObject);
                 }
 
-                if (Application.isPlaying)
+                foreach (GameObject chunk in chunksToDestroy)
                 {
-                    foreach (GameObject chunk in chunksToDestroy)
-                    {
-                        Destroy(chunk); // Safe for runtime
-                    }
-                }
-                else
-                {
-                    foreach (GameObject chunk in chunksToDestroy)
-                    {
-                        DestroyImmediate(chunk); // Safe for edit mode
-                    }
+                    SafeleyDestroyGameObject(chunk);
                 }
 
                 // Set correct range
@@ -413,6 +403,20 @@ namespace iffnsStuff.MarchingCubeEditor.Core
             Debug.Log($"Update collider: {sw.Elapsed.TotalMilliseconds}ms");
             sw.Restart();
 #endif
+        }
+
+        void SafeleyDestroyGameObject(GameObject objectToBeDestroyed)
+        {
+            if (Application.isPlaying)
+            {
+                objectToBeDestroyed.transform.parent = null;
+                objectToBeDestroyed.SetActive(false);
+                Destroy(objectToBeDestroyed); // Safe for runtime
+            }
+            else
+            {
+                DestroyImmediate(objectToBeDestroyed); // Safe for edit mode
+            }
         }
 
         void UpdateAllChunks(bool directPostProcessCall)
@@ -476,21 +480,10 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if (Application.isPlaying)
+            foreach (MarchingCubesView chunk in chunksToDestroy)
             {
-                foreach (MarchingCubesView chunk in chunksToDestroy)
-                {
-                    Destroy(chunk.gameObject); // Safe for runtime
-                    chunkViews.Remove(chunk);
-                }
-            }
-            else
-            {
-                foreach (MarchingCubesView chunk in chunksToDestroy)
-                {
-                    DestroyImmediate(chunk.gameObject); // Safe for edit mode
-                    chunkViews.Remove(chunk);
-                }
+                SafeleyDestroyGameObject(chunk.gameObject);
+                chunkViews.Remove(chunk);
             }
 
             List<GameObject> invalidGameObjects = new List<GameObject>();
@@ -505,22 +498,12 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 }
             }
 
-            if (Application.isPlaying)
+            foreach (GameObject chunk in invalidGameObjects)
             {
-                foreach (GameObject chunk in invalidGameObjects)
-                {
-                    Destroy(chunk); // Safe for runtime
-                }
-            }
-            else
-            {
-                foreach (GameObject chunk in invalidGameObjects)
-                {
-                    DestroyImmediate(chunk); // Safe for edit mode
-                }
+                SafeleyDestroyGameObject(chunk); // Safe for edit mode
             }
 
-            if(chunksToDestroy.Count != 0 || invalidGameObjects.Count != 0)
+            if (chunksToDestroy.Count != 0 || invalidGameObjects.Count != 0)
             {
                 Debug.Log($"Marching cube cleanup: Removed {chunksToDestroy} invalid view chunks and an additional {invalidGameObjects.Count} GameObjects");
             }
@@ -595,19 +578,9 @@ namespace iffnsStuff.MarchingCubeEditor.Core
                 views.Add(child.gameObject);
             }
 
-            if (Application.isPlaying)
+            foreach (GameObject view in views)
             {
-                foreach (GameObject view in views)
-                {
-                    Destroy(view); // Safe for runtime
-                }
-            }
-            else
-            {
-                foreach (GameObject view in views)
-                {
-                    DestroyImmediate(view); // Safe for edit mode
-                }
+                SafeleyDestroyGameObject(view);
             }
 
             chunkViews.Clear();
