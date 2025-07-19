@@ -36,6 +36,10 @@ public class PlaymodeEditor : MonoBehaviour
                 BaseModificationTools.IVoxelModifier modifier = new BaseModificationTools.SubtractShapeModifier();
                 LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick, modifier);
             }
+
+            float scaleAxis = Input.GetAxis("Mouse ScrollWheel");
+
+            placeableByClick.transform.localScale *= (1 - scaleAxis * 0.03f); 
         }
         else
         {
