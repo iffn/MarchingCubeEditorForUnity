@@ -19,6 +19,13 @@ public class PlaymodeEditor : MonoBehaviour
 
     void Update()
     {
+        HandleEditing();
+
+        HandleSaving();
+    }
+
+    void HandleEditing()
+    {
         RayHitResult result = RaycastToCenter(true);
 
         if (result != RayHitResult.None)
@@ -39,7 +46,7 @@ public class PlaymodeEditor : MonoBehaviour
 
             float scaleAxis = Input.GetAxis("Mouse ScrollWheel");
 
-            placeableByClick.transform.localScale *= (1 - scaleAxis * 0.03f); 
+            placeableByClick.transform.localScale *= (1 - scaleAxis * 0.03f);
         }
         else
         {
@@ -55,6 +62,23 @@ public class PlaymodeEditor : MonoBehaviour
         BaseModificationTools.IVoxelModifier modifier = new BaseModificationTools.AddShapeModifier();
 
         LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick, modifier);
+    }
+
+    void HandleSaving()
+    {
+        if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.S))
+        {
+            ScriptableObjectSaveData saveData = LinkedMarchingCubeController.linkedSaveData;
+
+            VoxelData[,,] voxelDataReference = LinkedMarchingCubeController.VoxelDataReference;
+
+            saveData.SaveData(voxelDataReference);
+
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(saveData);
+            AssetDatabase.SaveAssets();
+#endif
+        }
     }
 
     void InitializeController()

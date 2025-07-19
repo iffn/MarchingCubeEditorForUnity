@@ -46,7 +46,7 @@ public class DesktopPlayerFlier : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.E))
             transform.position += positiveFrameIndependentSpeed * transform.up;
-        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.Q))
+        if (Input.GetKey(KeyCode.C) || Input.GetKey(KeyCode.Q))
             transform.position += negativeFrameIndependentSpeed * transform.up;
 
         if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
