@@ -10,6 +10,7 @@ public class PlaymodeEditor : MonoBehaviour
 {
     [SerializeField] MarchingCubesController LinkedMarchingCubeController;
     [SerializeField] EditShape placeableByClick;
+    [SerializeField] float scaleSpeed = 1f;
 
     //Unity functions
     void Start()
@@ -46,7 +47,7 @@ public class PlaymodeEditor : MonoBehaviour
 
             float scaleAxis = Input.GetAxis("Mouse ScrollWheel");
 
-            placeableByClick.transform.localScale *= (1 - scaleAxis * 0.03f);
+            placeableByClick.transform.localScale *= (1 - scaleAxis * scaleSpeed);
         }
         else
         {

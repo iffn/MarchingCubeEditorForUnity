@@ -678,6 +678,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LinkedMarchingCubeController: {fileID: 1573235874}
   placeableByClick: {fileID: 347820279}
+  scaleSpeed: 0.7
 --- !u!1 &1713538226
 GameObject:
   m_ObjectHideFlags: 0
