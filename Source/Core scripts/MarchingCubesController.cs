@@ -29,7 +29,7 @@ namespace iffnsStuff.MarchingCubeEditor.Core
 
         MarchingCubesModel mainModel;
         MarchingCubesModel previewModelWithOldData;
-        static readonly Vector3Int defaultChunkSize = new Vector3Int(20, 20, 20);
+        static readonly Vector3Int defaultChunkSize = new Vector3Int(16, 16, 16);
         Vector3Int chunkSize = defaultChunkSize;
         readonly List<MarchingCubesView> chunkViews = new List<MarchingCubesView>();
 
