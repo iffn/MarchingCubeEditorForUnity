@@ -187,14 +187,42 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 846887736}
+    - target: {fileID: 5388564650553737505, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5658932759107640818, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
       propertyPath: m_Name
       value: MarchingCube
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658932759107640818, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6361996764911053166, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 846887736}
+    - target: {fileID: 7812543250326322670, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 1855434758}
+    - target: {fileID: 7812543250326322670, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8037786759262056188, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 48.63534
+      objectReference: {fileID: 0}
+    - target: {fileID: 8037786759262056188, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.0000015857045
+      objectReference: {fileID: 0}
+    - target: {fileID: 8037786759262056188, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -13.301855
+      objectReference: {fileID: 0}
     - target: {fileID: 9127152470160715939, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -211,6 +239,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+--- !u!114 &347820279 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3169848090461280685, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+  m_PrefabInstance: {fileID: 347820278}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f69bea5ed8e2494bb5e9e3921b2c5d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,6 +601,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1577548166}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1573235874 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4352602387334514188, guid: 2305e68b3347fb34c8823b5f70da4871, type: 3}
+  m_PrefabInstance: {fileID: 347820278}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 606f61281f6d51c4891defabe3fd7151, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1577548164
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,6 +622,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1577548166}
   - component: {fileID: 1577548165}
+  - component: {fileID: 1577548167}
   m_Layer: 0
   m_Name: PlayerController
   m_TagString: Untagged
@@ -591,7 +642,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c425eef875aca40aceefb91e464893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  speed: 20
   mouseSensitivity: 20
 --- !u!4 &1577548166
 Transform:
@@ -609,6 +660,20 @@ Transform:
   - {fileID: 963194228}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1577548167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1577548164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7b8852e280b0074f9752f0ec73eccd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LinkedMarchingCubeController: {fileID: 1573235874}
+  placeableByClick: {fileID: 347820279}
 --- !u!1 &1713538226
 GameObject:
   m_ObjectHideFlags: 0

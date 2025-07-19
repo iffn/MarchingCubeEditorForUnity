@@ -5,7 +5,7 @@ using UnityEngine;
 public class DesktopPlayerFlier : MonoBehaviour
 {
     public float speed = 10f;
-    public float mouseSensitivity = 2f;
+    public float mouseSensitivity = 200f;
 
     float pitch = 0f;
     float heading = 0f;
@@ -59,8 +59,8 @@ public class DesktopPlayerFlier : MonoBehaviour
         if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             transform.position += negativeFrameIndependentSpeed * transform.forward;
 
-        heading += Input.GetAxis("Mouse X") * Time.deltaTime * mouseSensitivity;
-        pitch -= Input.GetAxis("Mouse Y") * Time.deltaTime * mouseSensitivity;
+        heading += Input.GetAxis("Mouse X") * mouseSensitivity;
+        pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
 
         transform.rotation = Quaternion.Euler(pitch, heading, 0f);
 
