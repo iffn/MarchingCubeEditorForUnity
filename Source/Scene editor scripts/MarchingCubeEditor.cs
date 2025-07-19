@@ -56,6 +56,11 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         private void OnEnable() 
         {
+            /*
+            if (Application.isPlaying)
+                return;
+            */
+
             if (NotPartOfScene)
                 return;
 
@@ -113,6 +118,15 @@ namespace iffnsStuff.MarchingCubeEditor.SceneEditor
 
         public override void OnInspectorGUI()
         {
+            /*
+            if (Application.isPlaying)
+            {
+                DrawDefaultInspector();
+                EditorGUILayout.HelpBox("Note: The edit tools in the inspector can only be used outside of playmode for now.", MessageType.Warning);
+                return;
+            }
+            */
+
             if (NotPartOfScene)
             {
                 // This object is a prefab asset (in the Project window)
