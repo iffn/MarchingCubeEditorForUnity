@@ -4,118 +4,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class PlaymodeEditor : MonoBehaviour
+public abstract class PlaymodeEditor : MonoBehaviour
 {
-    [SerializeField] MarchingCubesController LinkedMarchingCubeController;
-    [SerializeField] EditShape placeableByClick;
-    [SerializeField] float scaleSpeed = 1f;
+    [SerializeField] protected MarchingCubesController linkedMarchingCubeController;
+    [SerializeField] protected EditShape placeableByClick;
 
-    //Unity functions
-    void Start()
+    protected void InitializeController()
     {
-        InitializeController();
-    }
-
-    void Update()
-    {
-        HandleEditing();
-
-        HandleSaving();
-    }
-
-    void HandleEditing()
-    {
-        RayHitResult result = RaycastToCenter(true);
-
-        if (result != RayHitResult.None)
-        {
-            placeableByClick.gameObject.SetActive(true);
-            placeableByClick.transform.position = result.point;
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                BaseModificationTools.IVoxelModifier modifier = new BaseModificationTools.AddShapeModifier();
-                LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick, modifier);
-            }
-            if (Input.GetMouseButtonDown(1))
-            {
-                BaseModificationTools.IVoxelModifier modifier = new BaseModificationTools.SubtractShapeModifier();
-                LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick, modifier);
-            }
-
-            float scaleAxis = Input.GetAxis("Mouse ScrollWheel");
-
-            placeableByClick.transform.localScale *= (1 - scaleAxis * scaleSpeed);
-        }
-        else
-        {
-            placeableByClick.gameObject.SetActive(false);
-        }
-    }
-
-    //Internal functions
-    void ApplyModification(Vector3 position)
-    {
-        placeableByClick.transform.position = position;
-
-        BaseModificationTools.IVoxelModifier modifier = new BaseModificationTools.AddShapeModifier();
-
-        LinkedMarchingCubeController.ModificationManager.ModifyData(placeableByClick, modifier);
-    }
-
-    void HandleSaving()
-    {
-        if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.S))
-        {
-            ScriptableObjectSaveData saveData = LinkedMarchingCubeController.linkedSaveData;
-
-            VoxelData[,,] voxelDataReference = LinkedMarchingCubeController.VoxelDataReference;
-
-            saveData.SaveData(voxelDataReference);
-
-#if UNITY_EDITOR
-            EditorUtility.SetDirty(saveData);
-            AssetDatabase.SaveAssets();
-#endif
-        }
-    }
-
-    void InitializeController()
-    {
-        LinkedMarchingCubeController.ClearAllViews();
-        LinkedMarchingCubeController.Initialize(1, 1, 1, true, false);
+        linkedMarchingCubeController.ClearAllViews();
+        linkedMarchingCubeController.Initialize(1, 1, 1, true, false);
         LoadData();
     }
 
-    void LoadData()
+    protected void LoadData()
     {
-        if (LinkedMarchingCubeController.linkedSaveData == null)
+        if (linkedMarchingCubeController.linkedSaveData == null)
             return;
 
-        LinkedMarchingCubeController.SaveAndLoadManager.LoadGridData(LinkedMarchingCubeController.linkedSaveData);
+        linkedMarchingCubeController.SaveAndLoadManager.LoadGridData(linkedMarchingCubeController.linkedSaveData);
     }
 
-    RayHitResult RaycastToCenter(bool detectBoundingBox = true)
+    protected void SaveData()
     {
-        Ray ray = new Ray(transform.position, transform.forward);
+        ScriptableObjectSaveData saveData = linkedMarchingCubeController.linkedSaveData;
 
-        if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, ~0, QueryTriggerInteraction.Ignore)) //~0 = layer mask for all layers
-            return new RayHitResult(hitInfo.point, hitInfo.normal);
+        VoxelData[,,] voxelDataReference = linkedMarchingCubeController.VoxelDataReference;
 
-        if (!detectBoundingBox)
-            return RayHitResult.None;
+        saveData.SaveData(voxelDataReference);
 
-        Vector3 areaPosition = LinkedMarchingCubeController.transform.position;
-        Vector3Int areaSize = LinkedMarchingCubeController.MaxGrid;
-        Bounds bounds = new Bounds(areaPosition + areaSize / 2, areaSize);
-
-        (Vector3, Vector3)? result = bounds.GetIntersectRayPoints(ray);
-        if (result != null)
-            return new RayHitResult(result.Value.Item2, bounds.GetNormalToSurface(result.Value.Item2));
-
-        // Both normal Raycast and Bounds intersection did not succeed 
-        return RayHitResult.None;
+#if UNITY_EDITOR
+        EditorUtility.SetDirty(saveData);
+        AssetDatabase.SaveAssets();
+#endif
     }
 }
