@@ -155,7 +155,7 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
         public IPlaceableByClick SelectedShape { get; private set; }
         public EditShape SelectedEditShape => SelectedShape.AsEditShape;
         public List<IPlaceableByClick> EditShapes { get; } = new List<IPlaceableByClick>();
-        string[] EditShapeNames { get; }
+        public string[] EditShapeNames { get; }
         int selectedIndex;
 
         public PlaceableByClickHandler(MarchingCubesController linkedController)
@@ -186,17 +186,22 @@ namespace iffnsStuff.MarchingCubeEditor.EditTools
             SelectedEditShape.Initialize();
         }
 
-        public void DrawEditorUI()
+        public void SelectShape(int newSelectedIndex)
         {
-            int newSelectedIndex = EditorGUILayout.Popup("Selected shape", selectedIndex, EditShapeNames);
-
-            if(newSelectedIndex != selectedIndex)
+            if (newSelectedIndex != selectedIndex)
             {
                 SelectedEditShape.gameObject.SetActive(false);
                 selectedIndex = newSelectedIndex;
                 SelectedShape = EditShapes[selectedIndex];
                 SelectedEditShape.Initialize();
             }
+        }
+
+        public void DrawEditorUI()
+        {
+            int newSelectedIndex = EditorGUILayout.Popup("Selected shape", selectedIndex, EditShapeNames);
+
+            SelectShape(newSelectedIndex);
         }
     }
 }
