@@ -2741,8 +2741,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b8852e280b0074f9752f0ec73eccd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LinkedMarchingCubeController: {fileID: 1573235874}
   placeableByClick: {fileID: 347820279}
+  linkedMarchingCubeController: {fileID: 1573235874}
   scaleSpeed: 0.7
 --- !u!1 &1664996481
 GameObject:

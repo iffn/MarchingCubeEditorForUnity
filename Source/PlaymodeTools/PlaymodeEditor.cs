@@ -7,29 +7,30 @@ using UnityEngine;
 
 public abstract class PlaymodeEditor : MonoBehaviour
 {
-    [SerializeField] protected MarchingCubesController linkedMarchingCubeController;
     [SerializeField] protected EditShape placeableByClick;
 
-    protected void InitializeController()
+    protected abstract MarchingCubesController LinkedMarchingCubeController { get; }
+
+    protected virtual void InitializeController()
     {
-        linkedMarchingCubeController.ClearAllViews();
-        linkedMarchingCubeController.Initialize(1, 1, 1, true, false);
+        LinkedMarchingCubeController.ClearAllViews();
+        LinkedMarchingCubeController.Initialize(1, 1, 1, true, false);
         LoadData();
     }
 
     protected void LoadData()
     {
-        if (linkedMarchingCubeController.linkedSaveData == null)
+        if (LinkedMarchingCubeController.linkedSaveData == null)
             return;
 
-        linkedMarchingCubeController.SaveAndLoadManager.LoadGridData(linkedMarchingCubeController.linkedSaveData);
+        LinkedMarchingCubeController.SaveAndLoadManager.LoadGridData(LinkedMarchingCubeController.linkedSaveData);
     }
 
     protected void SaveData()
     {
-        ScriptableObjectSaveData saveData = linkedMarchingCubeController.linkedSaveData;
+        ScriptableObjectSaveData saveData = LinkedMarchingCubeController.linkedSaveData;
 
-        VoxelData[,,] voxelDataReference = linkedMarchingCubeController.VoxelDataReference;
+        VoxelData[,,] voxelDataReference = LinkedMarchingCubeController.VoxelDataReference;
 
         saveData.SaveData(voxelDataReference);
 

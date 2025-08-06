@@ -8,6 +8,8 @@ using UnityEngine.UIElements;
 
 public class DesktopEditor : PlaymodeEditor
 {
+    [SerializeField] MarchingCubesController linkedMarchingCubeController;
+    protected override MarchingCubesController LinkedMarchingCubeController => linkedMarchingCubeController;
     [SerializeField] float scaleSpeed = 1f;
 
     //Unity functions
