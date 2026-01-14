@@ -4,7 +4,7 @@ Goal: Create an editor for creating marching cube terrains
 ![image](https://github.com/user-attachments/assets/0310d6c9-5e20-4b81-a11b-9b4961c1d49c)
 
 ## Current state
-In active development and likely with a bunch of bugs.
+Developed to a mostly stable state.
 
 ## Installation and setup:
 - Use or create a Unity 3D project (Tested with Unity 2022.3.22f1)
